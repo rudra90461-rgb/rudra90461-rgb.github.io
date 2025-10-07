@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chapter Quiz: The Living World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            font-family: 'Inter', Arial, sans-serif; 
+            max-width: 700px; 
+            margin: auto; 
+            padding: 20px; 
+            background-color: #e3f2fd; /* Light Blue background */
+            color: #333;
+        }
+        #quiz-container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); 
+            position: relative;
+        }
+        /* --- NEW FEATURES STYLES (Timer, Go To, Counter) --- */
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background-color: #90caf9; /* Light Blue */
+            padding: 10px;
+            border-radius: 8px;
+            gap: 10px;
+        }
+        #question-info {
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #1565c0; /* Dark Blue */
+            white-space: nowrap;
+        }
+        #timer {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #d32f2f; /* Red for timer */
+            background-color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            flex-grow: 1; 
+            text-align: center;
+        }
+        #jump-menu-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #1e88e5; /* Blue */
+        }
+        #jump-menu-btn:hover { background-color: #1565c0; }
+
+        /* Modal Styles for Jump Menu */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            text-align: center;
+        }
+        .question-jump-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .jump-btn {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.1s;
+        }
+        .answered-jump {
+            background-color: #90ee90; /* Light green for answered */
+            border-color: #388e3c;
+        }
+        .current-jump {
+            background-color: #1565c0; /* Dark Blue */
+            color: white;
+            border-color: #0d47a1;
+        }
+        /* --- END NEW FEATURE STYLES --- */
+
+        #question { 
+            font-size: 1.3em; 
+            font-weight: 700; 
+            margin-bottom: 25px; 
+            line-height: 1.4;
+            color: #1565c0; 
+        }
+        .option { 
+            display: block; 
+            width: 100%; 
+            padding: 16px; 
+            margin-bottom: 12px; 
+            font-size: 1em; 
+            text-align: left; 
+            border: 2px solid #a5d6a7; 
+            border-radius: 8px; 
+            background-color: #ffffff; 
+            cursor: pointer; 
+            transition: background-color 0.2s, transform 0.1s, box-shadow 0.1s;
+        }
+        .option:hover:not(:disabled) { 
+            background-color: #e8f6e8; 
+            border-color: #0d47a1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .option:disabled {
+            cursor: default;
+        }
+        #feedback { 
+            margin-top: 25px; 
+            font-weight: 600; 
+            padding: 15px; 
+            border-radius: 8px; 
+            line-height: 1.5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .correct { 
+            color: #388e3c; 
+            background-color: #e8f5e9;
+        }
+        .incorrect { 
+            color: #d32f2f; 
+            background-color: #ffcdd2;
+        }
+        .nav-buttons { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 20px; 
+            gap: 10px;
+        }
+        .nav-btn { 
+            flex-grow: 1;
+            padding: 14px; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1em; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+        #prev-btn { 
+            background-color: #9e9e9e; /* Gray */
+            color: white; 
+        }
+        #skip-btn { 
+            background-color: #ffb300; /* Amber */
+            color: black; 
+        }
+        #next-btn { 
+            background-color: #1565c0; /* Dark Blue */
+            color: white; 
+        }
+        #next-btn:hover { background-color: #0d47a1; }
+        #prev-btn:hover { background-color: #757575; }
+        #skip-btn:hover { background-color: #ff8f00; }
+        
+        .description-text {
+            font-weight: normal; 
+            font-size: 0.95em; 
+            margin-top: 10px;
+            color: #455a64;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            #quiz-container { padding: 20px; }
+            .nav-buttons { flex-direction: row; flex-wrap: wrap; }
+            .nav-btn { width: 48%; margin-bottom: 8px; flex-grow: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Payment Overlay — Improved, Namespaced Version START -->
+<style>
+.pu-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 999999;
+  -webkit-font-smoothing: antialiased;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+}
+.pu-card {
+  width: 94%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 22px;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  transform-origin: center;
+}
+.pu-title { font-size: 20px; margin: 0 0 6px; color: #0d47a1; font-weight: 800; }
+.pu-sub { color: #d32f2f; margin-bottom: 12px; font-weight: 700; }
+.pu-upi { display:block; margin: 10px 0; font-weight:700; color:#0b72e7; font-size:16px; }
+.pu-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+.pu-btn {
+  background:#0b72e7; color:#fff; border:0; padding:10px 14px; border-radius:8px;
+  cursor:pointer; font-weight:700;
+}
+.pu-btn.secondary { background:#4caf50; }
+.pu-btn.ghost { background: transparent; color:#0b72e7; border:2px solid #0b72e7; }
+.pu-input { width:86%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-top:10px; font-size:15px; text-align:center; }
+.pu-msg-ok { color:#2e7d32; font-weight:700; margin-top:8px; display:none; }
+.pu-msg-err { color:#c62828; font-weight:700; margin-top:8px; display:none; }
+.pu-small { font-size:13px; color:#444; margin-top:8px; }
+@media (max-width:420px){ .pu-card{ padding:18px } .pu-title{ font-size:18px } .pu-upi{ font-size:15px } }
+</style>
+
+<div id="pu_overlay" class="pu-overlay" aria-hidden="true" role="dialog" aria-label="Payment required">
+  <div class="pu-card" role="document">
+    <div class="pu-title">🔒 This test is locked</div>
+    <div class="pu-sub">Pay ₹5 to access this test</div>
+
+    <div class="pu-small">Send payment to this UPI ID (tap copy):</div>
+    <span id="pu_upi" class="pu-upi">shivamraj8677@okaxis</span>
+    <div class="pu-row">
+      <button class="pu-btn" type="button" id="pu_copy_btn">Copy UPI</button>
+      <button class="pu-btn secondary" type="button" id="pu_paid_btn">I Have Paid</button>
+    </div>
+    <div id="pu_copy_ok" class="pu-msg-ok">UPI ID copied ✅</div>
+
+    <hr style="margin:14px 0; opacity:.12; border:none; height:1px; background:#ddd">
+
+    <div id="pu_verify_wrap" style="display:none; margin-top:6px;">
+      <div class="pu-small">Paste or type your <strong>12-digit</strong> transaction ID below:</div>
+      <input id="pu_txn_input" class="pu-input" inputmode="numeric" autocomplete="off" placeholder="e.g. 230971234567">
+      <div class="pu-row" style="margin-top:10px;">
+        <button class="pu-btn secondary" id="pu_verify_btn">Verify & Unlock</button>
+        <button class="pu-btn ghost" id="pu_help_btn" type="button">Help</button>
+      </div>
+      <div id="pu_msg_ok" class="pu-msg-ok">Unlocked! ✅</div>
+      <div id="pu_msg_err" class="pu-msg-err">Invalid Transaction ID ❌</div>
+    </div>
+
+    <div class="pu-small" style="margin-top:12px;">
+      After verification this page will be available on this device/browser until storage is cleared.
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const PAGE_KEY = 'unlocked_' + ((document.title || location.pathname).replace(/\W+/g,'_').toLowerCase() || 'this_page');
+
+  const overlay = document.getElementById('pu_overlay');
+  const copyBtn = document.getElementById('pu_copy_btn');
+  const paidBtn = document.getElementById('pu_paid_btn');
+  const verifyWrap = document.getElementById('pu_verify_wrap');
+  const txnInput = document.getElementById('pu_txn_input');
+  const verifyBtn = document.getElementById('pu_verify_btn');
+  const helpBtn = document.getElementById('pu_help_btn');
+  const copyOk = document.getElementById('pu_copy_ok');
+  const msgOk = document.getElementById('pu_msg_ok');
+  const msgErr = document.getElementById('pu_msg_err');
+  const upiText = document.getElementById('pu_upi').innerText.trim();
+
+  function isUnlocked(){ return localStorage.getItem(PAGE_KEY) === 'true'; }
+  function showOverlay(){ overlay.style.display = 'flex'; overlay.setAttribute('aria-hidden','false'); document.body.style.overflow = 'hidden'; }
+  function hideOverlay(){ overlay.style.display = 'none'; overlay.setAttribute('aria-hidden','true'); document.body.style.overflow = ''; }
+
+  function doCopy(text){
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text);
+    } else {
+      return new Promise((resolve) => {
+        const tmp = document.createElement('textarea');
+        tmp.value = text;
+        tmp.style.position = 'fixed';
+        tmp.style.opacity = '0';
+        document.body.appendChild(tmp);
+        tmp.focus(); tmp.select();
+        try { document.execCommand('copy'); } catch(e){}
+        document.body.removeChild(tmp);
+        resolve();
+      });
+    }
+  }
+
+  copyBtn.addEventListener('click', function(){
+    doCopy(upiText).then(function(){
+      copyOk.style.display = 'block';
+      setTimeout(()=>copyOk.style.display='none',1500);
+    }).catch(function(){
+      copyOk.style.display = 'block';
+      setTimeout(()=>copyOk.style.display='none',1500);
+    });
+  });
+
+  paidBtn.addEventListener('click', function(){
+    verifyWrap.style.display = 'block';
+    txnInput.focus();
+  });
+
+  function verifyTxn(){
+    const raw = (txnInput.value || '').trim();
+    const digits = raw.replace(/\D/g,'');
+    if (digits.length === 12) {
+      localStorage.setItem(PAGE_KEY, 'true');
+      msgErr.style.display = 'none';
+      msgOk.style.display = 'block';
+      setTimeout(function(){
+        msgOk.style.display = 'none';
+        hideOverlay();
+      },600);
+    } else {
+      msgOk.style.display = 'none';
+      msgErr.style.display = 'block';
+    }
+  }
+
+  verifyBtn.addEventListener('click', verifyTxn);
+  txnInput.addEventListener('keydown', function(e){
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      verifyTxn();
+    }
+  });
+
+  helpBtn.addEventListener('click', function(){
+    alert('After paying ₹5 to the UPI ID, copy the 12-digit transaction/reference ID from your payment app and paste it here.');
+  });
+
+  window.pu_reset_unlock = function(){
+    localStorage.removeItem(PAGE_KEY);
+    showOverlay();
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    try {
+      if (isUnlocked()) hideOverlay();
+      else showOverlay();
+    } catch(e) {
+      showOverlay();
+      console.error('Overlay init error', e);
+    }
+  });
+})();
+</script>
+<!-- Payment Overlay — Improved, Namespaced Version END -->
+
+
+<div id="quiz-container">
+    <div id="top-bar">
+        <button id="jump-menu-btn">Go To</button>
+        
+        <div id="timer">45s</div>
+        
+        <div id="question-info">1/50</div>
+    </div>
+    
+    <div id="question">Loading question...</div>
+    <div id="options-container"></div>
+    
+    <div class="nav-buttons">
+        <button id="prev-btn" class="nav-btn" style="display: none;">Previous</button>
+        <button id="skip-btn" class="nav-btn" style="display: none;">Skip</button>
+        <button id="next-btn" class="nav-btn" style="display: none;">Next</button>
+    </div>
+    
+    <div id="feedback"></div>
+</div>
+
+<div id="jump-menu-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="color: #1565c0; margin-top: 0;">Jump to Question</h3>
+        <div id="jump-grid" class="question-jump-grid">
+            </div>
+        <button onclick="document.getElementById('jump-menu-modal').style.display='none'" class="nav-btn" style="background-color: #9e9e9e; color: white; margin-top: 20px; width: auto; padding: 10px 20px;">Close</button>
+    </div>
+</div>
+
+
+<script>
+    // --- CHAPTER QUIZ: THE LIVING WORLD - 50 QUESTIONS ---
+    const quizData = [
+        { question: "1. Which of the following is a defining characteristic of living organisms?", options: ["Growth", "Reproduction", "Metabolism", "Response to external stimuli"], correct: 2, description: "The sum of all chemical reactions occurring in an organism." },
+        { question: "2. The process of naming organisms with a two-part scientific name is called:", options: ["Taxonomy", "Systematics", "Binomial nomenclature", "Classification"], correct: 2, description: "A two-part naming system for species, consisting of the genus and specific epithet." },
+        { question: "3. In the scientific name Mangifera indica, 'indica' represents the:", options: ["Genus", "Species", "Family", "Order"], correct: 1, description: "The specific epithet that differentiates the species within its genus." },
+        { question: "4. Which of the following is the correct sequence of taxonomic categories in ascending order?", options: ["Species -> Genus -> Family -> Order -> Class -> Phylum -> Kingdom", "Genus -> Species -> Family -> Order -> Class -> Phylum -> Kingdom", "Species -> Family -> Genus -> Order -> Class -> Phylum -> Kingdom", "Kingdom -> Phylum -> Class -> Order -> Family -> Genus -> Species"], correct: 0, description: "The hierarchical arrangement of taxonomic ranks from the most specific to the most inclusive." },
+        { question: "5. A herbarium is a:", options: ["Collection of living plants for reference.", "Storehouse of collected plant specimens that are dried, pressed, and preserved on sheets.", "Place where wild animals are kept in protected environments under human care.", "Booklet containing a list of characters and their alternates which are helpful in identifying various taxa."], correct: 1, description: "A collection of preserved plant specimens used for scientific study and reference." },
+        { question: "6. What is the primary purpose of a botanical garden?", options: ["To provide a natural habitat for wild animals.", "To serve as a collection of living plants for reference and identification.", "To preserve plant specimens in a dried and pressed form.", "To provide a place for the ex-situ conservation of animals."], correct: 1, description: "A place with a collection of living plants grown for research, conservation, and education." },
+        { question: "7. A museum has collections of:", options: ["Living plants and animals.", "Preserved plant and animal specimens.", "Only plant specimens.", "Only animal specimens."], correct: 1, description: "A facility that houses preserved specimens of plants and animals for study and exhibition." },
+        { question: "8. Which taxonomical aid is based on contrasting characters generally in a pair called a couplet?", options: ["Herbarium", "Museum", "Key", "Botanical Garden"], correct: 2, description: "A tool used for identifying organisms through a series of contrasting choices." },
+        { question: "9. Flora, manuals, monographs, and catalogues are some of the other means of recording:", options: ["Only plant species found in a particular area.", "Descriptions of organisms.", "Only animal species found in a particular area.", "The evolutionary history of organisms."], correct: 1, description: "These are publications that provide information about various taxa and their distribution." },
+        { question: "10. The scientific name of humans is:", options: ["Homo sapiens", "Panthera leo", "Solanum tuberosum", "Mangifera indica"], correct: 0, description: "The binomial name for modern humans." },
+        { question: "11. What is the basic unit of classification?", options: ["Genus", "Family", "Species", "Kingdom"], correct: 2, description: "A group of organisms that can interbreed and produce fertile offspring." },
+        { question: "12. The 'lead' in a taxonomic key refers to:", options: ["A pair of contrasting characters.", "Each statement in the key.", "The final identification of the organism.", "The author of the key."], correct: 1, description: "A single statement within a couplet of a taxonomic key." },
+        { question: "13. Systematics is the study of:", options: ["The classification of organisms.", "The diversity of organisms and their evolutionary relationships.", "The naming of organisms.", "The external and internal structure of organisms."], correct: 1, description: "The study of the diversification of living forms, both past and present, and the relationships among living things through time." },
+        { question: "14. A monograph contains information on:", options: ["All the species found in a particular area.", "Any one taxon.", "A list of all the scientific names of species.", "The identification of names of species found in an area."], correct: 1, description: "A detailed study and comprehensive account of a single taxonomic group." },
+        { question: "15. The famous botanical gardens, Kew, is located in:", options: ["India", "England", "Germany", "France"], correct: 1, description: "The Royal Botanic Gardens, Kew, is a world-renowned botanical garden located in London." },
+        { question: "16. Which of the following is not a characteristic of life?", options: ["Growth", "Metabolism", "Consciousness", "Crystallization"], correct: 3, description: "A process of solid formation, which occurs in non-living things." },
+        { question: "17. The \"twin characteristics\" of growth are:", options: ["Increase in mass and increase in number of individuals.", "Increase in height and increase in weight.", "Increase in cell size and increase in cell number.", "Increase in complexity and increase in organization."], correct: 0, description: "The two fundamental aspects of growth in living organisms." },
+        { question: "18. In plants, growth by cell division occurs:", options: ["Only up to a certain age.", "Continuously throughout their life span.", "Only during the day.", "Only during the night."], correct: 1, description: "Plants have meristematic tissues that allow for indefinite growth." },
+        { question: "19. In animals, growth is seen:", options: ["Continuously throughout their life span.", "Only up to a certain age.", "Only during the day.", "Only during the night."], correct: 1, description: "Animals have a definite growth period after which they reach maturity." },
+        { question: "20. Which of the following organisms reproduce by budding?", options: ["Fungi", "Yeast and Hydra", "Planaria", "Amoeba"], correct: 1, description: "A form of asexual reproduction where a new organism develops from an outgrowth." },
+        { question: "21. True regeneration is observed in:", options: ["Fungi", "Amoeba", "Planaria", "Bacteria"], correct: 2, description: "The ability to regrow a whole organism from a fragmented body part." },
+        { question: "22. The fungi, the filamentous algae, the protonema of mosses, all easily multiply by:", options: ["Budding", "Fragmentation", "Spore formation", "Binary fission"], correct: 1, description: "A form of asexual reproduction where an organism breaks into fragments and each fragment develops into a new individual." },
+        { question: "23. Which of the following do not reproduce?", options: ["Mules", "Sterile worker bees", "Infertile human couples", "All of the above"], correct: 3, description: "Examples of living organisms that are not capable of reproduction." },
+        { question: "24. The sum total of all the chemical reactions occurring in our body is:", options: ["Anabolism", "Catabolism", "Metabolism", "Homeostasis"], correct: 2, description: "The collection of all biochemical reactions necessary for life." },
+        { question: "25. Which of the following is the only self-conscious organism?", options: ["Human being", "Chimpanzee", "Dolphin", "Elephant"], correct: 0, description: "The ability to be aware of oneself and one's existence." },
+        { question: "26. The number of species that are known and described range between:", options: ["1.7-1.8 million", "1.7-1.8 billion", "17-18 million", "17-18 billion"], correct: 0, description: "The estimated number of species identified and named by biologists." },
+        { question: "27. The process by which anything is grouped into convenient categories based on some easily observable characters is called:", options: ["Classification", "Nomenclature", "Identification", "Taxonomy"], correct: 0, description: "The process of arranging organisms into groups based on their similarities." },
+        { question: "28. The scientific term for categories is:", options: ["Taxa", "Genus", "Species", "Order"], correct: 0, description: "The scientific name for a taxonomic group of any rank." },
+        { question: "29. The branch of study that deals with the principles and procedures of classification is:", options: ["Taxonomy", "Systematics", "Nomenclature", "Identification"], correct: 0, description: "The science of naming, describing, and classifying organisms." },
+        { question: "30. The book 'Systema Naturae' was written by:", options: ["Charles Darwin", "Carolus Linnaeus", "Gregor Mendel", "Aristotle"], correct: 1, description: "The book that laid the foundation for modern taxonomy and binomial nomenclature." },
+        { question: "31. ICBN stands for:", options: ["International Code for Botanical Nomenclature", "International Congress for Biological Names", "Indian Code for Botanical Nomenclature", "Indian Congress for Biological Names"], correct: 0, description: "The set of rules for the scientific naming of plants, algae, and fungi." },
+        { question: "32. ICZN stands for:", options: ["International Code of Zoological Nomenclature", "International Congress of Zoological Names", "Indian Code of Zoological Nomenclature", "Indian Congress of Zoological Names"], correct: 0, description: "The set of rules for the scientific naming of animals." },
+        { question: "33. In binomial nomenclature, the first word denotes the:", options: ["Specific epithet", "Genus", "Family", "Species"], correct: 1, description: "The first part of the scientific name, capitalized, and representing a group of related species." },
+        { question: "34. In binomial nomenclature, the second component denotes the:", options: ["Genus", "Specific epithet", "Family", "Order"], correct: 1, description: "The second part of the scientific name, uncapitalized, and specific to a single species." },
+        { question: "35. According to the universal rules of nomenclature, the scientific name should be printed in:", options: ["Bold", "Italics", "Underlined", "All caps"], correct: 1, description: "A convention used to distinguish scientific names in printed text." },
+        { question: "36. When handwritten, the scientific name should be:", options: ["Written in all caps", "Underlined", "Enclosed in brackets", "Written in bold"], correct: 1, description: "The convention for distinguishing scientific names in handwritten form." },
+        { question: "37. The first word of the scientific name starts with a:", options: ["Capital letter", "Small letter", "Number", "Symbol"], correct: 0, description: "The rule for capitalizing the genus name." },
+        { question: "38. The specific epithet starts with a:", options: ["Capital letter", "Small letter", "Number", "Symbol"], correct: 1, description: "The rule for using a lowercase letter for the specific epithet." },
+        { question: "39. The author’s name appears after the specific epithet in an:", options: ["Abbreviated form", "Expanded form", "Italicized form", "Underlined form"], correct: 0, description: "A convention for citing the name of the person who first described the species." },
+        { question: "40. All categories together constitute the:", options: ["Taxonomic hierarchy", "Systematics", "Classification", "Taxon"], correct: 0, description: "The classification system that arranges organisms into a nested series of ranks." },
+        { question: "41. A group of individual organisms with fundamental similarities is called a:", options: ["Genus", "Species", "Family", "Order"], correct: 1, description: "The most specific taxonomic rank." },
+        { question: "42. Genus comprises a group of related:", options: ["Species", "Families", "Orders", "Classes"], correct: 0, description: "A taxonomic rank that groups together closely related species." },
+        { question: "43. The genus Panthera includes:", options: ["Lion, leopard, and tiger", "Lion, cat, and dog", "Leopard, wolf, and bear", "Tiger, fox, and jackal"], correct: 0, description: "The genus of big cats." },
+        { question: "44. The genus Felis includes:", options: ["Cats", "Dogs", "Lions", "Tigers"], correct: 0, description: "The genus of small cats, including the domestic cat." },
+        { question: "45. A group of related genera with still less number of similarities as compared to genus and species is called a:", options: ["Family", "Order", "Class", "Phylum"], correct: 0, description: "A taxonomic rank that groups related genera." },
+        { question: "46. The family Felidae includes:", options: ["Genus Panthera and genus Felis", "Genus Canis and genus Felis", "Genus Panthera and genus Canis", "Genus Ursus and genus Felis"], correct: 0, description: "The family of cats, which includes both big and small cats." },
+        { question: "47. The family Canidae includes:", options: ["Cats", "Dogs", "Bears", "Lions"], correct: 1, description: "The family of canids, which includes dogs, wolves, and foxes." },
+        { question: "48. A group of related families that exhibit a few similar characters is called an:", options: ["Order", "Class", "Phylum", "Kingdom"], correct: 0, description: "A taxonomic rank that groups together related families." },
+        { question: "49. The order Carnivora includes families like:", options: ["Felidae and Canidae", "Felidae and Bovidae", "Canidae and Hominidae", "Felidae and Hominidae"], correct: 0, description: "The order of meat-eating mammals, including cats and dogs." },
+        { question: "50. Related orders are included in a:", options: ["Class", "Phylum", "Kingdom", "Family"], correct: 0, description: "A taxonomic rank that groups together related orders." }
+    ];
+
+    // --- QUIZ ENGINE (Reusable) ---
+    const quizContainer = document.getElementById('quiz-container');
+    const questionEl = document.getElementById('question');
+    const optionsContainerEl = document.getElementById('options-container');
+    const feedbackEl = document.getElementById('feedback');
+    const prevBtn = document.getElementById('prev-btn');
+    const skipBtn = document.getElementById('skip-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    // New feature elements
+    const questionInfoEl = document.getElementById('question-info');
+    const jumpMenuModal = document.getElementById('jump-menu-modal');
+    const jumpGrid = document.getElementById('jump-grid');
+    const jumpMenuBtn = document.getElementById('jump-menu-btn');
+    const timerEl = document.getElementById('timer'); 
+
+    const TIME_PER_QUESTION = 45; // seconds
+    let quizTimer;
+    let timeRemaining = TIME_PER_QUESTION;
+
+    let currentQuiz = 0;
+    let score = 0;
+    // Use undefined for unanswered, and -1 for skipped/timed out (for the jump menu highlighting)
+    let userAnswers = {}; 
+    const totalQuestions = quizData.length;
+
+    // --- Initialization ---
+    // Attach event listeners
+    jumpMenuBtn.addEventListener('click', openJumpMenu);
+    nextBtn.addEventListener('click', goToNextQuestion);
+    skipBtn.addEventListener('click', skipQuestion); 
+    prevBtn.addEventListener('click', goToPrevQuestion);
+    
+    loadQuiz(); 
+
+    // --- Timer Functions ---
+    function startTimer() {
+        clearInterval(quizTimer);
+        timeRemaining = TIME_PER_QUESTION;
+        timerEl.innerText = `${timeRemaining}s`;
+
+        quizTimer = setInterval(() => {
+            timeRemaining--;
+            timerEl.innerText = `${timeRemaining}s`;
+
+            if (timeRemaining <= 0) {
+                clearInterval(quizTimer);
+                skipQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function stopTimer() {
+        clearInterval(quizTimer);
+    }
+
+    function skipQuestion() {
+        stopTimer();
+        // Mark as skipped (-1)
+        if (userAnswers[currentQuiz] === undefined || userAnswers[currentQuiz] === -1) {
+            userAnswers[currentQuiz] = -1; 
+        }
+        // Proceed to the next question
+        goToNextQuestion();
+    }
+
+
+    // --- Jump Menu Functions ---
+    function updateQuestionInfo() {
+        questionInfoEl.innerText = `${currentQuiz + 1}/${totalQuestions}`;
+    }
+
+    function generateJumpMenu() {
+        jumpGrid.innerHTML = '';
+        for (let i = 0; i < totalQuestions; i++) {
+            const button = document.createElement('button');
+            button.innerText = i + 1;
+            button.classList.add('jump-btn');
+            button.dataset.index = i;
+            button.onclick = () => jumpToQuestion(i);
+
+            // Highlight status
+            if (i === currentQuiz) {
+                button.classList.add('current-jump');
+            } else if (userAnswers[i] !== undefined && userAnswers[i] !== -1) {
+                button.classList.add('answered-jump');
+            }
+            jumpGrid.appendChild(button);
+        }
+    }
+
+    function openJumpMenu() {
+        stopTimer();
+        generateJumpMenu();
+        jumpMenuModal.style.display = 'flex';
+    }
+    
+    function jumpToQuestion(index) {
+        currentQuiz = index;
+        loadQuiz();
+        jumpMenuModal.style.display = 'none';
+    }
+    // --- End Jump Menu Functions ---
+
+
+    // --- Core Quiz Logic ---
+    function loadQuiz() {
+        updateQuestionInfo();
+        const currentQuizData = quizData[currentQuiz];
+        // Apply question number and text
+        questionEl.innerText = `${currentQuiz + 1}. ${currentQuizData.question}`;
+        
+        optionsContainerEl.innerHTML = '';
+
+        const isAnswered = userAnswers[currentQuiz] !== undefined && userAnswers[currentQuiz] !== -1;
+        const isSkipped = userAnswers[currentQuiz] === -1;
+        
+        // Timer Control
+        if (!isAnswered && !isSkipped) {
+            startTimer();
+        } else {
+            stopTimer(); 
+            timerEl.innerText = isSkipped ? 'Skipped' : 'Done';
+        }
+
+        // Option Button Generation
+        currentQuizData.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.innerText = option;
+            button.classList.add('option');
+            button.dataset.index = index;
+            
+            if (isAnswered || isSkipped) {
+                button.disabled = true;
+                // Check if this was the user's answer
+                if (index === userAnswers[currentQuiz]) {
+                    button.style.backgroundColor = (index === currentQuizData.correct) ? '#90ee90' : '#ffcccb';
+                }
+                // Highlight the correct answer if the user answered or skipped
+                if (index === currentQuizData.correct) {
+                    button.style.backgroundColor = '#90ee90';
+                }
+            } else {
+                button.addEventListener('click', selectAnswer);
+            }
+
+            optionsContainerEl.appendChild(button);
+        });
+
+        // Navigation and Feedback
+        feedbackEl.innerHTML = '';
+        if (isAnswered) {
+            displayFeedback(userAnswers[currentQuiz], quizData[currentQuiz].correct, quizData[currentQuiz].description);
+            nextBtn.style.display = 'block';
+            skipBtn.style.display = 'none';
+        } else if (isSkipped) {
+            feedbackEl.innerHTML = `<div class="incorrect">Question was skipped or time ran out.</div>`;
+            nextBtn.style.display = 'block';
+            skipBtn.style.display = 'none';
+        } else {
+            nextBtn.style.display = 'none';
+            skipBtn.style.display = 'block';
+        }
+
+        prevBtn.style.display = currentQuiz > 0 ? 'block' : 'none';
+        
+        // Set 'Next' button text to 'Show Results' on the last question (Classic Flow)
+        nextBtn.innerText = currentQuiz === totalQuestions - 1 ? 'Show Results' : 'Next';
+    }
+
+    function displayFeedback(selectedIndex, correctIndex, description) {
+        feedbackEl.innerHTML = '';
+        const isCorrect = selectedIndex === correctIndex;
+
+        if (isCorrect) {
+            feedbackEl.innerHTML = `<div class="correct">Correct!</div>`;
+        } else {
+            feedbackEl.innerHTML = `<div class="incorrect">Wrong! The correct answer is: ${quizData[currentQuiz].options[correctIndex]}</div>`;
+        }
+
+        if(description){
+            // Use clean description string
+            feedbackEl.innerHTML += `<p class="description-text"><strong>Explanation:</strong> ${description}</p>`;
+        }
+    }
+
+    function selectAnswer(e) {
+        stopTimer();
+        const selectedBtn = e.target;
+        const selectedIndex = parseInt(selectedBtn.dataset.index);
+        const correctIndex = quizData[currentQuiz].correct;
+        
+        // Mark as answered and calculate score
+        if (userAnswers[currentQuiz] === undefined || userAnswers[currentQuiz] === -1) {
+             // Check if it was skipped/unanswered; if so, we calculate score normally.
+            if (selectedIndex === correctIndex) {
+                score++;
+            }
+            userAnswers[currentQuiz] = selectedIndex; // Set the actual answer index
+        }
+        
+        // Visually disable all options and highlight correct/incorrect
+        const allOptions = optionsContainerEl.getElementsByClassName('option');
+        for(let btn of allOptions){ btn.disabled = true; } 
+
+        selectedBtn.style.backgroundColor = selectedIndex === correctIndex ? '#90ee90' : '#ffcccb'; 
+        if (selectedIndex !== correctIndex) {
+            document.querySelector(`[data-index='${correctIndex}']`).style.backgroundColor = '#90ee90';
+        }
+
+        displayFeedback(selectedIndex, correctIndex, quizData[currentQuiz].description);
+        
+        nextBtn.style.display = 'block';
+        skipBtn.style.display = 'none';
+        timerEl.innerText = 'Done';
+    }
+
+    function goToNextQuestion() {
+        if (currentQuiz < totalQuestions - 1) {
+            currentQuiz++;
+            loadQuiz();
+        } else {
+            // If on the last question, show results (per classic quiz logic)
+            showResults();
+        }
+    }
+
+    function goToPrevQuestion() {
+        if (currentQuiz > 0) {
+            // Check if the question we are about to leave was answered correctly.
+            // If so, decrement the score before moving back.
+            if (userAnswers[currentQuiz] !== undefined && userAnswers[currentQuiz] !== -1) {
+                if (userAnswers[currentQuiz] === quizData[currentQuiz].correct) {
+                    score--;
+                }
+            }
+            currentQuiz--;
+            loadQuiz();
+        }
+    }
+
+    function showResults() {
+        stopTimer();
+        // Final score calculation must be done here to account for all skips/answers/revisits
+        let finalScore = 0;
+        Object.keys(userAnswers).forEach(key => {
+            const index = parseInt(key);
+            if (userAnswers[index] === quizData[index].correct) {
+                finalScore++;
+            }
+        });
+        
+        const percentage = ((finalScore / totalQuestions) * 100).toFixed(1);
+        
+        quizContainer.innerHTML = `
+            <h2 style="color: #1565c0;">Quiz Complete!</h2>
+            <h3 style="color: #333;">Your score: ${finalScore}/${totalQuestions} (${percentage}%)</h3>
+            <p style="margin-bottom: 30px; font-size: 1.1em;">You've mastered the Living World chapter!</p>
+            <button onclick="location.reload()" class="nav-btn" style="background-color: #ffc107; color: black; width: auto; padding: 10px 20px;">Restart Quiz</button>
+        `;
+    }
+</script>
+
+</body>
+</html>
