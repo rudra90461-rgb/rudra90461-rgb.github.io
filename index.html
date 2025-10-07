@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Class 11 + 12 Full Syllabus</h2>
+        <p style="font-size: 1.1em; color: #555;">This test has <strong style="color: #d32f2f;">90 questions</strong> covering all chapters of NEET Biology.</p>
+        <p style="font-size: 1.1em; color: #555;">The questions are randomly jumbled to simulate the real exam pattern.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        { question: "The basic structural unit of life is:", options: ["A) Nucleus", "B) Cell", "C) Tissue", "D) Organ"], answer: "B) Cell" },
+        { question: "Which enzyme converts pyruvate into acetyl-CoA?", options: ["A) Pyruvate kinase", "B) Pyruvate dehydrogenase", "C) Hexokinase", "D) Lactate dehydrogenase"], answer: "B) Pyruvate dehydrogenase" },
+        { question: "Assertion-Reason: <br>Assertion: Photosynthesis occurs in chloroplast.<br>Reason: Chloroplast contains chlorophyll which captures light energy.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal blood glucose level (mg/dl) in humans:", options: ["A) 60–110", "B) 100–150", "C) 120–160", "D) 50–90"], answer: "A) 60–110" },
+        { question: "Which of the following are components of human plasma? <br>a) Water<br>b) Proteins<br>c) RBCs<br>d) Electrolytes", options: ["A) Only a is correct", "B) Only b is correct", "C) Both a and b are correct", "D) All of the above"], answer: "D) All of the above" }, // Corrected as per your answer key
+        { question: "The site of spermatogenesis in humans is:", options: ["A) Epididymis", "B) Testes", "C) Vas deferens", "D) Seminiferous tubules"], answer: "D) Seminiferous tubules" },
+        { question: "Assertion-Reason: <br>Assertion: Root hairs increase surface area for absorption.<br>Reason: Root hairs are extensions of epidermal cells.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Functions of the liver: <br>a) Detoxification<br>b) Glycogen storage<br>c) Urea formation<br>d) Insulin secretion", options: ["A) Only a and b are correct", "B) Only a, b and c are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and c are correct" },
+        { question: "Which of the following are granulocytes? <br>a) Neutrophils<br>b) Eosinophils<br>c) Basophils<br>d) Lymphocytes", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "The main excretory product in humans is:", options: ["A) Ammonia", "B) Urea", "C) Uric acid", "D) Creatinine"], answer: "B) Urea" },
+        { question: "Assertion-Reason: <br>Assertion: DNA replication is semi-conservative.<br>Reason: Each daughter DNA molecule contains one parental and one newly synthesized strand.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Components of cytoplasm: <br>a) Organelles<br>b) Cytosol<br>c) Ribosomes<br>d) Nucleus", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Which of the following are male sex hormones? <br>a) Testosterone<br>b) FSH<br>c) LH<br>d) Progesterone", options: ["A) Only a is correct", "B) Only a and b are correct", "C) Only a, b and c are correct", "D) All of the above"], answer: "C) Only a, b and c are correct" },
+        { question: "Data-based: Number of chromosomes in human gametes:", options: ["A) 23", "B) 46", "C) 22", "D) 24"], answer: "A) 23" },
+        { question: "Multiple-correct: Enzymes of Krebs cycle: <br>a) Citrate synthase<br>b) Succinate dehydrogenase<br>c) Hexokinase<br>d) Malate dehydrogenase", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: LH surge triggers ovulation.<br>Reason: LH acts on Graafian follicle causing rupture.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Components of innate immunity: <br>a) Macrophages<br>b) NK cells<br>c) Antibodies<br>d) Complement proteins", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "The site of fertilization in humans is:", options: ["A) Ovary", "B) Uterus", "C) Fallopian tube", "D) Cervix"], answer: "C) Fallopian tube" },
+        { question: "Data-based: Approximate lifespan of RBCs (days):", options: ["A) 100–120", "B) 90–100", "C) 80–90", "D) 60–70"], answer: "A) 100–120" },
+        { question: "Assertion-Reason: <br>Assertion: ADH increases water reabsorption in kidneys.<br>Reason: ADH acts on collecting ducts.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Functions of hypothalamus: <br>a) Thermoregulation<br>b) Appetite control<br>c) Pituitary regulation<br>d) Insulin secretion", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Normal WBC count (thousands/mm³) in humans:", options: ["A) 4000–11000", "B) 3000–9000", "C) 5000–12000", "D) 6000–14000"], answer: "A) 4000–11000" },
+        { question: "Which of the following are steroid hormones? <br>a) Cortisol<br>b) Testosterone<br>c) Progesterone<br>d) Epinephrine", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Platelets help in blood clotting.<br>Reason: Platelets release clotting factors.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "The first line of defense in humans is:", options: ["A) Skin", "B) WBCs", "C) Macrophages", "D) Antibodies"], answer: "A) Skin" },
+        { question: "Data-based: Normal heart rate (beats/min) in adult humans:", options: ["A) 60–80", "B) 100–120", "C) 40–50", "D) 120–140"], answer: "A) 60–80" },
+        { question: "Multiple-correct: Excretory products in humans: <br>a) Urea<br>b) Ammonia<br>c) CO2<br>d) Oxygen", options: ["A) Only a and b are correct", "B) Only a, b and c are correct", "C) Only b and d are correct", "D) All of the above"], answer: "B) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Thyroxine regulates basal metabolic rate.<br>Reason: Thyroxine is secreted by thyroid gland.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Female sex hormones: <br>a) Estrogen<br>b) Progesterone<br>c) Testosterone<br>d) FSH", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and d are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Data-based: Average human body temperature (°C):", options: ["A) 36.5–37.5", "B) 35–36", "C) 37–38", "D) 36–38"], answer: "A) 36.5–37.5" },
+        { question: "Multiple-correct: Components of nephron: <br>a) Bowman's capsule<br>b) Loop of Henle<br>c) Collecting duct<br>d) Glomerulus", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: LH surge triggers ovulation.<br>Reason: LH acts on Graafian follicle causing rupture.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Which of the following are chemical barriers in humans? <br>a) Lysozyme<br>b) Gastric juice<br>c) Mucus<br>d) Tears", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Data-based: Approximate lifespan of platelets (days):", options: ["A) 5–10", "B) 7–12", "C) 10–15", "D) 8–10"], answer: "A) 5–10" },
+        { question: "Multiple-correct: Components of innate immunity: <br>a) Macrophages<br>b) NK cells<br>c) Antibodies<br>d) Complement proteins", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: RBCs are biconcave.<br>Reason: This shape increases surface area for oxygen transport.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Functions of kidney: <br>a) Excretion of nitrogenous wastes<br>b) Osmoregulation<br>c) Hormone secretion<br>d) Digestion", options: ["A) Only a and b are correct", "B) Only a, b and c are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and c are correct" },
+        { question: "Data-based: Normal blood pressure (mmHg) in humans:", options: ["A) 120/80", "B) 100/70", "C) 140/90", "D) 110/60"], answer: "A) 120/80" },
+        { question: "Multiple-correct: Functions of liver: <br>a) Detoxification<br>b) Glycogen storage<br>c) Urea formation<br>d) Bile secretion", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "D) All of the above" },
+        { question: "Assertion-Reason: <br>Assertion: Insulin lowers blood glucose level.<br>Reason: Insulin promotes glucose uptake by cells.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Granulocytes include: <br>a) Neutrophils<br>b) Eosinophils<br>c) Basophils<br>d) Lymphocytes", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Normal RBC count (million/mm³) in humans:", options: ["A) 4–6", "B) 3–4", "C) 5–7", "D) 6–8"], answer: "A) 4–6" },
+        { question: "Multiple-correct: Functions of spleen: <br>a) Phagocytosis<br>b) Blood storage<br>c) Lymphocyte production<br>d) Insulin secretion", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Carbon dioxide is carried mainly as bicarbonate in blood.<br>Reason: Bicarbonate acts as a buffer in plasma.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Female reproductive hormones include: <br>a) Estrogen<br>b) Progesterone<br>c) Testosterone<br>d) FSH", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and d are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Data-based: Approximate GFR (ml/min) in healthy adults:", options: ["A) 90–120", "B) 50–70", "C) 130–150", "D) 60–80"], answer: "A) 90–120" },
+        { question: "Multiple-correct: Components of human excretory system: <br>a) Kidney<br>b) Ureter<br>c) Urinary bladder<br>d) Urethra", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "D) All of the above" },
+        { question: "Assertion-Reason: <br>Assertion: Testosterone is responsible for male secondary sexual characters.<br>Reason: Testosterone is secreted by Leydig cells.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Approximate cardiac output (litres/min) in humans:", options: ["A) 5", "B) 3", "C) 7", "D) 4"], answer: "A) 5" },
+        { question: "Multiple-correct: Components of cytoplasm: <br>a) Cytosol<br>b) Organelles<br>c) Ribosomes<br>d) Nucleus", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Multiple-correct: Functions of anterior pituitary hormones: <br>a) GH<br>b) TSH<br>c) LH<br>d) ADH", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Normal human menstrual cycle (days):", options: ["A) 28", "B) 30", "C) 25", "D) 32"], answer: "A) 28" },
+        { question: "Multiple-correct: Functions of adrenal cortex: <br>a) Cortisol secretion<br>b) Aldosterone secretion<br>c) Epinephrine secretion<br>d) Glucose regulation", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Ovulation occurs mid-cycle.<br>Reason: LH surge triggers Graafian follicle rupture.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Non-specific defense mechanisms include: <br>a) Fever<br>b) Inflammation<br>c) Phagocytosis<br>d) Antibody production", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Normal human blood pH:", options: ["A) 7.35–7.45", "B) 7.2–7.3", "C) 7.0–7.2", "D) 7.4–7.5"], answer: "A) 7.35–7.45" },
+        { question: "Multiple-correct: Functions of large intestine: <br>a) Water absorption<br>b) Formation of feces<br>c) Digestion of proteins<br>d) Bacterial fermentation", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Seminal vesicles secrete fructose-rich fluid.<br>Reason: Fructose provides energy to sperm.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Functions of hypothalamus include: <br>a) Thermoregulation<br>b) Appetite control<br>c) Pituitary regulation<br>d) Secretion of insulin", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Lifespan of human RBCs (days):", options: ["A) 100–120", "B) 90–100", "C) 80–90", "D) 60–70"], answer: "A) 100–120" },
+        { question: "Multiple-correct: Female reproductive hormones: <br>a) Estrogen<br>b) Progesterone<br>c) FSH<br>d) Testosterone", options: ["A) Only a and b are correct", "B) Only a, b and c are correct", "C) Only b and d are correct", "D) All of the above"], answer: "B) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Thyroid gland regulates metabolism.<br>Reason: It secretes thyroxine which controls basal metabolic rate.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal human cardiac output (litres/min):", options: ["A) 5", "B) 3", "C) 7", "D) 4"], answer: "A) 5" },
+        { question: "Multiple-correct: Components of innate immunity: <br>a) Macrophages<br>b) NK cells<br>c) Antibodies<br>d) Complement proteins", options: ["A) Only a and b are correct", "B) Only a, b and d are correct", "C) Only b and c are correct", "D) All of the above"], answer: "B) Only a, b and d are correct" },
+        { question: "Multiple-correct: Components of blood: <br>a) Plasma<br>b) WBCs<br>c) RBCs<br>d) Platelets", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "D) All of the above" },
+        { question: "Assertion-Reason: <br>Assertion: RBCs are biconcave.<br>Reason: This increases surface area for oxygen transport.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Average human lifespan (years):", options: ["A) 70–80", "B) 60–70", "C) 80–90", "D) 50–60"], answer: "A) 70–80" },
+        { question: "Multiple-correct: Functions of pancreas: <br>a) Insulin secretion<br>b) Glucagon secretion<br>c) Exocrine digestion<br>d) Secretion of thyroxine", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: LH and FSH are gonadotropins.<br>Reason: They regulate gametogenesis.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal human blood glucose (mg/dl):", options: ["A) 60–110", "B) 50–90", "C) 100–150", "D) 120–160"], answer: "A) 60–110" },
+        { question: "Multiple-correct: Components of nephron: <br>a) Glomerulus<br>b) Bowman's capsule<br>c) Loop of Henle<br>d) Collecting duct", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "D) All of the above" },
+        { question: "Assertion-Reason: <br>Assertion: Semen contains fructose for sperm energy.<br>Reason: Fructose is secreted by seminal vesicles.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal WBC count (thousands/mm³) in humans:", options: ["A) 4000–11000", "B) 3000–9000", "C) 5000–12000", "D) 6000–14000"], answer: "A) 4000–11000" },
+        { question: "Multiple-correct: Functions of liver: <br>a) Glycogen storage<br>b) Detoxification<br>c) Bile production<br>d) Insulin secretion", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: ADH increases water reabsorption.<br>Reason: It acts on collecting ducts of nephron.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal human blood pressure (mmHg):", options: ["A) 120/80", "B) 100/70", "C) 140/90", "D) 110/60"], answer: "A) 120/80" },
+        { question: "Multiple-correct: Functions of large intestine: <br>a) Water absorption<br>b) Feces formation<br>c) Digestion of proteins<br>d) Bacterial fermentation", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Testosterone controls male secondary sexual characters.<br>Reason: Testosterone is secreted by Leydig cells.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Hormones secreted by adrenal cortex: <br>a) Cortisol<br>b) Aldosterone<br>c) Epinephrine<br>d) Androgens", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Data-based: Approximate human GFR (ml/min):", options: ["A) 90–120", "B) 50–70", "C) 130–150", "D) 60–80"], answer: "A) 90–120" },
+        { question: "Multiple-correct: Components of human excretory system: <br>a) Kidney<br>b) Ureter<br>c) Urinary bladder<br>d) Urethra", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "D) All of the above" },
+        { question: "Assertion-Reason: <br>Assertion: RBCs lack nucleus.<br>Reason: Lack of nucleus increases oxygen-carrying capacity.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Approximate human heart rate (beats/min):", options: ["A) 60–80", "B) 100–120", "C) 40–50", "D) 120–140"], answer: "A) 60–80" },
+        { question: "Multiple-correct: Female reproductive hormones: <br>a) Estrogen<br>b) Progesterone<br>c) FSH<br>d) Testosterone", options: ["A) Only a and b are correct", "B) Only a, b and c are correct", "C) Only b and d are correct", "D) All of the above"], answer: "B) Only a, b and c are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Liver detoxifies ammonia.<br>Reason: It converts ammonia to urea.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Data-based: Normal RBC count (million/mm³):", options: ["A) 4–6", "B) 3–4", "C) 5–7", "D) 6–8"], answer: "A) 4–6" },
+        { question: "Multiple-correct: Enzymes of Krebs cycle: <br>a) Citrate synthase<br>b) Succinate dehydrogenase<br>c) Hexokinase<br>d) Malate dehydrogenase", options: ["A) Only a, b and d are correct", "B) Only a and b are correct", "C) Only b and c are correct", "D) All of the above"], answer: "A) Only a, b and d are correct" },
+        { question: "Assertion-Reason: <br>Assertion: Ovulation occurs due to LH surge.<br>Reason: LH acts on Graafian follicle causing rupture.", options: ["A) Both assertion and reason true, reason correct explanation", "B) Both true, reason not correct explanation", "C) Assertion true, reason false", "D) Assertion false, reason true"], answer: "A) Both assertion and reason true, reason correct explanation" },
+        { question: "Multiple-correct: Functions of spleen: <br>a) Phagocytosis of microbes<br>b) Blood storage<br>c) Lymphocyte production<br>d) Insulin secretion", options: ["A) Only a, b and c are correct", "B) Only a and b are correct", "C) Only b and d are correct", "D) All of the above"], answer: "A) Only a, b and c are correct" },
+        { question: "Data-based: Normal human platelet count (thousands/mm³):", options: ["A) 150–400", "B) 100–300", "C) 120–350", "D) 200–500"], answer: "A) 150–400" },
+    ];
+
+    const TOTAL_QUESTIONS_EXPECTED = 90; 
+    const storageKey = 'neetFullTestHistory'; 
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null); 
+    let timerInterval;
+    const timePerQuestion = 45; 
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+
+    // Function to display progress from localStorage
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = ''; // Clear existing rows
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            // Display latest attempt first
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    // Function to save progress to localStorage
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        
+        // Keep only the last 5 attempts
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+
+    // Helper function to display the custom modal
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+
+        // Reset buttons
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+
+        // Clear previous listeners
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        
+        if (questions.length !== TOTAL_QUESTIONS_EXPECTED) {
+            const warningMessage = `Warning: The test size is configured for ${TOTAL_QUESTIONS_EXPECTED} questions, but ${questions.length} questions were found. Do you want to start?`;
+            
+            showModal(warningMessage, 'confirm', (confirmed) => {
+                if (confirmed) {
+                    startTestSequence();
+                }
+            });
+            return;
+        }
+        
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        
+        shuffleArray(questions);
+
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    // Core Functions
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option; // Options are plain text, so textContent is safer
+            
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0; 
+        
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        // Save the progress
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        
+        displayProgress();
+        
+        updateTrackerButtons();
+        createTrackerButtons(); 
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // Initialize the app
+    createTrackerButtons();
+    displayProgress(); // Display progress when the page first loads
+
+</script>
+
+</body>
+</html>
