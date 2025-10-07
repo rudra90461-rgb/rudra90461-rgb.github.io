@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - Chemical Coordination and Integration</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Chapter 22: Chemical Coordination and Integration</h2>
+        <p style="font-size: 1.1em; color: #555;">This test has <strong style="color: #d32f2f;">90 questions</strong>. The question order is randomized on every attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* * QUESTION DATA ARRAY
+    * This array contains 90 NEET-level questions for NCERT Class 11, Chapter 22 (Chemical Coordination and Integration).
+    */
+    const questions = [
+        {
+            question: "Hormones are non-nutrient chemicals which act as:",
+            options: ["Intracellular messengers", "Intercellular messengers", "Enzymes", "Energy sources"],
+            answer: "Intercellular messengers"
+        },
+        {
+            question: "The hypothalamus is the basal part of the diencephalon, forebrain and it regulates a wide spectrum of body functions. It contains several groups of neurosecretory cells called:",
+            options: ["Nuclei", "Ganglia", "Corpora quadrigemina", "Limbic lobes"],
+            answer: "Nuclei"
+        },
+        {
+            question: "Which hormone regulates the growth and development of the mammary glands and formation of milk in them?",
+            options: ["LH", "FSH", "Prolactin (PRL)", "Oxytocin"],
+            answer: "Prolactin (PRL)"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Oxytocin acts on the smooth muscles of our body and stimulates their contraction.<br>Reason (R): In females, it stimulates a vigorous contraction of the uterus at the time of child birth, and milk ejection from the mammary gland.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The pineal gland is located on the dorsal side of the forebrain and secretes a hormone called:",
+            options: ["Melatonin", "Serotonin", "Adrenaline", "Thyroxine"],
+            answer: "Melatonin"
+        },
+        {
+            question: "Which of the following is NOT a function of the thyroid hormones?",
+            options: ["Regulation of the basal metabolic rate (BMR)", "Support the process of red blood cell formation", "Control the metabolism of carbohydrates, proteins and fats", "Stimulate glycogenolysis, increasing blood sugar levels"],
+            answer: "Stimulate glycogenolysis, increasing blood sugar levels"
+        },
+        {
+            question: "Hypothyroidism during pregnancy can cause defective development and maturation of the growing baby, leading to a condition called:",
+            options: ["Goitre", "Cretinism", "Myxoedema", "Grave's disease"],
+            answer: "Cretinism"
+        },
+        {
+            question: "The parathyroid glands secrete a peptide hormone called parathyroid hormone (PTH). The circulating levels of which ion regulate its secretion?",
+            options: ["Sodium ions", "Potassium ions", "Calcium ions", "Phosphate ions"],
+            answer: "Calcium ions"
+        },
+        // A/R
+        {
+            question: "Assertion (A): PTH is a hypercalcemic hormone.<br>Reason (R): It increases the blood Ca2+ levels by stimulating bone resorption and reabsorption of Ca2+ by the renal tubules.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The thymus gland is located on the dorsal side of the heart and the aorta. It plays a major role in the development of the:",
+            options: ["Nervous system", "Digestive system", "Immune system", "Reproductive system"],
+            answer: "Immune system"
+        },
+        {
+            question: "The adrenal medulla secretes two hormones called adrenaline and noradrenaline, which are commonly called:",
+            options: ["Catecholamines", "Corticoids", "Androgens", "Glucocorticoids"],
+            answer: "Catecholamines"
+        },
+        {
+            question: "Which hormone is the main glucocorticoid in our body and is involved in maintaining cardio-vascular system as well as the kidney functions?",
+            options: ["Aldosterone", "Cortisol", "Adrenaline", "Androgen"],
+            answer: "Cortisol"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Aldosterone is the main mineralocorticoid.<br>Reason (R): It acts mainly at the renal tubules and stimulates the reabsorption of Na+ and water and excretion of K+ and phosphate ions.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The Islets of Langerhans in the pancreas contain two main types of cells. The α-cells secrete ____, and the β-cells secrete ____.",
+            options: ["insulin, glucagon", "glucagon, insulin", "somatostatin, insulin", "glucagon, somatostatin"],
+            answer: "glucagon, insulin"
+        },
+        {
+            question: "Which of the following is a hyperglycemic hormone?",
+            options: ["Insulin", "Glucagon", "Aldosterone", "Somatostatin"],
+            answer: "Glucagon"
+        },
+        {
+            question: "The Leydig cells or interstitial cells of the testis produce a group of hormones called:",
+            options: ["Estrogens", "Progestins", "Androgens", "Corticoids"],
+            answer: "Androgens"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Progesterone supports pregnancy.<br>Reason (R): It also stimulates the formation of alveoli in mammary glands and milk secretion.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The atrial wall of our heart secretes a very important peptide hormone called:",
+            options: ["Atrial Natriuretic Factor (ANF)", "Erythropoietin", "Gastrin", "Secretin"],
+            answer: "Atrial Natriuretic Factor (ANF)"
+        },
+        {
+            question: "Which of the following is an example of a hormone that acts through a second messenger like cAMP?",
+            options: ["Steroid hormones", "Thyroid hormones", "FSH (Follicle Stimulating Hormone)", "Testosterone"],
+            answer: "FSH (Follicle Stimulating Hormone)"
+        },
+        {
+            question: "The posterior pituitary stores and releases two hormones, oxytocin and vasopressin, which are actually synthesised by the:",
+            options: ["Anterior pituitary", "Hypothalamus", "Pineal gland", "Pars intermedia"],
+            answer: "Hypothalamus"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Growth hormone (GH) over-secretion in adults leads to acromegaly.<br>Reason (R): Acromegaly can cause serious complications and premature death if unchecked.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Which hormone stimulates the synthesis and secretion of steroid hormones called glucocorticoids from the adrenal cortex?",
+            options: ["TSH", "ACTH", "FSH", "LH"],
+            answer: "ACTH"
+        },
+        {
+            question: "The hormone responsible for the reabsorption of water from the distal parts of the tubule, thereby preventing diuresis, is:",
+            options: ["Oxytocin", "Vasopressin (ADH)", "Aldosterone", "ANF"],
+            answer: "Vasopressin (ADH)"
+        },
+        {
+            question: "Deficiency of iodine in our diet results in hypothyroidism and enlargement of the thyroid gland, commonly called:",
+            options: ["Cretinism", "Goitre", "Myxoedema", "Exophthalmic goitre"],
+            answer: "Goitre"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The thyroid gland also secretes a protein hormone called thyrocalcitonin (TCT).<br>Reason (R): TCT regulates the blood calcium levels by decreasing them.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following hormones is NOT secreted by the adrenal cortex?",
+            options: ["Cortisol", "Aldosterone", "Androgenic steroids", "Adrenaline"],
+            answer: "Adrenaline"
+        },
+        {
+            question: "Prolonged hyperglycemia leads to a complex disorder called:",
+            options: ["Diabetes insipidus", "Diabetes mellitus", "Addison's disease", "Cushing's syndrome"],
+            answer: "Diabetes mellitus"
+        },
+        {
+            question: "Testosterone is responsible for the development of male accessory sex organs and:",
+            options: ["Stimulates muscular growth and low pitch voice", "Promotes the development of follicles", "Maintains pregnancy", "Stimulates milk secretion"],
+            answer: "Stimulates muscular growth and low pitch voice"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Hormones are produced in trace amounts.<br>Reason (R): They are nutrient chemicals that provide energy for metabolism.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is true but R is false."
+        },
+        {
+            question: "The hormone erythropoietin is secreted by the ____ and stimulates the formation of ____.",
+            options: ["Liver, WBCs", "Kidney (JGA cells), RBCs", "Heart, platelets", "Pancreas, glucose"],
+            answer: "Kidney (JGA cells), RBCs"
+        },
+        {
+            question: "Which of the following is NOT a peptide or protein hormone?",
+            options: ["Insulin", "Glucagon", "Pituitary hormones", "Cortisol"],
+            answer: "Cortisol"
+        },
+        {
+            question: "The hormones that interact with membrane-bound receptors normally:",
+            options: ["Enter the target cell", "Do not enter the target cell but generate second messengers", "Bind to intracellular receptors", "Regulate gene expression directly"],
+            answer: "Do not enter the target cell but generate second messengers"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The pars distalis of the pituitary produces GH, PRL, TSH, ACTH, LH and FSH.<br>Reason (R): The pars intermedia secretes only one hormone called melanocyte stimulating hormone (MSH).",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Which hormone acts on the Sertoli cells and stimulates the process of spermatogenesis?",
+            options: ["LH", "FSH", "Testosterone", "Inhibin"],
+            answer: "FSH"
+        },
+        {
+            question: "A deficiency of ADH results in a diminished ability of the kidney to conserve water, leading to water loss and dehydration. This condition is known as:",
+            options: ["Diabetes mellitus", "Diabetes insipidus", "Goitre", "Addison's disease"],
+            answer: "Diabetes insipidus"
+        },
+        {
+            question: "Exophthalmic goitre (Grave's disease) is a form of:",
+            options: ["Hypothyroidism", "Hyperthyroidism", "Hypoparathyroidism", "Hyperparathyroidism"],
+            answer: "Hyperthyroidism"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The adrenal medulla secretes catecholamines.<br>Reason (R): These hormones are rapidly secreted in response to stress and are called emergency hormones or hormones of Fight or Flight.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Glucocorticoids, particularly cortisol, produce anti-inflammatory reactions and suppress the:",
+            options: ["Immune response", "Nervous system", "Digestive system", "Cardiovascular system"],
+            answer: "Immune response"
+        },
+        {
+            question: "The primary function of insulin is to:",
+            options: ["Increase blood glucose levels", "Decrease blood glucose levels by enhancing cellular uptake", "Stimulate glycogenolysis", "Promote gluconeogenesis"],
+            answer: "Decrease blood glucose levels by enhancing cellular uptake"
+        },
+        {
+            question: "After ovulation, the ruptured follicle is converted to a structure called the corpus luteum, which secretes mainly:",
+            options: ["Estrogen", "Progesterone", "Testosterone", "FSH"],
+            answer: "Progesterone"
+        },
+        // A/R
+        {
+            question: "Assertion (A): ANF causes vasodilation.<br>Reason (R): This vasodilation leads to a decrease in blood pressure.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following is an amino-acid derivative hormone?",
+            options: ["Epinephrine", "Ecdysone", "Estradiol", "Testosterone"],
+            answer: "Epinephrine"
+        },
+        {
+            question: "The hormones that interact with intracellular receptors (e.g., nuclear receptors) are mostly:",
+            options: ["Peptide hormones", "Steroid hormones and iodothyronines", "Amino-acid derivatives", "All of the above"],
+            answer: "Steroid hormones and iodothyronines"
+        },
+        {
+            question: "The hypothalamic hormones reach the pituitary gland through a:",
+            options: ["Portal circulatory system", "Direct nerve connection", "General circulation", "Lymphatic system"],
+            answer: "Portal circulatory system"
+        },
+        // A/R
+        {
+            question: "Assertion (A): MSH acts on the melanocytes and regulates pigmentation of the skin.<br>Reason (R): In humans, the pars intermedia is almost merged with the pars distalis.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Gigantism and Acromegaly are caused by the hypersecretion of:",
+            options: ["Thyroxine", "Growth Hormone (GH)", "ADH", "Cortisol"],
+            answer: "Growth Hormone (GH)"
+        },
+        {
+            question: "The two lobes of the thyroid gland are connected by a thin flap of connective tissue called the:",
+            options: ["Isthmus", "Corpus callosum", "Frenulum", "Thalamus"],
+            answer: "Isthmus"
+        },
+        {
+            question: "Which hormone is antagonistic to Parathyroid hormone (PTH) in regulating blood calcium levels?",
+            options: ["Thyroxine", "Thyrocalcitonin (TCT)", "Aldosterone", "Cortisol"],
+            answer: "Thyrocalcitonin (TCT)"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The thymus gland is a lobular structure which degenerates in old individuals.<br>Reason (R): As a result of this degeneration, the immune responses of old persons become weak.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Underproduction of hormones by the adrenal cortex alters carbohydrate metabolism causing acute weakness and fatigue, leading to a disease called:",
+            options: ["Cushing's syndrome", "Addison's disease", "Grave's disease", "Goitre"],
+            answer: "Addison's disease"
+        },
+        {
+            question: "Which of the following is NOT a function of glucagon?",
+            options: ["Acts on hepatocytes and stimulates glycogenolysis", "Stimulates gluconeogenesis", "Reduces cellular glucose uptake and utilisation", "Enhances cellular glucose uptake and utilisation"],
+            answer: "Enhances cellular glucose uptake and utilisation"
+        },
+        {
+            question: "Which hormone is primarily responsible for the development of female secondary sex organs and regulation of the female sexual behaviour?",
+            options: ["Progesterone", "Estrogen", "Testosterone", "LH"],
+            answer: "Estrogen"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Growth factors are hormones secreted by several non-endocrine tissues.<br>Reason (R): These factors are essential for the normal growth of tissues and their repairing/regeneration.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following is NOT a steroid hormone?",
+            options: ["Cortisol", "Testosterone", "Estradiol", "Insulin"],
+            answer: "Insulin"
+        },
+        {
+            question: "The hormone-receptor complex formed by a steroid hormone:",
+            options: ["Activates a second messenger", "Binds to the genome and regulates gene expression", "Opens ion channels in the cell membrane", "Is broken down immediately"],
+            answer: "Binds to the genome and regulates gene expression"
+        },
+        {
+            question: "The posterior pituitary is under the direct neural regulation of the:",
+            options: ["Anterior pituitary", "Hypothalamus", "Thalamus", "Pons"],
+            answer: "Hypothalamus"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Prolactin regulates the growth of mammary glands.<br>Reason (R): Prolactin and oxytocin work antagonistically.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is true but R is false."
+        },
+        {
+            question: "Which hormone stimulates the synthesis and secretion of thyroid hormones from the thyroid gland?",
+            options: ["GH", "TSH", "ACTH", "FSH"],
+            answer: "TSH"
+        },
+        {
+            question: "Goitre is caused by the deficiency of:",
+            options: ["Calcium", "Iron", "Iodine", "Sodium"],
+            answer: "Iodine"
+        },
+        {
+            question: "Parathyroid hormone (PTH) increases blood calcium levels by:",
+            options: ["Stimulating bone resorption (demineralisation)", "Increasing calcium absorption from the digested food", "Increasing reabsorption of calcium by the renal tubules", "All of the above"],
+            answer: "All of the above"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The thymus gland provides for cell-mediated immunity.<br>Reason (R): It promotes the differentiation of T-lymphocytes.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The 'emergency hormones' are secreted by the:",
+            options: ["Adrenal cortex", "Adrenal medulla", "Thyroid gland", "Pancreas"],
+            answer: "Adrenal medulla"
+        },
+        {
+            question: "The main function of aldosterone is the maintenance of:",
+            options: ["Blood glucose levels", "Basal metabolic rate", "The balance of water and electrolytes", "Secondary sexual characters"],
+            answer: "The balance of water and electrolytes"
+        },
+        {
+            question: "Glucagon is a peptide hormone that acts mainly on the:",
+            options: ["Hepatocytes (liver cells)", "Adipocytes", "Muscle cells", "Kidney tubules"],
+            answer: "Hepatocytes (liver cells)"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Androgens are responsible for the development of male secondary sexual characters.<br>Reason (R): They produce anabolic effects on protein and carbohydrate metabolism.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Which hormone is secreted by the juxtaglomerular cells of the kidney?",
+            options: ["Gastrin", "Secretin", "Erythropoietin", "Cholecystokinin (CCK)"],
+            answer: "Erythropoietin"
+        },
+        {
+            question: "Which of the following hormones does NOT use a second messenger system?",
+            options: ["FSH", "Epinephrine", "Thyroxine", "Glucagon"],
+            answer: "Thyroxine"
+        },
+        {
+            question: "The endocrine system and the neural system jointly coordinate and regulate the physiological functions in the body. The hypothalamus is a part of the:",
+            options: ["Forebrain", "Midbrain", "Hindbrain", "Spinal cord"],
+            answer: "Forebrain"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The pituitary gland is divided into an adenohypophysis and a neurohypophysis.<br>Reason (R): The adenohypophysis consists of pars distalis and pars intermedia, while the neurohypophysis is the pars nervosa.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "In males, LH stimulates the synthesis and secretion of hormones called ____ from the testis.",
+            options: ["Androgens", "Estrogens", "Progestins", "Inhibin"],
+            answer: "Androgens"
+        },
+        {
+            question: "Deficiency of which hormone leads to stunted growth (dwarfism)?",
+            options: ["Thyroxine", "Growth Hormone", "ADH", "Cortisol"],
+            answer: "Growth Hormone"
+        },
+        {
+            question: "The thyroid gland is composed of two lobes which are located on either side of the:",
+            options: ["Oesophagus", "Trachea", "Larynx", "Pharynx"],
+            answer: "Trachea"
+        },
+        // A/R
+        {
+            question: "Assertion (A): TCT is a hypocalcemic hormone.<br>Reason (R): It lowers blood calcium levels.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The adrenal cortex is divided into three layers. The innermost layer is the:",
+            options: ["Zona reticularis", "Zona fasciculata", "Zona glomerulosa", "Adrenal medulla"],
+            answer: "Zona reticularis"
+        },
+        {
+            question: "Which of the following is NOT an effect of catecholamines?",
+            options: ["Piloerection (raising of hairs)", "Pupillary dilation", "Slowing of heartbeat", "Glycogenolysis"],
+            answer: "Slowing of heartbeat"
+        },
+        {
+            question: "Which of the following is NOT a function of insulin?",
+            options: ["Enhances cellular glucose uptake", "Stimulates glycogenesis", "Stimulates gluconeogenesis", "Inhibits glycogenolysis"],
+            answer: "Stimulates gluconeogenesis"
+        },
+        // A/R
+        {
+            question: "Assertion (A): Estrogens produce wide-ranging actions such as the development of female secondary sex characters.<br>Reason (R): They are produced by the growing ovarian follicles.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which hormone acts on the exocrine pancreas and stimulates the secretion of water and bicarbonate ions?",
+            options: ["Gastrin", "Secretin", "CCK", "GIP"],
+            answer: "Secretin"
+        },
+        {
+            question: "Which of the following is a second messenger in the mechanism of hormone action?",
+            options: ["ATP", "Cyclic AMP (cAMP)", "DNA", "The hormone itself"],
+            answer: "Cyclic AMP (cAMP)"
+        },
+        {
+            question: "The hormones released from the posterior pituitary are synthesised in the:",
+            options: ["Pars distalis", "Pars intermedia", "Pars nervosa", "Hypothalamus"],
+            answer: "Hypothalamus"
+        },
+        // A/R
+        {
+            question: "Assertion (A): The pineal gland helps in maintaining the normal rhythms of the sleep-wake cycle.<br>Reason (R): It secretes the hormone melatonin.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Graves' disease is characterized by enlargement of the thyroid gland, protrusion of the eyeballs, increased BMR, and weight loss. It is caused by:",
+            options: ["Hyposecretion of thyroid hormone", "Hypersecretion of thyroid hormone", "Deficiency of iodine", "Cancer of the thyroid gland"],
+            answer: "Hypersecretion of thyroid hormone"
+        },
+        {
+            question: "The thymus gland secretes peptide hormones called:",
+            options: ["Thymosins", "Thyroxines", "Thymidines", "T-cells"],
+            answer: "Thymosins"
+        },
+        {
+            question: "Which hormone stimulates gluconeogenesis, lipolysis, and proteolysis?",
+            options: ["Aldosterone", "Cortisol", "Insulin", "Glucagon"],
+            answer: "Cortisol"
+        },
+        {
+            question: "The α-cells and β-cells constitute about ____ percent of the Islets of Langerhans.",
+            options: ["1-2%", "10-20%", "40-50%", "60-70%"],
+            answer: "1-2%"
+        }
+    ];
+
+    // Function to shuffle the questions array randomly (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+
+    const TOTAL_QUESTIONS_EXPECTED = 90; 
+    // Unique key for this specific test's local storage
+    const storageKey = 'chemicalCoordinationHistory'; 
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null); 
+    let timerInterval;
+    const timePerQuestion = 45; 
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+
+    // Function to display progress from localStorage
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = ''; // Clear existing rows
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            // Display latest attempt first
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    // Function to save progress to localStorage
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        
+        // Keep only the last 5 attempts
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+
+    // Helper function to display the custom modal
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+
+        // Reset buttons
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+
+        // Clear previous listeners
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        
+        if (questions.length !== TOTAL_QUESTIONS_EXPECTED) {
+            const warningMessage = `Warning: The test size is configured for ${TOTAL_QUESTIONS_EXPECTED} questions, but ${questions.length} questions were found. Do you want to start?`;
+            
+            showModal(warningMessage, 'confirm', (confirmed) => {
+                if (confirmed) {
+                    startTestSequence();
+                }
+            });
+            return;
+        }
+        
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        
+        // NEW: Shuffle questions every time a new test starts
+        shuffleArray(questions);
+
+        // Resetting state for a new test run
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    // Core Functions
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option; // Options are plain text, so textContent is safer
+            
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0; 
+        
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        // Save the progress
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        
+        // Update the progress tracker when restarting
+        displayProgress();
+        
+        updateTrackerButtons();
+        createTrackerButtons(); 
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize the app
+    createTrackerButtons();
+    displayProgress(); // Display progress when the page first loads
+
+</script>
+
+</body>
+</html>
