@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - Unit 1: Reproduction</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Unit 1: Reproduction (Class 12)</h2>
+        <p style="font-size: 1.1em; color: #555;">This unit test contains <strong style="color: #d32f2f;">100 questions</strong>. The question order is randomized on every attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/100</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content"></div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        { question: "Sexual reproduction increases:", options: ["Genetic variation", "Number of offspring", "Clonal uniformity", "Rate of survival"], answer: "Genetic variation" },
+        { question: "Binary fission is a common method of asexual reproduction in:", options: ["Amoeba", "Hydra", "Earthworm", "Frog"], answer: "Amoeba" },
+        { question: "The ability to regenerate the whole body from a small piece, a form of asexual reproduction, is known as fragmentation and is seen in:", options: ["Spirogyra", "Planaria", "Hydra", "Yeast"], answer: "Planaria" },
+        { question: "Budding is a type of:", options: ["Asexual reproduction", "Sexual reproduction", "Vegetative propagation", "Parthenogenesis"], answer: "Asexual reproduction" },
+        { question: "Vegetative propagation in plants is a form of:", options: ["Sexual reproduction", "Asexual reproduction", "Parthenogenesis", "Apomixis"], answer: "Asexual reproduction" },
+        { question: "The primary endosperm nucleus (PEN) in angiosperms is typically:", options: ["Diploid (2n)", "Triploid (3n)", "Haploid (n)", "Tetraploid (4n)"], answer: "Triploid (3n)" },
+        { question: "In flowering plants, double fertilization occurs within the:", options: ["Ovary", "Ovule (Embryo sac)", "Stigma", "Style"], answer: "Ovule (Embryo sac)" },
+        { question: "The male gamete in flowering plants is carried within the:", options: ["Pollen grain", "Anther", "Ovule", "Microspore mother cell"], answer: "Pollen grain" },
+        { question: "The functional megaspore in an angiosperm develops into the:", options: ["Male gametophyte", "Female gametophyte (Embryo sac)", "Zygote", "Embryo"], answer: "Female gametophyte (Embryo sac)" },
+        { question: "Microsporogenesis is the process that produces:", options: ["Megaspores", "Microspores (pollen grains)", "Zygote", "Endosperm"], answer: "Microspores (pollen grains)" },
+        { question: "Which of the following are methods of asexual reproduction in animals?<br>a) Budding<br>b) Fragmentation<br>c) Binary fission<br>d) Gemmule formation", options: ["a and c only", "b and d only", "a, b, and d only", "All are correct"], answer: "All are correct" },
+        { question: "Which of the following are associated with sexual reproduction in animals?<br>a) Gametogenesis<br>b) Internal fertilization<br>c) Syngamy<br>d) Budding", options: ["a and b only", "a, b, and c", "c and d only", "All are correct"], answer: "a, b, and c" },
+        { question: "Which plants show natural vegetative propagation by modified stems or leaves?<br>a) Ginger (Rhizome)<br>b) Potato (Tuber)<br>c) Bryophyllum (Leaf buds)<br>d) Mango (Grafting - artificial)", options: ["a and b only", "a, b, and c", "d only", "All are correct"], answer: "a, b, and c" },
+        { question: "Examples of viviparous animals (give birth to live young) include:<br>a) Humans<br>b) Cow<br>c) Frog<br>d) Lizard", options: ["a and b only", "c and d only", "a, c, and d", "All are correct"], answer: "a and b only" },
+        { question: "Which organisms typically show external fertilization?<br>a) Most frogs<br>b) Most bony fishes<br>c) Birds<br>d) Most amphibians", options: ["a and c only", "a, b, and d", "c only", "All are correct"], answer: "a, b, and d" },
+        { question: "Assertion (A): Human reproduction is exclusively sexual.<br>Reason (R): It involves the fusion of haploid male and female gametes to form a diploid zygote.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Insects are common agents of pollination (entomophily).<br>Reason (R): They visit flowers for nectar and inadvertently carry pollen from anther to stigma.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Fertilization is internal in birds.<br>Reason (R): The hard calcareous shell is laid around the egg after fertilization.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Oogenesis produces only one functional ovum from one primary oocyte.<br>Reason (R): The meiotic divisions are unequal, resulting in one large ovum and smaller polar bodies.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): The testis produces testosterone.<br>Reason (R): Testosterone, produced by Leydig cells, is essential for regulating spermatogenesis.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "In human males, the process of spermatogenesis occurs in the:", options: ["Seminiferous tubules of the testis", "Epididymis", "Prostate gland", "Seminal vesicles"], answer: "Seminiferous tubules of the testis" },
+        { question: "In human females, the release of a mature ovum from the graafian follicle is called:", options: ["Oogenesis", "Ovulation", "Menstruation", "Gestation"], answer: "Ovulation" },
+        { question: "What is the approximate duration of the human menstrual cycle?", options: ["28-29 days", "14 days", "40 days", "7 days"], answer: "28-29 days" },
+        { question: "What is the primary site of fertilization in humans?", options: ["Ampullary region of the Fallopian tube", "Uterus", "Ovary", "Vagina"], answer: "Ampullary region of the Fallopian tube" },
+        { question: "What is the number of chromosomes in a human zygote?", options: ["46", "23", "69", "92"], answer: "46" },
+        { question: "The process of triple fusion in angiosperms results in the formation of the:", options: ["Triploid primary endosperm nucleus", "Diploid zygote", "Haploid gamete", "Embryo"], answer: "Triploid primary endosperm nucleus" },
+        { question: "In angiosperms, the pollen grain represents the:", options: ["Male gametophyte", "Male gamete", "Microsporangium", "Sporophyte"], answer: "Male gametophyte" },
+        { question: "After fertilization in flowering plants, the ovule develops into the:", options: ["Seed", "Fruit", "Endosperm", "Pericarp"], answer: "Seed" },
+        { question: "After fertilization in flowering plants, the ovary develops into the:", options: ["Fruit", "Seed", "Embryo", "Endosperm"], answer: "Fruit" },
+        { question: "A typical mature embryo sac in angiosperms contains how many nuclei?", options: ["8", "7", "3", "1"], answer: "8" },
+        { question: "Syngamy refers to the:", options: ["Fusion of male and female gametes", "Formation of gametes", "Development of an embryo", "Asexual reproduction"], answer: "Fusion of male and female gametes" },
+        { question: "Parthenogenesis, the development of an embryo from an unfertilized egg, naturally occurs in:", options: ["Honeybees", "Frogs", "Earthworms", "Cockroaches"], answer: "Honeybees" },
+        { question: "Pollination in maize is primarily achieved by:", options: ["Wind (Anemophily)", "Insects (Entomophily)", "Water (Hydrophily)", "Self-pollination"], answer: "Wind (Anemophily)" },
+        { question: "The pea plant typically exhibits:", options: ["Self-pollination (Autogamy)", "Cross-pollination (Allogamy)", "Wind-pollination", "Water-pollination"], answer: "Self-pollination (Autogamy)" },
+        { question: "The endocrine regulation of the reproductive cycle is primarily controlled by:", options: ["Hormones", "Enzymes", "Neurotransmitters", "Vitamins"], answer: "Hormones" },
+        { question: "In embryogenesis, the zygote develops into a(n):", options: ["Embryo", "Gamete", "Spore", "Endosperm"], answer: "Embryo" },
+        { question: "The fusion of one male gamete with the egg in angiosperms is known as:", options: ["Syngamy", "Triple fusion", "Apomixis", "Parthenocarpy"], answer: "Syngamy" },
+        { question: "The development of a fruit without fertilization is known as:", options: ["Parthenocarpy", "Apomixis", "Polyembryony", "Syngamy"], answer: "Parthenocarpy" },
+        { question: "The non-motile male gametes in angiosperms are transported to the female gamete by the:", options: ["Pollen tube", "Water", "Wind", "Insects"], answer: "Pollen tube" },
+        { question: "The female gamete in an angiosperm is the:", options: ["Egg cell (Ovum)", "Synergid", "Antipodal cell", "Polar nucleus"], answer: "Egg cell (Ovum)" },
+        { question: "Which of the following animals typically show internal fertilization?<br>a) Birds<br>b) Mammals<br>c) Amphibians<br>d) Reptiles", options: ["a, b, and d", "c only", "a and c", "All are correct"], answer: "a, b, and d" },
+        { question: "Which of the following plants exhibit double fertilization?<br>a) Mustard<br>b) Mango<br>c) Maize<br>d) Pine tree (Gymnosperm)", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of these plants are predominantly self-pollinated?<br>a) Pea<br>b) Wheat<br>c) Rice<br>d) Sunflower", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of these plants are predominantly cross-pollinated?<br>a) Maize<br>b) Papaya<br>c) Sunflower<br>d) Pea", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Gametes are always:<br>a) Haploid<br>b) Diploid<br>c) Formed by meiosis from a diploid organism<br>d) Motile", options: ["a and c", "b and d", "a only", "All are correct"], answer: "a and c" },
+        { question: "What is the chromosome number in a human sperm cell?", options: ["23", "46", "22", "44"], answer: "23" },
+        { question: "What is the chromosome number in a human ovum?", options: ["23", "46", "22", "44"], answer: "23" },
+        { question: "Upon fertilization, the human zygote has a chromosome number of:", options: ["46", "23", "69", "92"], answer: "46" },
+        { question: "The female gamete in humans is called the:", options: ["Ovum (egg)", "Oogonia", "Oocyte", "Polar body"], answer: "Ovum (egg)" },
+        { question: "The male gamete in humans is called the:", options: ["Spermatozoon (sperm)", "Spermatid", "Spermatocyte", "Spermatogonium"], answer: "Spermatozoon (sperm)" },
+        { question: "What is the most common site of fertilization in the human female reproductive tract?", options: ["Ampulla of the fallopian tube", "Isthmus of the fallopian tube", "Uterus", "Cervix"], answer: "Ampulla of the fallopian tube" },
+        { question: "In which of the following organisms does parthenogenesis naturally occur?<br>a) Honeybees<br>b) Some lizards<br>c) Rotifers<br>d) Turkey", options: ["a, b, c, and d", "a and c only", "b and d only", "a only"], answer: "a, b, c, and d" },
+        { question: "The series of rapid mitotic divisions that the zygote undergoes is called:", options: ["Cleavage", "Gastrulation", "Organogenesis", "Meiosis"], answer: "Cleavage" },
+        { question: "The stage of the embryo that is a hollow ball of cells is the:", options: ["Blastula/Blastocyst", "Morula", "Gastrula", "Zygote"], answer: "Blastula/Blastocyst" },
+        { question: "The process of gastrulation is characterized by the formation of:", options: ["Three primary germ layers", "The morula", "The blastocoel", "The placenta"], answer: "Three primary germ layers" },
+        { question: "Which are the extraembryonic membranes in humans?<br>a) Amnion<br>b) Chorion<br>c) Yolk sac<br>d) Allantois", options: ["a and b only", "c and d only", "a, b, and c only", "All are correct"], answer: "All are correct" },
+        { question: "What is the approximate duration of the gestation period in humans?", options: ["280 days (~40 weeks)", "250 days", "300 days", "266 days"], answer: "280 days (~40 weeks)" },
+        { question: "The placenta is best described as a(n):", options: ["Organ of exchange between mother and fetus", "Storage organ for nutrients", "Protective fluid-filled sac", "Site of gamete production"], answer: "Organ of exchange between mother and fetus" },
+        { question: "What is the primary mode of reproduction in Hydra?", options: ["Budding", "Binary Fission", "Fragmentation", "Sexual reproduction only"], answer: "Budding" },
+        { question: "Fertilization in a frog is:", options: ["External", "Internal", "Both", "None"], answer: "External" },
+        { question: "Assertion (A): Spermatogenesis in human males is a continuous process.<br>Reason (R): Sperms are produced from puberty throughout the old age in males.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Oogenesis in human females is a discontinuous and cyclical process.<br>Reason (R): Ovulation of one ovum typically occurs once during each menstrual cycle.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Fertilization in angiosperms is called double fertilization.<br>Reason (R): It involves two fusion events: syngamy (sperm + egg) and triple fusion (sperm + polar nuclei).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Parthenogenesis in honeybees leads to the development of haploid male drones.<br>Reason (R): An unfertilized female gamete (egg) develops into an individual.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Vegetative propagation is a form of asexual reproduction.<br>Reason (R): The offspring (progeny) are genetically identical to the parent.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): The endosperm in angiosperms is typically triploid.<br>Reason (R): It is formed by the fusion of two haploid polar nuclei and one haploid male gamete.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): The testis contains seminiferous tubules.<br>Reason (R): The process of spermatogenesis occurs in the seminiferous tubules.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion (A): Fertilization is internal in mammals.<br>Reason (R): Mammalian eggs are typically microlecithal (small and non-yolky).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion (A): Cleavage in a frog's egg is holoblastic.<br>Reason (R): The entire egg divides completely during each cleavage division.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): The placenta facilitates the exchange of materials between the mother and fetus.<br>Reason (R): The blood of the mother and fetus mix directly in the placenta.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "A is true, but R is false." },
+        { question: "Which of the following are oviparous animals (egg-laying)?<br>a) Frog<br>b) Lizard<br>c) Bird<br>d) Snake", options: ["a and b only", "c and d only", "a, b, and d only", "All are correct"], answer: "All are correct" },
+        { question: "Which of the following are viviparous animals (give birth to live young)?<br>a) Human<br>b) Cow<br>c) Cat<br>d) Dog", options: ["a and b only", "c and d only", "a, b, and c only", "All are correct"], answer: "All are correct" },
+        { question: "What is the mode of fertilization in most bony fishes?", options: ["External", "Internal", "Both", "Parthenogenetic"], answer: "External" },
+        { question: "What is the mode of fertilization in most amphibians?", options: ["External", "Internal", "Both", "Parthenogenetic"], answer: "External" },
+        { question: "What is the mode of fertilization in reptiles?", options: ["Internal", "External", "Both", "Parthenogenetic"], answer: "Internal" },
+        { question: "What is the mode of fertilization in birds?", options: ["Internal", "External", "Both", "Parthenogenetic"], answer: "Internal" },
+        { question: "What is the mode of fertilization in mammals?", options: ["Internal", "External", "Both", "Parthenogenetic"], answer: "Internal" },
+        { question: "The eggs of amphibians are typically:", options: ["Mesolecithal (moderately yolky)", "Microlecithal (little yolk)", "Macrolecithal (large amount of yolk)", "Alecithal (no yolk)"], answer: "Mesolecithal (moderately yolky)" },
+        { question: "The eggs of reptiles are typically:", options: ["Macrolecithal (large amount of yolk)", "Microlecithal", "Mesolecithal", "Alecithal"], answer: "Macrolecithal (large amount of yolk)" },
+        { question: "The eggs of birds are typically:", options: ["Macrolecithal (large amount of yolk)", "Microlecithal", "Mesolecithal", "Alecithal"], answer: "Macrolecithal (large amount of yolk)" },
+        { question: "The eggs of placental mammals are typically:", options: ["Microlecithal (very little yolk)", "Macrolecithal", "Mesolecithal", "Alecithal"], answer: "Microlecithal (very little yolk)" },
+        { question: "Gametes are formed by which type of cell division in diploid organisms?", options: ["Meiosis", "Mitosis", "Amitosis", "Binary Fission"], answer: "Meiosis" },
+        { question: "A zygote is always:", options: ["Diploid", "Haploid", "Triploid", "Aneuploid"], answer: "Diploid" },
+        { question: "The correct developmental sequence of an embryo is:", options: ["Zygote → Cleavage → Morula → Blastula → Gastrula", "Zygote → Gastrula → Blastula → Morula", "Zygote → Morula → Gastrula → Blastula", "Blastula → Morula → Gastrula → Zygote"], answer: "Zygote → Cleavage → Morula → Blastula → Gastrula" },
+        { question: "Placental mammals are:", options: ["Viviparous", "Oviparous", "Ovoviviparous", "Parthenogenetic"], answer: "Viviparous" },
+        { question: "Marsupials, like kangaroos, are considered:", options: ["Viviparous, but with a short gestation and further development in a pouch", "Oviparous", "Strictly viviparous like humans", "Ovoviviparous"], answer: "Viviparous, but with a short gestation and further development in a pouch" },
+        { question: "The development of an egg into a complete individual without fertilization is known as:", options: ["Parthenogenesis", "Syngamy", "Apomixis", "Gametogenesis"], answer: "Parthenogenesis" },
+        { question: "Budding in yeast is a form of:", options: ["Asexual reproduction", "Sexual reproduction", "Conjugation", "Transformation"], answer: "Asexual reproduction" },
+        { question: "Fragmentation in Planaria is a form of:", options: ["Asexual reproduction (regeneration)", "Sexual reproduction", "Budding", "Spore formation"], answer: "Asexual reproduction (regeneration)" },
+        { question: "Vegetative propagation by leaf buds is a characteristic of:", options: ["Bryophyllum", "Ginger", "Potato", "Rose"], answer: "Bryophyllum" }
+    ];
+
+    // --- CORE TEST LOGIC ---
+    const storageKey = 'reproductionUnit1Mock_100Q';
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const timePerQuestion = 45;
+    let timeLeft = timePerQuestion;
+    let userName = '';
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = '';
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${attempt.date}</td><td>${attempt.name}</td><td>${attempt.score}</td>`;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        shuffleArray(questions);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', () => location.reload());
+    restartFromReviewButton.addEventListener('click', () => location.reload());
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+        if (index < 0 || index >= questions.length) return;
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option;
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => item.classList.remove('selected'));
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0, wrongCount = 0, attemptedCount = 0, finalScore = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null) {
+                attemptedCount++;
+                if (userAnswers[i] === questions[i].answer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        return { correctCount, wrongCount, unattemptedCount: questions.length - attemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.rawScore}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+            let userAnswerDisplay = (userAnswer === null) ? '<span style="color: #ff9800;">Not Attempted</span>' : `<span class="${isCorrect ? 'correct-answer' : 'wrong-answer-user'}">${userAnswer}</span>`;
+            li.innerHTML = `<div class="question-text">${q.question}</div><div>Your Answer: ${userAnswerDisplay}</div><div class="correct-answer">Correct Answer: ${q.answer}</div>`;
+            answersList.appendChild(li);
+        });
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) btn.classList.add('attempted');
+            if (index === currentQuestionIndex) btn.classList.add('current');
+        });
+    }
+
+    createTrackerButtons();
+    displayProgress();
+
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
+</body>
+</html>
