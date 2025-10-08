@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - Biological Classification</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+
+<div class="container" id="main-test-content" style="display: none;">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Class 11, Chapter 2: Biological Classification</h2>
+        <p style="font-size: 1.1em; color: #555;">This test has <strong style="color: #d32f2f;">90 questions</strong>. You get 4 marks for a correct answer and -1 for a wrong answer (NEET pattern is calculated in results).</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong> (adjustable).</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    // ============== PASSWORD VERIFICATION SCRIPT ==============
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            document.getElementById("main-test-content").style.display = "flex";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+
+    // Allow pressing Enter to submit password
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+
+
+    // ============== YOUR ORIGINAL TEST SCRIPT STARTS HERE ==============
+    /* * QUESTION DATA ARRAY
+    * This array contains exactly 90 NEET-level questions based on NCERT Class 11, Chapter 2 (Biological Classification).
+    */
+    const questions = [
+        {
+            question: "Which of the following characters is **not** included in Whittaker's Five Kingdom Classification?",
+            options: [
+                "Cell structure",
+                "Mode of nutrition",
+                "Phylogenetic relationship",
+                "Habit and habitat"
+            ],
+            answer: "Habit and habitat"
+        },
+        {
+            question: "In the Five Kingdom system, the main basis of classification is:",
+            options: [
+                "Structure of cell wall",
+                "Asexual reproduction",
+                "Mode of nutrition",
+                "Structure of nucleus"
+            ],
+            answer: "Mode of nutrition"
+        },
+        {
+            question: "Archaebacteria differ from other bacteria in having a different:",
+            options: [
+                "Cell membrane structure",
+                "Mode of nutrition",
+                "Cell shape",
+                "Ribosome structure"
+            ],
+            answer: "Cell membrane structure"
+        },
+        {
+            question: "Which type of bacteria is responsible for the production of methane gas from the dung of ruminants?",
+            options: [
+                "Thermoacidophiles",
+                "Halophiles",
+                "Methanogens",
+                "Cyanobacteria"
+            ],
+            answer: "Methanogens"
+        },
+        {
+            question: "Cyanobacteria (blue-green algae) are classified under Kingdom Monera because:",
+            options: [
+                "They are photosynthetic.",
+                "They are multicellular.",
+                "They are prokaryotic.",
+                "They lack cell wall."
+            ],
+            answer: "They are prokaryotic."
+        },
+        {
+            question: "The specialized cells that fix atmospheric nitrogen in *Nostoc* and *Anabaena* are called:",
+            options: [
+                "Akinetes",
+                "Heterocysts",
+                "Hormogonia",
+                "Basal bodies"
+            ],
+            answer: "Heterocysts"
+        },
+        {
+            question: "Chemosynthetic autotrophic bacteria play a great role in recycling of which elements?",
+            options: [
+                "Sulphur, Oxygen, and Carbon",
+                "Nitrogen, Iron, and Sulphur",
+                "Potassium, Zinc, and Sodium",
+                "Calcium, Phosphorus, and Boron"
+            ],
+            answer: "Nitrogen, Iron, and Sulphur"
+        },
+        {
+            question: "Which bacteria are considered nature's recyclers, having a complex process for breaking down petroleum products or synthetic compounds?",
+            options: [
+                "Photosynthetic autotrophs",
+                "Heterotrophs (Decomposers)",
+                "Pathogenic bacteria",
+                "Nitrifying bacteria"
+            ],
+            answer: "Heterotrophs (Decomposers)"
+        },
+        {
+            question: "The smallest living cells known, without a definite cell wall, are pathogenic to both plants and animals. They are:",
+            options: [
+                "Cyanobacteria",
+                "Mycoplasma",
+                "Euglenoids",
+                "Slime moulds"
+            ],
+            answer: "Mycoplasma"
+        },
+        {
+            question: "Which of the following is characterized by the presence of a cell wall made of cellulose and a pellicle made of protein?",
+            options: [
+                "Diatoms",
+                "Dinoflagellates",
+                "Euglenoids",
+                "Slime moulds"
+            ],
+            answer: "Euglenoids"
+        },
+        {
+            question: "The cell walls of diatoms are indestructible because they are embedded with:",
+            options: [
+                "Cellulose",
+                "Pectins",
+                "Silica",
+                "Chitin"
+            ],
+            answer: "Silica"
+        },
+        {
+            question: "The large accumulation of diatom cell wall deposits, which can be used for filtration and polishing, is known as:",
+            options: [
+                "Red tide",
+                "Diatomaceous earth",
+                "Plankton",
+                "Sporulation"
+            ],
+            answer: "Diatomaceous earth"
+        },
+        {
+            question: "Dinoflagellates, such as *Gonyaulax*, often cause the sea to appear red due to rapid multiplication. This phenomenon is called:",
+            options: [
+                "Red rain",
+                "Red shift",
+                "Red tide",
+                "Water bloom"
+            ],
+            answer: "Red tide"
+        },
+        {
+            question: "Slime moulds are saprophytic protists. Under suitable conditions, they form an aggregation called:",
+            options: [
+                "Mycelium",
+                "Sporangium",
+                "Plasmodium",
+                "Basidium"
+            ],
+            answer: "Plasmodium"
+        },
+        {
+            question: "Kingdom Fungi includes organisms that are:",
+            options: [
+                "Unicellular, prokaryotic, and autotrophic.",
+                "Multicellular, eukaryotic, and saprophytic.",
+                "Unicellular, eukaryotic, and parasitic.",
+                "Prokaryotic, chemosynthetic, and parasitic."
+            ],
+            answer: "Multicellular, eukaryotic, and saprophytic."
+        },
+        {
+            question: "The cell wall of Fungi is composed of:",
+            options: [
+                "Pectin and Cellulose",
+                "Chitin and Polysaccharides",
+                "Lignin and Hemicellulose",
+                "Glycogen and Protein"
+            ],
+            answer: "Chitin and Polysaccharides"
+        },
+        {
+            question: "Which class of Fungi is known as 'algal fungi' due to their presence in aquatic habitats and on decaying wood in moist places?",
+            options: [
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes",
+                "Phycomycetes"
+            ],
+            answer: "Phycomycetes"
+        },
+        {
+            question: "In which fungal class is the dikaryon stage ($n+n$) a characteristic feature of the life cycle?",
+            options: [
+                "Phycomycetes",
+                "Deuteromycetes",
+                "Ascomycetes and Basidiomycetes",
+                "Only Phycomycetes"
+            ],
+            answer: "Ascomycetes and Basidiomycetes"
+        },
+        {
+            question: "Sac fungi are members of:",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Ascomycetes"
+        },
+        {
+            question: "The fungi that cause rusts and smuts belong to which class?",
+            options: [
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes",
+                "Phycomycetes"
+            ],
+            answer: "Basidiomycetes"
+        },
+        {
+            question: "Deuteromycetes are often called 'Imperfect Fungi' because:",
+            options: [
+                "They lack a cell wall.",
+                "They reproduce only asexually.",
+                "Their sexual stages have not been discovered.",
+                "They are obligate parasites."
+            ],
+            answer: "Their sexual stages have not been discovered."
+        },
+        {
+            question: "Lichens are symbiotic associations between:",
+            options: [
+                "Fungi and roots of higher plants",
+                "Algae and Fungi",
+                "Bacteria and Fungi",
+                "Algae and Mosses"
+            ],
+            answer: "Algae and Fungi"
+        },
+        {
+            question: "Which component of a Lichen is the producer (autotroph) component?",
+            options: [
+                "Mycobiont (Fungal component)",
+                "Phycobiont (Algal component)",
+                "Sporangium",
+                "Soredia"
+            ],
+            answer: "Phycobiont (Algal component)"
+        },
+        {
+            question: "Viruses are non-cellular organisms but are classified with living organisms because they:",
+            options: [
+                "Have a genetic material.",
+                "Reproduce inside a living cell.",
+                "Possess a cell wall.",
+                "Can respire."
+            ],
+            answer: "Reproduce inside a living cell."
+        },
+        {
+            question: "The genetic material in Bacteriophage is usually:",
+            options: [
+                "Single-stranded RNA",
+                "Double-stranded RNA",
+                "Single-stranded DNA",
+                "Double-stranded DNA"
+            ],
+            answer: "Double-stranded DNA"
+        },
+        {
+            question: "The protein coat of a virus is called:",
+            options: [
+                "Capsomere",
+                "Capsid",
+                "Envelope",
+                "Nucleoid"
+            ],
+            answer: "Capsid"
+        },
+        {
+            question: "Viroids differ from viruses in that viroids:",
+            options: [
+                "Have DNA core and protein coat.",
+                "Have RNA core and no protein coat.",
+                "Have protein coat but lack genetic material.",
+                "Lack both protein coat and nucleic acid."
+            ],
+            answer: "Have RNA core and no protein coat."
+        },
+        {
+            question: "In the Two Kingdom system of classification, non-photosynthetic fungi were placed under:",
+            options: [
+                "Kingdom Plantae",
+                "Kingdom Protista",
+                "Kingdom Fungi (Not existing then)",
+                "Kingdom Animalia"
+            ],
+            answer: "Kingdom Plantae"
+        },
+        {
+            question: "Which group of organisms exhibits both autotrophic and heterotrophic modes of nutrition?",
+            options: [
+                "Bacteria",
+                "Mycoplasma",
+                "Euglenoids",
+                "Diatoms"
+            ],
+            answer: "Euglenoids"
+        },
+        {
+            question: "The Kingdom Protista includes:",
+            options: [
+                "Only unicellular eukaryotic organisms.",
+                "Unicellular prokaryotes and eukaryotes.",
+                "Multicellular eukaryotes only.",
+                "Eukaryotes of all types."
+            ],
+            answer: "Only unicellular eukaryotic organisms."
+        },
+        {
+            question: "The cell wall of bacteria is made up of:",
+            options: [
+                "Cellulose",
+                "Pectin",
+                "Chitin",
+                "Peptidoglycan"
+            ],
+            answer: "Peptidoglycan"
+        },
+        {
+            question: "Bacteria that obtain energy by oxidizing inorganic substances are called:",
+            options: [
+                "Photoautotrophs",
+                "Chemoheterotrophs",
+                "Chemoautotrophs",
+                "Saprophytes"
+            ],
+            answer: "Chemoautotrophs"
+        },
+        {
+            question: "Which feature is **characteristic** of Eubacteria?",
+            options: [
+                "Presence of nucleus",
+                "Absence of 70S ribosomes",
+                "Presence of rigid cell wall and motile flagellum",
+                "Lacking cell wall"
+            ],
+            answer: "Presence of rigid cell wall and motile flagellum"
+        },
+        {
+            question: "The fusion of two motile gametes of similar size is known as:",
+            options: [
+                "Oogamous",
+                "Anisogamous",
+                "Isogamous",
+                "Zygogamous"
+            ],
+            answer: "Isogamous"
+        },
+        {
+            question: "Penicillium belongs to which fungal class?",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Ascomycetes"
+        },
+        {
+            question: "Agaricus (Mushroom) belongs to:",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Basidiomycetes"
+        },
+        {
+            question: "Assertion (A): Prions are infectious agents that are abnormally folded proteins. Reason (R): Prions contain genetic material, either DNA or RNA.",
+            options: [
+                "Both A and R are true and R is the correct explanation of A.",
+                "Both A and R are true but R is NOT the correct explanation of A.",
+                "A is true but R is false.",
+                "Both A and R are false."
+            ],
+            answer: "A is true but R is false."
+        },
+        {
+            question: "The Kingdom Monera is characterized by:",
+            options: [
+                "Cell wall containing cellulose and sexual reproduction.",
+                "Absence of cell wall and presence of pseudopodia.",
+                "Prokaryotic organization and lack of membrane-bound organelles.",
+                "Unicellular eukaryotic organization and motility."
+            ],
+            answer: "Prokaryotic organization and lack of membrane-bound organelles."
+        },
+        {
+            question: "Chrysophytes are commonly known as:",
+            options: [
+                "Dinoflagellates and Protozoans",
+                "Slime moulds and Euglenoids",
+                "Diatoms and Golden algae (Desmids)",
+                "Red algae and Brown algae"
+            ],
+            answer: "Diatoms and Golden algae (Desmids)"
+        },
+        {
+            question: "The cell surface of Euglenoids is supported by a flexible layer called:",
+            options: [
+                "Pellicle",
+                "Cellulose wall",
+                "Silica frustule",
+                "Mucilage sheath"
+            ],
+            answer: "Pellicle"
+        },
+        {
+            question: "Which of the following is a common storage food material in Fungi?",
+            options: [
+                "Starch and Lipids",
+                "Protein and Glycogen",
+                "Glycogen and Oil",
+                "Fructans and Cellulose"
+            ],
+            answer: "Glycogen and Oil"
+        },
+        {
+            question: "T.O. Diener discovered an infectious agent that was smaller than viruses and caused potato spindle tuber disease. This agent was:",
+            options: [
+                "Prion",
+                "Viroid",
+                "Bacteriophage",
+                "Mycoplasma"
+            ],
+            answer: "Viroid"
+        },
+        {
+            question: "The sexual reproduction in Phycomycetes involves fusion of gametes. The resulting diploid structure is called a:",
+            options: [
+                "Ascospore",
+                "Basidiospore",
+                "Zygospore",
+                "Conidia"
+            ],
+            answer: "Zygospore"
+        },
+        {
+            question: "Which fungal group has septate and branched mycelium but does **not** reproduce sexually?",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Deuteromycetes"
+        },
+        {
+            question: "The fungi that are parasitic on mustard plants, causing white rust, belong to:",
+            options: [
+                "Albugo",
+                "Puccinia",
+                "Neurospora",
+                "Yeast"
+            ],
+            answer: "Albugo"
+        },
+        {
+            question: "Which organism is commonly used in genetic work for biochemical analysis (the Drosophila of the Plant Kingdom)?",
+            options: [
+                "Rhizopus",
+                "Neurospora",
+                "Agaricus",
+                "Ustilago"
+            ],
+            answer: "Neurospora"
+        },
+        {
+            question: "Match the columns: Column I (Protist Group) - A. Chrysophytes, B. Dinoflagellates, C. Euglenoids, D. Slime Moulds. Column II (Characteristic) - 1. Plasmodium, 2. Two flagella, 3. Pellicle, 4. Silica frustules.",
+            options: [
+                "A-4, B-2, C-3, D-1",
+                "A-2, B-4, C-1, D-3",
+                "A-3, B-1, C-4, D-2",
+                "A-4, B-3, C-2, D-1"
+            ],
+            answer: "A-4, B-2, C-3, D-1"
+        },
+        {
+            question: "In the classification of viruses, what determines the nature of the genetic material?",
+            options: [
+                "Capsid structure",
+                "Host cell type",
+                "Type of nucleic acid (DNA or RNA) and its strandedness (ss or ds)",
+                "Presence of cell wall"
+            ],
+            answer: "Type of nucleic acid (DNA or RNA) and its strandedness (ss or ds)"
+        },
+        {
+            question: "Which Archaebacterium is adapted to live in extremely high salt concentrations?",
+            options: [
+                "Methanogens",
+                "Thermoacidophiles",
+                "Halophiles",
+                "Eubacteria"
+            ],
+            answer: "Halophiles"
+        },
+        {
+            question: "The plasma membrane of Archaebacteria is adapted to survive extreme conditions mainly due to:",
+            options: [
+                "Presence of peptidoglycan",
+                "Absence of DNA",
+                "Branched chain lipids",
+                "Presence of cellulose"
+            ],
+            answer: "Branched chain lipids"
+        },
+        {
+            question: "The structure that helps in bacterial locomotion is:",
+            options: [
+                "Pili",
+                "Fimbriae",
+                "Flagella",
+                "Slime layer"
+            ],
+            answer: "Flagella"
+        },
+        {
+            question: "Which characteristic is shared by both Prokaryotes and Eukaryotes?",
+            options: [
+                "Presence of a membrane-bound nucleus",
+                "Presence of a cell wall",
+                "Presence of ribosomes",
+                "Presence of mitochondria"
+            ],
+            answer: "Presence of ribosomes"
+        },
+        {
+            question: "The mode of reproduction most commonly observed in bacteria under favourable conditions is:",
+            options: [
+                "Conjugation",
+                "Transduction",
+                "Binary fission",
+                "Sporulation"
+            ],
+            answer: "Binary fission"
+        },
+        {
+            question: "Which of the following is a parasitic fungus belonging to Phycomycetes?",
+            options: [
+                "Agaricus",
+                "Penicillium",
+                "Ustilago",
+                "Albugo"
+            ],
+            answer: "Albugo"
+        },
+        {
+            question: "The cell wall of diatoms, forming a two-part shell, is called a:",
+            options: [
+                "Frustule",
+                "Pellicle",
+                "Theca",
+                "Capsid"
+            ],
+            answer: "Frustule"
+        },
+        {
+            question: "The reserve food material in Dinoflagellates is generally:",
+            options: [
+                "Starch and fat",
+                "Glycogen and oil",
+                "Laminarin",
+                "Paramylon"
+            ],
+            answer: "Starch and fat"
+        },
+        {
+            question: "In Slime Moulds, the spores possess **true walls** and are dispersed by:",
+            options: [
+                "Water currents",
+                "Insects",
+                "Air currents",
+                "Animals"
+            ],
+            answer: "Air currents"
+        },
+        {
+            question: "Sexual reproduction in Fungi is carried out by three steps. The correct sequence is:",
+            options: [
+                "Karyogamy, Plasmogamy, Meiosis",
+                "Plasmogamy, Meiosis, Karyogamy",
+                "Plasmogamy, Karyogamy, Meiosis",
+                "Meiosis, Karyogamy, Plasmogamy"
+            ],
+            answer: "Plasmogamy, Karyogamy, Meiosis"
+        },
+        {
+            question: "The fusion of two nuclei is called:",
+            options: [
+                "Plasmogamy",
+                "Karyogamy",
+                "Isogamy",
+                "Anisogamy"
+            ],
+            answer: "Karyogamy"
+        },
+        {
+            question: "The dikaryophase ($n+n$ condition) in Fungi is characteristic of members of:",
+            options: [
+                "Phycomycetes and Deuteromycetes",
+                "Ascomycetes and Basidiomycetes",
+                "Phycomycetes and Basidiomycetes",
+                "Deuteromycetes and Ascomycetes"
+            ],
+            answer: "Ascomycetes and Basidiomycetes"
+        },
+        {
+            question: "An example of an organism that is capable of photosynthesis in light and behaves as a heterotroph in the absence of light is:",
+            options: [
+                "Nostoc",
+                "Mycoplasma",
+                "Euglena",
+                "Paramecium"
+            ],
+            answer: "Euglena"
+        },
+        {
+            question: "Which Fungi is a source of the hallucinogenic compound, psilocybin?",
+            options: [
+                "Puccinia",
+                "Toadstool",
+                "Morels and Truffles",
+                "Mushrooms (certain species)"
+            ],
+            answer: "Mushrooms (certain species)"
+        },
+        {
+            question: "In the Kingdom Protista, the motile forms mostly possess:",
+            options: [
+                "Cell wall",
+                "Pili",
+                "Cilia or flagella",
+                "Capsule"
+            ],
+            answer: "Cilia or flagella"
+        },
+        {
+            question: "Which group of Protists is primarily marine and is the chief producer in the oceans?",
+            options: [
+                "Slime moulds",
+                "Amoeboid protozoans",
+                "Dinoflagellates",
+                "Chrysophytes"
+            ],
+            answer: "Chrysophytes"
+        },
+        {
+            question: "The simplest and oldest form of classification, based on easily observable superficial characters like habit, colour, number, and shape of leaves, was given by:",
+            options: [
+                "Carolus Linnaeus",
+                "R.H. Whittaker",
+                "Aristotle",
+                "Theophrastus"
+            ],
+            answer: "Aristotle"
+        },
+        {
+            question: "Assertion (A): Viruses are obligate parasites. Reason (R): Viruses lack their own enzyme machinery for metabolic activities.",
+            options: [
+                "Both A and R are true and R is the correct explanation of A.",
+                "Both A and R are true but R is NOT the correct explanation of A.",
+                "A is true but R is false.",
+                "Both A and R are false."
+            ],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The Kingdom Animalia is characterized by the mode of nutrition called:",
+            options: [
+                "Saprophytic",
+                "Chemosynthetic",
+                "Holozoic",
+                "Photoautotrophic"
+            ],
+            answer: "Holozoic"
+        },
+        {
+            question: "Which of the following is an example of an obligate anaerobe Archaebacterium?",
+            options: [
+                "Halophile",
+                "Thermoacidophile",
+                "Methanogen",
+                "Cyanobacterium"
+            ],
+            answer: "Methanogen"
+        },
+        {
+            question: "Sexual spores in Ascomycetes are called:",
+            options: [
+                "Conidia",
+                "Zoospores",
+                "Ascospores",
+                "Basidiospores"
+            ],
+            answer: "Ascospores"
+        },
+        {
+            question: "The cell walls of Dinoflagellates have stiff cellulose plates on the outer surface, forming a structure known as:",
+            options: [
+                "Pellicle",
+                "Frustule",
+                "Theca",
+                "Capsule"
+            ],
+            answer: "Theca"
+        },
+        {
+            question: "Which of the following is commonly known as 'rust fungus'?",
+            options: [
+                "Neurospora",
+                "Puccinia",
+                "Saccharomyces (Yeast)",
+                "Penicillium"
+            ],
+            answer: "Puccinia"
+        },
+        {
+            question: "Which group of organisms forms a bridge between the plant and animal kingdoms?",
+            options: [
+                "Euglenoids",
+                "Slime moulds",
+                "Bacteria",
+                "Amoeboid protozoans"
+            ],
+            answer: "Euglenoids"
+        },
+        {
+            question: "The three major groups of Archaebacteria are:",
+            options: [
+                "Eubacteria, Cyanobacteria, Mycoplasma",
+                "Methanogens, Halophiles, Thermoacidophiles",
+                "Chemoautotrophs, Photoautotrophs, Heterotrophs",
+                "Saccharomyces, Penicillium, Agaricus"
+            ],
+            answer: "Methanogens, Halophiles, Thermoacidophiles"
+        },
+        {
+            question: "The protists having two flagella, one lying longitudinally and the other transversely, are:",
+            options: [
+                "Diatoms",
+                "Euglenoids",
+                "Dinoflagellates",
+                "Ciliates"
+            ],
+            answer: "Dinoflagellates"
+        },
+        {
+            question: "The motile spores produced by Fungi, especially in Phycomycetes, are called:",
+            options: [
+                "Conidia",
+                "Zoospores",
+                "Aplanospores",
+                "Ascospores"
+            ],
+            answer: "Zoospores"
+        },
+        {
+            question: "What is the nature of the genetic material in Tobacco Mosaic Virus (TMV)?",
+            options: [
+                "Double-stranded DNA",
+                "Single-stranded DNA",
+                "Double-stranded RNA",
+                "Single-stranded RNA"
+            ],
+            answer: "Single-stranded RNA"
+        },
+        {
+            question: "Prions primarily affect which system in animals?",
+            options: [
+                "Respiratory system",
+                "Digestive system",
+                "Nervous system",
+                "Circulatory system"
+            ],
+            answer: "Nervous system"
+        },
+        {
+            question: "Which organism is commonly used in baking and brewing industries?",
+            options: [
+                "Mucor",
+                "Aspergillus",
+                "Saccharomyces (Yeast)",
+                "Alternaria"
+            ],
+            answer: "Saccharomyces (Yeast)"
+        },
+        {
+            question: "The hyphae of *Rhizopus* (bread mould) are:",
+            options: [
+                "Septate and coenocytic",
+                "Aseptate and coenocytic",
+                "Septate and multicellular",
+                "Aseptate and multicellular"
+            ],
+            answer: "Aseptate and coenocytic"
+        },
+        {
+            question: "The most diverse group of bacteria, which are the most abundant in nature, belongs to:",
+            options: [
+                "Archaebacteria",
+                "Chemosynthetic bacteria",
+                "Heterotrophic bacteria",
+                "Cyanobacteria"
+            ],
+            answer: "Heterotrophic bacteria"
+        },
+        {
+            question: "Which group of organisms is known as 'predators or parasites' among Protists?",
+            options: [
+                "Chrysophytes",
+                "Dinoflagellates",
+                "Protozoans",
+                "Slime moulds"
+            ],
+            answer: "Protozoans"
+        },
+        {
+            question: "Which protozoan group uses pseudopodia for movement and capturing prey?",
+            options: [
+                "Flagellated protozoans",
+                "Amoeboid protozoans",
+                "Ciliated protozoans",
+                "Sporozoans"
+            ],
+            answer: "Amoeboid protozoans"
+        },
+        {
+            question: "Sleeping sickness is caused by a member of which protozoan group?",
+            options: [
+                "Amoeboid",
+                "Flagellated",
+                "Ciliated",
+                "Sporozoan"
+            ],
+            answer: "Flagellated"
+        },
+        {
+            question: "The reserve food material in Euglenoids is known as:",
+            options: [
+                "Starch",
+                "Glycogen",
+                "Paramylon",
+                "Fucoxanthin"
+            ],
+            answer: "Paramylon"
+        },
+        {
+            question: "The two main forms of fungal body structure are:",
+            options: [
+                "Hyphae and Basidia",
+                "Yeast (unicellular) and Filamentous (mycelium)",
+                "Ascocarp and Basidiocarp",
+                "Plasmodium and Sporangium"
+            ],
+            answer: "Yeast (unicellular) and Filamentous (mycelium)"
+        },
+        {
+            question: "Which of the following causes the disease 'scrapie' in sheep?",
+            options: [
+                "Virus",
+                "Viroid",
+                "Prion",
+                "Bacteria"
+            ],
+            answer: "Prion"
+        },
+        {
+            question: "Statement I: The Five Kingdom Classification system successfully resolved the placement of organisms like *Chlamydomonas* and *Chlorella*. Statement II: These organisms were placed in Kingdom Protista.",
+            options: [
+                "Both Statement I and Statement II are true.",
+                "Statement I is true but Statement II is false.",
+                "Statement I is false but Statement II is true.",
+                "Both Statement I and Statement II are false."
+            ],
+            answer: "Both Statement I and Statement II are true."
+        },
+        {
+            question: "The main characteristic that classifies an organism as a Protozoan is its:",
+            options: [
+                "Cell wall composition",
+                "Mode of reproduction",
+                "Heterotrophic and predatory nature",
+                "Presence of nucleus"
+            ],
+            answer: "Heterotrophic and predatory nature"
+        },
+        {
+            question: "Which fungal class is known as the 'dustbin' of the fungal world?",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Deuteromycetes"
+        },
+        {
+            question: "The term 'contagium vivum fluidum' (infectious living fluid) was coined by:",
+            options: [
+                "D.J. Ivanowsky",
+                "M.W. Beijerinck",
+                "W.M. Stanley",
+                "Louis Pasteur"
+            ],
+            answer: "M.W. Beijerinck"
+        },
+        {
+            question: "Which of the following bacteria are known for their role in milk curdling?",
+            options: [
+                "Nitrobacter",
+                "Lactobacillus",
+                "Rhizobium",
+                "Clostridium"
+            ],
+            answer: "Lactobacillus"
+        },
+        {
+            question: "In the context of viruses, the **capsomeres** are:",
+            options: [
+                "The genetic material core.",
+                "The individual units of the capsid.",
+                "The outer lipid envelope.",
+                "The enzymes involved in replication."
+            ],
+            answer: "The individual units of the capsid."
+        },
+        {
+            question: "Identify the parasitic sporozoan that causes malaria in humans:",
+            options: [
+                "Entamoeba",
+                "Trypanosoma",
+                "Plasmodium",
+                "Paramecium"
+            ],
+            answer: "Plasmodium"
+        },
+        {
+            question: "Fungal spores produced exogenously on special structures are called:",
+            options: [
+                "Zoospores",
+                "Ascospores",
+                "Conidia",
+                "Aplanospores"
+            ],
+            answer: "Conidia"
+        },
+        {
+            question: "The cell wall material that gives strength to the tough, layered structure of diatoms is:",
+            options: [
+                "Silica",
+                "Pectin",
+                "Chitin",
+                "Peptidoglycan"
+            ],
+            answer: "Silica"
+        },
+        {
+            question: "Which group of organisms possesses pigments identical to those found in higher plants (chlorophyll a and b)?",
+            options: [
+                "Dinoflagellates",
+                "Euglenoids",
+                "Diatoms",
+                "Cyanobacteria"
+            ],
+            answer: "Euglenoids"
+        },
+        {
+            question: "The asexual spores in Phycomycetes, which are non-motile, are called:",
+            options: [
+                "Conidia",
+                "Zoospores",
+                "Aplanospores",
+                "Ascospores"
+            ],
+            answer: "Aplanospores"
+        },
+        {
+            question: "Sexual reproduction is absent in:",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Deuteromycetes",
+                "Basidiomycetes"
+            ],
+            answer: "Deuteromycetes"
+        },
+        {
+            question: "The phenomenon where a Dinoflagellate releases toxins that kill marine animals is directly linked to:",
+            options: [
+                "Their bioluminescence",
+                "Red tide formation",
+                "Photosynthetic ability",
+                "The presence of two flagella"
+            ],
+            answer: "Red tide formation"
+        },
+        {
+            question: "Slime Moulds are ecologically significant as they perform the role of:",
+            options: [
+                "Primary producers",
+                "Decomposers",
+                "Obligate parasites",
+                "Nitrogen fixers"
+            ],
+            answer: "Decomposers"
+        },
+        {
+            question: "The five kingdoms proposed by R.H. Whittaker are Monera, Protista, Fungi, Plantae, and:",
+            options: [
+                "Algae",
+                "Animalia",
+                "Viruses",
+                "Archaea"
+            ],
+            answer: "Animalia"
+        },
+        {
+            question: "The two-kingdom classification system failed to distinguish between:",
+            options: [
+                "Bacteria and Fungi",
+                "Prokaryotes and Eukaryotes",
+                "Unicellular and Multicellular organisms",
+                "All of the above"
+            ],
+            answer: "All of the above"
+        },
+        {
+            question: "Which characteristic of Cyanobacteria is analogous to that of plants?",
+            options: [
+                "Presence of chlorophyll $a$",
+                "Presence of $70S$ ribosomes",
+                "Absence of membrane-bound organelles",
+                "Peptidoglycan cell wall"
+            ],
+            answer: "Presence of chlorophyll $a$"
+        },
+        {
+            question: "Sexual fusion in Fungi results in a diploid cell called:",
+            options: [
+                "Zygospore",
+                "Ascospore",
+                "Zygote",
+                "Basidiospore"
+            ],
+            answer: "Zygote"
+        },
+        {
+            question: "Which fungus is used commercially to produce citric acid?",
+            options: [
+                "Penicillium",
+                "Neurospora",
+                "Aspergillus",
+                "Yeast"
+            ],
+            answer: "Aspergillus"
+        },
+        {
+            question: "The structure in Amoeboid protozoans that helps in osmoregulation is the:",
+            options: [
+                "Contractile vacuole",
+                "Pseudopodia",
+                "Pellicle",
+                "Shell"
+            ],
+            answer: "Contractile vacuole"
+        },
+        {
+            question: "Statement I: $Archaebacteria$ are obligate anaerobes. Statement II: $Methanogens$ are a type of $Archaebacteria$.",
+            options: [
+                "Both Statement I and Statement II are true, and Statement II is the correct explanation of Statement I.",
+                "Both Statement I and Statement II are true, but Statement II is NOT the correct explanation of Statement I.",
+                "Statement I is false but Statement II is true.",
+                "Both Statement I and Statement II are false."
+            ],
+            answer: "Statement I is false but Statement II is true."
+        },
+        {
+            question: "A Gram-positive bacterium is distinguished from a Gram-negative bacterium primarily by its:",
+            options: [
+                "Presence of flagella",
+                "Thickness of peptidoglycan wall",
+                "Mode of reproduction",
+                "Ability to fix nitrogen"
+            ],
+            answer: "Thickness of peptidoglycan wall"
+        },
+        {
+            question: "The characteristic locomotory structure in *Paramecium* is:",
+            options: [
+                "Flagella",
+                "Pseudopodia",
+                "Cilia",
+                "Pili"
+            ],
+            answer: "Cilia"
+        },
+        {
+            question: "Which of the following belongs to the Kingdom Plantae according to Whittaker's classification?",
+            options: [
+                "Mushroom",
+                "Moss",
+                "Slime mould",
+                "Chlorella"
+            ],
+            answer: "Moss"
+        },
+        {
+            question: "The association between roots of higher plants and fungi is called:",
+            options: [
+                "Lichen",
+                "Mycorrhiza",
+                "Akinete",
+                "Heterocyst"
+            ],
+            answer: "Mycorrhiza"
+        },
+        {
+            question: "Which virus is known to have a helical symmetry and rod shape?",
+            options: [
+                "Bacteriophage",
+                "HIV",
+                "Influenza virus",
+                "Tobacco Mosaic Virus (TMV)"
+            ],
+            answer: "Tobacco Mosaic Virus (TMV)"
+        },
+        {
+            question: "The sexual spores formed in the Basidiomycetes are typically produced on a club-shaped structure called:",
+            options: [
+                "Ascocarp",
+                "Basidium",
+                "Sporangium",
+                "Zygospore"
+            ],
+            answer: "Basidium"
+        },
+        {
+            question: "The infectious agent causing 'mad cow disease' (BSE) in cattle and Creutzfeldt-Jakob disease (CJD) in humans is a:",
+            options: [
+                "Viroid",
+                "Virus",
+                "Prion",
+                "Mycoplasma"
+            ],
+            answer: "Prion"
+        },
+        {
+            question: "In the context of Eubacteria, which of the following refers to the transfer of genetic material via a viral vector?",
+            options: [
+                "Conjugation",
+                "Transformation",
+                "Transduction",
+                "Binary fission"
+            ],
+            answer: "Transduction"
+        },
+        {
+            question: "Which statement is correct about $Thermoacidophiles$?",
+            options: [
+                "They live in marshy areas and produce methane.",
+                "They are adapted to high temperature and acidic pH.",
+                "They thrive in extreme salty areas.",
+                "They are photosynthetic and possess chlorophyll $a$."
+            ],
+            answer: "They are adapted to high temperature and acidic pH."
+        },
+        {
+            question: "The structure that protects bacteria from desiccation and is generally sticky is the:",
+            options: [
+                "Cell wall",
+                "Cell membrane",
+                "Capsule/Slime layer",
+                "Flagellum"
+            ],
+            answer: "Capsule/Slime layer"
+        },
+        {
+            question: "The main body of a fungus, composed of thread-like structures, is called:",
+            options: [
+                "Hypha",
+                "Mycelium",
+                "Thallus",
+                "Sporangium"
+            ],
+            answer: "Mycelium"
+        },
+        {
+            question: "Which feature distinguishes Ascomycetes from Basidiomycetes?",
+            options: [
+                "Ascomycetes have septate hyphae.",
+                "Basidiospores are formed exogenously, while ascospores are formed endogenously.",
+                "Both show the dikaryophase.",
+                "Ascomycetes lack sexual reproduction."
+            ],
+            answer: "Basidiospores are formed exogenously, while ascospores are formed endogenously."
+        },
+        {
+            question: "Which protozoan is covered by a rigid, often calcareous, shell?",
+            options: [
+                "Amoeba",
+                "Paramecium",
+                "Radiolarians/Foraminiferans",
+                "Trypanosoma"
+            ],
+            answer: "Radiolarians/Foraminiferans"
+        },
+        {
+            question: "The main storage polysaccharide in Fungi is:",
+            options: [
+                "Starch",
+                "Cellulose",
+                "Glycogen",
+                "Pectin"
+            ],
+            answer: "Glycogen"
+        },
+        {
+            question: "Which Kingdom in the Five Kingdom Classification is polyphyletic (i.e., organisms do not share a single common ancestor)?",
+            options: [
+                "Monera",
+                "Protista",
+                "Fungi",
+                "Animalia"
+            ],
+            answer: "Protista"
+        },
+        {
+            question: "The mode of sexual reproduction characterized by the fusion of a large, non-motile female gamete and a smaller, motile male gamete is:",
+            options: [
+                "Isogamous",
+                "Anisogamous",
+                "Oogamous",
+                "Plasmogamy"
+            ],
+            answer: "Oogamous"
+        },
+        {
+            question: "Which of the following is an example of a **Ciliated Protozoan**?",
+            options: [
+                "Entamoeba",
+                "Plasmodium",
+                "Paramecium",
+                "Trypanosoma"
+            ],
+            answer: "Paramecium"
+        },
+        {
+            question: "The most appropriate size range for a typical bacterium is:",
+            options: [
+                "0.1 to 0.5 $\mu m$",
+                "1 to 5 $\mu m$",
+                "10 to 50 $\mu m$",
+                "100 to 500 $\mu m$"
+            ],
+            answer: "1 to 5 $\mu m$"
+        },
+        {
+            question: "The photosynthetic pigments of Cyanobacteria are located in:",
+            options: [
+                "Chloroplasts",
+                "Chromatophores",
+                "Nucleoid region",
+                "Mitochondria"
+            ],
+            answer: "Chromatophores"
+        },
+        {
+            question: "Which fungal class includes the parasitic form *Ustilago* (smut disease)?",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Basidiomycetes"
+        },
+        {
+            question: "The infective stage of *Plasmodium* that enters the human body is the:",
+            options: [
+                "Merozoite",
+                "Gametocyte",
+                "Sporozoite",
+                "Cyst"
+            ],
+            answer: "Sporozoite"
+        },
+        {
+            question: "What is the primary ecological function of Diatoms?",
+            options: [
+                "Decomposition",
+                "Nitrogen fixation",
+                "Chief producers in oceans",
+                "Pathogenesis"
+            ],
+            answer: "Chief producers in oceans"
+        },
+        {
+            question: "Which of the following is commonly known as 'Truffles'?",
+            options: [
+                "Phycomycetes",
+                "Ascomycetes",
+                "Basidiomycetes",
+                "Deuteromycetes"
+            ],
+            answer: "Ascomycetes"
+        },
+        {
+            question: "The bacterial genetic material is a single circular DNA molecule located in the:",
+            options: [
+                "Nucleus",
+                "Cytoplasm",
+                "Plasmid",
+                "Nucleoid"
+            ],
+            answer: "Nucleoid"
+        },
+        {
+            question: "What differentiates a Lytic cycle from a Lysogenic cycle in Bacteriophages?",
+            options: [
+                "Lytic cycle integrates DNA into the host chromosome.",
+                "Lysogenic cycle results in host cell death.",
+                "Lytic cycle immediately destroys the host cell.",
+                "Lysogenic cycle involves RNA core only."
+            ],
+            answer: "Lytic cycle immediately destroys the host cell."
+        },
+        {
+            question: "Which statement best describes the locomotion of Amoeboid protozoans?",
+            options: [
+                "By flagella (whiplash motion)",
+                "By cilia (oar-like movement)",
+                "By pseudopodia (false feet)",
+                "They are non-motile"
+            ],
+            answer: "By pseudopodia (false feet)"
+        },
+        {
+            question: "The fungal spores produced asexually at the tips of hyphae in *Aspergillus* are:",
+            options: [
+                "Zoospores",
+                "Aplanospores",
+                "Conidia",
+                "Ascospores"
+            ],
+            answer: "Conidia"
+        },
+        {
+            question: "Which of the following is an example of an organism whose cell wall has **no** chitin?",
+            options: [
+                "Yeast",
+                "Mucor",
+                "Penicillium",
+                "Albugo"
+            ],
+            answer: "Albugo"
+        },
+        {
+            question: "The most common method of asexual reproduction in Fungi is through:",
+            options: [
+                "Fragmentation",
+                "Budding",
+                "Spore formation",
+                "Binary fission"
+            ],
+            answer: "Spore formation"
+        },
+        {
+            question: "The pigments responsible for the golden colour in **Golden Algae** are:",
+            options: [
+                "Phycocyanin and Phycobilins",
+                "Chlorophyll $a$ and $c$, and Carotenoids",
+                "Fucoxanthin and other xanthophylls",
+                "Rhodoplasts"
+            ],
+            answer: "Chlorophyll $a$ and $c$, and Carotenoids"
+        },
+        {
+            question: "The scientific study of Fungi is known as:",
+            options: [
+                "Phycology",
+                "Bacteriology",
+                "Mycology",
+                "Virology"
+            ],
+            answer: "Mycology"
+        },
+        {
+            question: "The protist group that is believed to be the primitive relatives of animals are the:",
+            options: [
+                "Chrysophytes",
+                "Slime moulds",
+                "Protozoans",
+                "Dinoflagellates"
+            ],
+            answer: "Protozoans"
+        },
+        {
+            question: "What is the common name for the fruiting body of a Basidiomycete like $Agaricus$?",
+            options: [
+                "Truffle",
+                "Mushroom",
+                "Ascocarp",
+                "Soredia"
+            ],
+            answer: "Mushroom"
+        },
+        {
+            question: "Which of the following is an example of an **Anisogamous** organism?",
+            options: [
+                "*Ulothrix*",
+                "*Chlamydomonas* (some species)",
+                "*Fucus*",
+                "*Spirogyra*"
+            ],
+            answer: "*Chlamydomonas* (some species)"
+        },
+        {
+            question: "The phenomenon where a Dinoflagellate emits light is called:",
+            options: [
+                "Chemosynthesis",
+                "Photoperiodism",
+                "Bioluminescence",
+                "Bioaccumulation"
+            ],
+            answer: "Bioluminescence"
+        },
+        {
+            question: "The structure that transfers genetic material from one bacterium to another during conjugation is the:",
+            options: [
+                "Fimbriae",
+                "Pili",
+                "Flagella",
+                "Capsule"
+            ],
+            answer: "Pili"
+        }
+    ];
+
+    const TOTAL_QUESTIONS_EXPECTED = 90; // CORRECTED: Set to 90 to match the data length
+
+    let currentQuestionIndex = 0;
+    // Initialize userAnswers based on the actual number of questions loaded
+    let userAnswers = new Array(questions.length).fill(null); 
+    let timerInterval;
+    const timePerQuestion = 45; // Time in seconds (Adjustable for NEET, typically 60s per question)
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+
+    // Helper function to display the custom modal
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+
+        // Reset buttons
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+
+        // Clear previous listeners
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        
+        if (!userName) {
+            // Replaced alert() with showModal('alert')
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        
+        if (questions.length !== TOTAL_QUESTIONS_EXPECTED) {
+            // This check now primarily serves as a safeguard against accidental modification
+            const warningMessage = `Warning: The test size is configured for ${TOTAL_QUESTIONS_EXPECTED} questions, but ${questions.length} questions were found. Do you want to start?`;
+            
+            // Replaced window.confirm() with showModal('confirm')
+            showModal(warningMessage, 'confirm', (confirmed) => {
+                if (confirmed) {
+                    startTestSequence();
+                }
+            });
+            return;
+        }
+        
+        // If all checks pass and question count is correct
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    // Close tracker when clicking outside the content
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    // Core Functions
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); // Move to next question automatically
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            // Ensure LaTeX is properly rendered if used (basic text rendering here)
+            li.textContent = option.replace(/\$/g, '', ''); 
+            
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons(); // Update tracker instantly upon selection
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        // Navigation logic
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        
+        // NEET Scoring: +4 for correct, -1 for wrong, 0 for unattempted
+        let finalScore = 0; 
+        
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        
+        const unattemptedCount = questions.length - attemptedCount;
+
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                // If wrong, show the wrong answer with strike-through and red color
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer.replace(/\$/g, '')}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">Q${index + 1}: ${q.question.replace(/\$/g, '')}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer.replace(/\$/g, '')}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        updateTrackerButtons();
+        createTrackerButtons(); // Re-create in case question count changed (though static here)
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize tracker buttons on load
+    createTrackerButtons();
+</script>
+
+</body>
+</html>
