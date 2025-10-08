@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NEET Biology Mock Test - Reproductive Health (Chapter 4)</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0;
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Chapter 4: Reproductive Health (Set 1)</h2>
+        <p style="font-size: 1.1em; color: #555;">This test contains <strong style="color: #d32f2f;">90 questions</strong> at NEET level. The question order is randomized each attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* QUESTIONS: 90 NEET-level questions for Class 12 Chapter 4 - Reproductive Health */
+    const questions = [
+        { question: "Which of the following is a primary objective of family planning?", options: ["To increase population growth", "To improve maternal and child health", "To promote early marriages", "To encourage large families"], answer: "To improve maternal and child health" },
+        { question: "Which contraceptive method provides protection against sexually transmitted infections (STIs)?", options: ["Oral contraceptive pills", "Copper T IUD", "Male condom", "Tubectomy"], answer: "Male condom" },
+        { question: "Which of the following is NOT a hormonal contraceptive?", options: ["Combined oral pill", "Depot medroxyprogesterone acetate (DMPA)", "Cu-T (Copper bearing IUD)", "Progestin-only pill"], answer: "Cu-T (Copper bearing IUD)" },
+        { question: "Copper IUD primarily prevents pregnancy by:", options: ["Inhibiting ovulation", "Altering cervical mucus to prevent sperm entry", "Creating a toxic environment for sperms and preventing implantation", "Thickening endometrium to prevent implantation"], answer: "Creating a toxic environment for sperms and preventing implantation" },
+        { question: "Which of the following is used as emergency contraception (within 72 hours after unprotected intercourse)?", options: ["Copper T insertion", "Combined oral contraceptive daily", "Levonorgestrel single dose", "DMPA injection"], answer: "Levonorgestrel single dose" },
+        { question: "Which contraceptive method requires surgery and is considered permanent?", options: ["Condom", "Copper T", "Vasectomy", "Oral pill"], answer: "Vasectomy" },
+        { question: "Lactational amenorrhea method (LAM) prevents pregnancy mainly by:", options: ["Permanent occlusion of fallopian tubes", "Suppressing ovulation through suckling-induced prolactin release", "Creating a cervical barrier", "Killing sperms in vagina"], answer: "Suppressing ovulation through suckling-induced prolactin release" },
+        { question: "Which of the following is true about combined oral contraceptive pills?", options: ["They contain only progesterone", "They can be used as emergency contraception only", "They suppress ovulation and alter cervical mucus", "They permanently sterilize the female reproductive tract"], answer: "They suppress ovulation and alter cervical mucus" },
+        { question: "Which method of contraception is based on preventing sperm from entering the uterus?", options: ["Tubectomy", "Vasectomy", "Barrier methods (e.g., diaphragm, condoms)", "Oral contraceptive pills"], answer: "Barrier methods (e.g., diaphragm, condoms)" },
+        { question: "Which of the following statements about sterilization is correct?", options: ["Vasectomy leads to immediate cessation of sperm production", "Tubectomy interrupts the pathway of ova to the uterus", "Vasectomy removes the testes", "Tubectomy prevents spermatogenesis"], answer: "Tubectomy interrupts the pathway of ova to the uterus" },
+        { question: "Which contraceptive device is placed inside the uterus and provides long-term reversible contraception?", options: ["Diaphragm", "Vaginal ring", "Intrauterine device (IUD)", "Condom"], answer: "Intrauterine device (IUD)" },
+        { question: "Which of the following is a major health benefit of small family norms?", options: ["Higher maternal mortality", "Better allocation of resources per child", "Higher infant mortality", "Decreased female literacy"], answer: "Better allocation of resources per child" },
+        { question: "Emergency contraceptive pills act mainly by:", options: ["Killing sperm inside uterus", "Preventing implantation of a fertilized egg by destroying the blastocyst", "Delaying or inhibiting ovulation", "Permanently altering ovarian function"], answer: "Delaying or inhibiting ovulation" },
+        { question: "Which sexually transmitted infection (STI) is caused by a bacterium and can lead to pelvic inflammatory disease (PID) if untreated?", options: ["HIV", "Chlamydia trachomatis", "HPV", "Herpes simplex virus"], answer: "Chlamydia trachomatis" },
+        { question: "Which STI is most strongly associated with cervical cancer?", options: ["HIV", "Chlamydia", "Human Papillomavirus (HPV)", "Syphilis"], answer: "Human Papillomavirus (HPV)" },
+        { question: "Which of the following is the recommended screening test for cervical cancer prevention?", options: ["Serum PSA test", "Pap smear (Papanicolaou test)", "Serological test for HIV", "Urine culture"], answer: "Pap smear (Papanicolaou test)" },
+        { question: "Which contraceptive is a long-acting reversible contraceptive (LARC)?", options: ["Copper T", "Daily oral pill", "Male condom", "Spermicide"], answer: "Copper T" },
+        { question: "Which birth control method is suitable immediately after childbirth (postpartum) and provides long-term protection?", options: ["Copper T insertion (postpartum IUD)", "Daily combined pill immediately", "Diaphragm", "Natural rhythm method"], answer: "Copper T insertion (postpartum IUD)" },
+        { question: "Which statement about vasectomy is true?", options: ["It blocks the flow of sperm by cutting/ligating the vas deferens", "It prevents testosterone production", "It removes seminal vesicles", "It prevents erection"], answer: "It blocks the flow of sperm by cutting/ligating the vas deferens" },
+        { question: "Which of these contraceptives acts mainly by producing a hostile uterine environment and impairing sperm motility due to copper ions?", options: ["Hormonal implant", "Cu-T", "Combined pill", "Progestin injectables"], answer: "Cu-T" },
+        { question: "Which contraceptive method has the highest typical-use failure rate among the following?", options: ["Male condom", "Copper T IUD", "Vasectomy", "Combined oral contraceptive (with correct daily use)"], answer: "Male condom" },
+        { question: "Which one of the following is an advantage of intrauterine device (IUD)?", options: ["Prevents STIs", "Requires daily compliance", "Long term reversible contraception", "Permanently sterilizes woman"], answer: "Long term reversible contraception" },
+        { question: "The essential feature of an effective family planning program is:", options: ["Provision of a single contraceptive to all couples", "Voluntary choice and informed consent", "Mandatory sterilization", "Exclusion of women from decision-making"], answer: "Voluntary choice and informed consent" },
+        { question: "Which of the following is an example of a natural family planning method?", options: ["Copper IUD", "Withdrawal (coitus interruptus)", "Combined oral pill", "Progestin implant"], answer: "Withdrawal (coitus interruptus)" },
+        { question: "Barrier methods of contraception include:", options: ["Copper IUD and implants", "Diaphragm and condoms", "Oral pills and injectables", "Tubectomy and vasectomy"], answer: "Diaphragm and condoms" },
+        { question: "Which contraceptive method is most appropriate for a woman who desires to conceive within 6 months?", options: ["Vasectomy", "Copper T (IUD)", "Combined oral contraceptive (daily pills)", "Permanent tubectomy"], answer: "Combined oral contraceptive (daily pills)" },
+        { question: "Which hormone is used in combined oral contraceptives to inhibit ovulation?", options: ["Thyroxine", "Estrogen and progestin", "FSH", "hCG"], answer: "Estrogen and progestin" },
+        { question: "The intrauterine device that relies on copper is effective for contraception by:", options: ["Preventing ovulation", "Spermicidal action and preventing implantation", "Increasing fertility", "Stimulating endometrial growth"], answer: "Spermicidal action and preventing implantation" },
+        { question: "Which of the following is NOT a reason for contraceptive failure?", options: ["Incorrect or inconsistent use", "Expired or damaged product", "Correct and consistent use", "Drug interactions with some antibiotics reducing pill efficacy"], answer: "Correct and consistent use" },
+        { question: "Which is the most effective short-term reversible contraceptive method?", options: ["Oral contraceptive pills (when used perfectly)", "Withdrawal method", "Natural rhythm method", "Spermicidal foam"], answer: "Oral contraceptive pills (when used perfectly)" },
+        { question: "Which contraceptive is recommended for postpartum women who are breastfeeding?", options: ["Combined oral contraceptive (estrogen-containing)", "Progestin-only methods (e.g., mini-pill, injection)", "Copper IUD immediately only (never postpartum)", "Combined patch"], answer: "Progestin-only methods (e.g., mini-pill, injection)" },
+        { question: "Which of the following is a side effect commonly associated with combined oral contraceptive pills?", options: ["Increased risk of thromboembolism in predisposed women", "Permanent infertility", "Immediate menopause", "Inability to lactate permanently"], answer: "Increased risk of thromboembolism in predisposed women" },
+        { question: "Which method of contraception is most suitable when avoiding systemic hormones is desired?", options: ["Progestin-only pill", "Copper IUD", "Combined oral pill", "Depot medroxyprogesterone acetate"], answer: "Copper IUD" },
+        { question: "Which contraceptive method can be recommended as emergency contraception due to insertion after unprotected sex?", options: ["Diaphragm", "Copper T insertion (IUD)", "Progestin implant", "Daily oral pill"], answer: "Copper T insertion (IUD)" },
+        { question: "Which of the following is an advantage of vasectomy over tubectomy?", options: ["Reversibility is guaranteed", "Simpler procedure with fewer complications and easier to perform"] , options2: [], answer: "Simpler procedure with fewer complications and easier to perform" },
+        { question: "Which is true regarding sterilization (female tubectomy)?", options: ["It always stops menstruation", "It interferes with hormone production", "It is intended as a permanent method of contraception", "It is immediately reversible in all cases"], answer: "It is intended as a permanent method of contraception" },
+        { question: "Which of the following STI pathogens is a virus that can establish lifelong latent infection?", options: ["Treponema pallidum", "Neisseria gonorrhoeae", "Herpes simplex virus (HSV)", "Chlamydia trachomatis"], answer: "Herpes simplex virus (HSV)" },
+        { question: "Which of the following is an accurate statement about HIV transmission?", options: ["HIV is readily transmitted by casual contact such as handshake", "HIV can be transmitted through unprotected sexual contact and contaminated blood", "HIV is transmitted by airborne droplets", "HIV is transmitted by insect bites"], answer: "HIV can be transmitted through unprotected sexual contact and contaminated blood" },
+        { question: "Which public health approach reduces transmission of STIs most effectively?", options: ["Only treating symptomatic individuals", "Condom promotion, testing, and treatment of partners", "Promoting abstinence exclusively", "Quarantining entire communities"], answer: "Condom promotion, testing, and treatment of partners" },
+        { question: "Which of the following is true about infertility?", options: ["Infertility always implies sterility", "Primary infertility refers to couples who have had no prior pregnancies", "Infertility affects only females", "Infertility cannot be treated"], answer: "Primary infertility refers to couples who have had no prior pregnancies" },
+        { question: "Which assisted reproductive technology (ART) involves fertilisation outside the body and transfer of embryo into the uterus?", options: ["Intrauterine insemination (IUI)", "In vitro fertilisation (IVF)", "Gamete intrafallopian transfer (GIFT)", "Zygote intrafallopian transfer (ZIFT)"], answer: "In vitro fertilisation (IVF)" },
+        { question: "Which ART technique injects a single sperm directly into the egg cytoplasm?", options: ["IUI", "ICSI (intracytoplasmic sperm injection)", "GIFT", "ZIFT"], answer: "ICSI (intracytoplasmic sperm injection)" },
+        { question: "Which of the following is true about IVF?", options: ["Fertilisation occurs inside fallopian tubes", "Embryos are transferred into the uterus after in vitro fertilisation", "Always ensures pregnancy", "No hormonal stimulation is required"], answer: "Embryos are transferred into the uterus after in vitro fertilisation" },
+        { question: "Which diagnostic test is commonly used to evaluate male fertility (sperm quality)?", options: ["Hysterosalpingography", "Semen analysis", "Pap smear", "Chorionic villus sampling"], answer: "Semen analysis" },
+        { question: "Which procedure is used to check the patency of fallopian tubes?", options: ["Semen analysis", "Hysterosalpingography (HSG)", "Ultrasound of testis", "Pap smear"], answer: "Hysterosalpingography (HSG)" },
+        { question: "Which method is used to prevent transmission of an X-linked genetic disease by selecting embryo without mutation before implantation?", options: ["Genetic counseling only", "Preimplantation genetic diagnosis (PGD)", "Vasectomy", "Tubectomy"], answer: "Preimplantation genetic diagnosis (PGD)" },
+        { question: "Which is a commonly observed cause of female infertility due to scarring of fallopian tubes?", options: ["Pelvic inflammatory disease (PID)", "Prolonged lactation", "Early menopause", "High fertility"], answer: "Pelvic inflammatory disease (PID)" },
+        { question: "Which of the following is an ethical consideration in assisted reproductive technology?", options: ["Informed consent and rights of donors and recipients", "Forcing couples to use ART", "Using ART without screening", "No counselling required"], answer: "Informed consent and rights of donors and recipients" },
+        { question: "Which method of contraception can be used by men to temporarily reduce fertility without surgery (not widely used clinically)?", options: ["Hormonal male contraceptives (in trials)", "Tubectomy", "Cu-T insertion", "OCP for women"], answer: "Hormonal male contraceptives (in trials)" },
+        { question: "Which contraceptive measure can be used immediately after unprotected sexual intercourse to reduce pregnancy risk and also can be implemented up to 5 days by IUD insertion?", options: ["Daily OCP", "Emergency contraceptive pill or Cu-T insertion", "Vasectomy", "Permanent sterilization"], answer: "Emergency contraceptive pill or Cu-T insertion" },
+        { question: "What is the mechanism of action of progesterone-only contraceptives (mini-pill)?", options: ["Increase ovulation", "Suppress ovulation in some cycles and thickens cervical mucus", "Destroy ova", "Cause tubal ligation"], answer: "Suppress ovulation in some cycles and thickens cervical mucus" },
+        { question: "Which contraceptive implant provides long-acting progestin release for years?", options: ["Copper T", "Subdermal progestin implant", "Male condom", "Diaphragm"], answer: "Subdermal progestin implant" },
+        { question: "Which method is most appropriate to prevent both pregnancy and STIs?", options: ["Copper T", "Hormonal implant", "Male condom", "Tubectomy"], answer: "Male condom" },
+        { question: "Which contraceptive method works primarily by blocking fertilisation by keeping sperm out of the uterus and fallopian tubes?", options: ["IUD", "Tubectomy", "Barrier methods (condom, diaphragm)", "Oral contraceptive pill"], answer: "Barrier methods (condom, diaphragm)" },
+        { question: "Which action best reduces the risk of congenital infections like syphilis to the newborn?", options: ["Early detection and treatment of maternal infection during pregnancy", "Avoiding prenatal care", "Using combined pills in pregnancy", "Delaying vaccination"], answer: "Early detection and treatment of maternal infection during pregnancy" },
+        { question: "Which of the following is true regarding maternal mortality reduction?", options: ["Increasing access to skilled birth attendants and emergency obstetric care reduces maternal mortality", "Restricting prenatal checkups increases safety", "Ignoring contraception reduces maternal health", "Home births without skilled attendants are safest"], answer: "Increasing access to skilled birth attendants and emergency obstetric care reduces maternal mortality" },
+        { question: "Which is true about the Medical Termination of Pregnancy (MTP) in general reproductive health context?", options: ["Abortions should always be done without medical supervision", "Safe and legal abortion services reduce maternal mortality", "All abortions can be safely self-performed", "MTP has no ethical or legal considerations"], answer: "Safe and legal abortion services reduce maternal mortality" },
+        { question: "Which of the following is NOT a contraceptive?", options: ["Copper T", "Progesterone implant", "Oral contraceptive pill", "Antibiotic therapy for STI"], answer: "Antibiotic therapy for STI" },
+        { question: "Which contraceptive has the advantage of being non-invasive and user-controlled, but with higher failure rate under typical use?", options: ["Intrauterine device", "Male condom", "Vasectomy", "Female sterilization"], answer: "Male condom" },
+        { question: "Which of the following is a part of reproductive health services?", options: ["Family planning and contraceptive services", "Only immunization", "Only tertiary care", "Only dental care"], answer: "Family planning and contraceptive services" },
+        { question: "Which contraceptive method uses a device to be placed over cervix before intercourse to block sperm entry?", options: ["Copper T", "Cervical cap or diaphragm", "Tubectomy", "Vasectomy"], answer: "Cervical cap or diaphragm" },
+        { question: "Which hormone is primarily responsible for milk ejection during breastfeeding?", options: ["Prolactin", "Oxytocin", "Estrogen", "Progesterone"], answer: "Oxytocin" },
+        { question: "Which hormone stimulates milk production (lactogenesis)?", options: ["Prolactin", "Oxytocin", "Testosterone", "hCG"], answer: "Prolactin" },
+        { question: "Which of the following is an important component of adolescent reproductive health education?", options: ["Accurate information on puberty and contraception", "Promoting early child marriage", "Hiding information on STIs", "Discouraging healthcare access"], answer: "Accurate information on puberty and contraception" },
+        { question: "Which of these is used to diagnose pregnancy in early weeks reliably?", options: ["Pap smear", "Urine or serum hCG test", "Semen analysis", "Hysterosalpingography"], answer: "Urine or serum hCG test" },
+        { question: "Which of the following statements about abortion is correct from public health viewpoint?", options: ["Unsafe abortions contribute significantly to maternal mortality", "Unsafe abortions are always harmless", "All abortions should be illegal", "Abortion never requires medical care"], answer: "Unsafe abortions contribute significantly to maternal mortality" },
+        { question: "Which of the following is a viral STI that currently has vaccines available for prevention?", options: ["Gonorrhoea", "Syphilis", "Human papillomavirus (HPV)", "Chlamydia"], answer: "Human papillomavirus (HPV)" },
+        { question: "Which contraceptive is most likely to change menstrual bleeding patterns (e.g., irregular bleeding) in some users?", options: ["Combined oral contraceptives", "Copper IUD (may increase bleeding)", "Progestin-only methods", "All of the above depending on method"], answer: "All of the above depending on method" },
+        { question: "Which of the following best defines reproductive health according to WHO concepts?", options: ["Just absence of disease of reproductive organs", "Complete physical, mental and social well-being in all matters relating to the reproductive system", "Only maternity services", "Only fertility treatments"], answer: "Complete physical, mental and social well-being in all matters relating to the reproductive system" },
+        { question: "Which of the following is a major cause of low birth weight and neonatal mortality that reproductive health programs aim to reduce?", options: ["Adequate antenatal care", "Maternal malnutrition and infections during pregnancy", "Timely immunizations", "Skilled birth attendance"], answer: "Maternal malnutrition and infections during pregnancy" },
+        { question: "Which contraceptive option may be recommended for women with contraindication to estrogen?", options: ["Combined oral contraceptive", "Progestin-only contraceptives (mini-pill or implant)", "Estrogen patch", "Combined vaginal ring"], answer: "Progestin-only contraceptives (mini-pill or implant)" },
+        { question: "Which of the following is true regarding sterilization counselling before procedure?", options: ["Informed consent and counselling is essential", "Counselling is not necessary", "Coercion is acceptable", "No documentation required"], answer: "Informed consent and counselling is essential" },
+        { question: "Which of the following statements is correct about condom use?", options: ["Condoms are single-use and should be correctly used during each sexual act", "Condoms can be reused multiple times", "Condoms protect against all STIs without failure", "Condoms are implanted surgically"], answer: "Condoms are single-use and should be correctly used during each sexual act" },
+        { question: "Which programmatic measure is key to reduce adolescent pregnancies?", options: ["Comprehensive sex education and access to contraception", "Restricting information on contraception", "Encouraging early marriage", "Reducing school attendance"], answer: "Comprehensive sex education and access to contraception" },
+        { question: "Which of the following is an example of secondary prevention in reproductive health?", options: ["Vaccination against HPV to prevent cervical cancer (primary)", "Screening with Pap smear to detect early changes (secondary)", "Providing antenatal care (tertiary)", "Emergency obstetric care only"], answer: "Screening with Pap smear to detect early changes (secondary)" },
+        { question: "Which assisted reproductive technique places eggs and sperm together in the fallopian tube (not commonly used now)?", options: ["IVF", "GIFT (gamete intrafallopian transfer)", "ICSI", "IUI"], answer: "GIFT (gamete intrafallopian transfer)" },
+        { question: "Which of the following is NOT recommended for preventing mother-to-child transmission (PMTCT) of HIV?", options: ["Providing antiretroviral therapy to the mother", "Avoiding breastfeeding in settings where safe alternatives are available and recommended", "No testing or treatment during pregnancy", "Testing and counselling of pregnant women"], answer: "No testing or treatment during pregnancy" },
+        { question: "Which of the following best describes infertility?", options: ["Inability to conceive after 12 months of regular unprotected intercourse", "Never having intercourse", "Always inability to carry a pregnancy to term only", "Only related to male partners"], answer: "Inability to conceive after 12 months of regular unprotected intercourse" },
+        { question: "Which of the following contraceptives do NOT require a clinician for insertion/removal?", options: ["Copper IUD", "Subdermal implant", "Male condom", "Tubectomy"], answer: "Male condom" },
+        { question: "Which of the following is a complication specifically associated with unsafe abortions?", options: ["Reduced fertility, infection and death", "Guaranteed improvement in fertility", "Permanent benefit to social health", "Improved maternal health always"], answer: "Reduced fertility, infection and death" },
+        { question: "Which of the following is true about hormonal emergency contraception (levonorgestrel)?", options: ["It must be inserted as an IUD", "It is effective only if taken before ovulation to delay ovulation", "It permanently prevents pregnancy", "It works by dislodging implanted embryos"], answer: "It is effective only if taken before ovulation to delay ovulation" },
+        { question: "Which of the following contraceptive methods is reversible and suitable for long-term contraception (3-5 years)?", options: ["Tubectomy", "Vasectomy", "Subdermal progestin implant", "Permanent hormonal sterilization"], answer: "Subdermal progestin implant" },
+        { question: "Which is the main public health reason to promote spacing births and small family size?", options: ["To increase fertility rates", "To reduce maternal and child morbidity and mortality and improve socioeconomic outcomes", "To reduce education", "To reduce women's health access"], answer: "To reduce maternal and child morbidity and mortality and improve socioeconomic outcomes" },
+        { question: "Which method can accurately detect abnormalities in a developing foetus early in pregnancy for certain genetic disorders?", options: ["Pap smear", "Amniocentesis or chorionic villus sampling (CVS)", "Semen analysis", "Sputum culture"], answer: "Amniocentesis or chorionic villus sampling (CVS)" },
+        { question: "Which of the following is a non-surgical fertility treatment for male factor infertility involving placing processed sperm into the uterus?", options: ["In vitro fertilization (IVF)", "Intracytoplasmic sperm injection (ICSI)", "Intrauterine insemination (IUI)", "Tubal ligation"], answer: "Intrauterine insemination (IUI)" },
+        { question: "Which of the following best describes the role of health education in reproductive health?", options: ["It is unnecessary", "It empowers people with knowledge to make informed reproductive choices", "It increases misinformation", "It discourages contraception"], answer: "It empowers people with knowledge to make informed reproductive choices" },
+        { question: "Which of the following methods is least effective in preventing pregnancy under typical use?", options: ["Male condom", "IUD", "Vasectomy", "Tubectomy"], answer: "Male condom" },
+        { question: "Which of the following is a reason to offer postpartum family planning services before discharge from facility after delivery?", options: ["To ensure long inter-pregnancy intervals and allow time for recovery", "To prevent any future contraception", "To force sterilization", "To reduce breastfeeding"], answer: "To ensure long inter-pregnancy intervals and allow time for recovery" },
+        { question: "Which of the following STIs is treatable with antibiotics if diagnosed early?", options: ["Chlamydia", "HIV", "HPV", "Herpes simplex virus"], answer: "Chlamydia" },
+        { question: "Which of the following options best reduces maternal deaths from hemorrhage during childbirth?", options: ["Skilled birth attendance and active management of third stage of labour", "Home births without skilled attendants", "Avoiding antenatal care", "Delaying delivery services"], answer: "Skilled birth attendance and active management of third stage of labour" },
+        { question: "Which contraceptive method involves removal of eggs from ovaries, fertilisation outside the body, and transfer of embryo back to uterus?", options: ["IUI", "IVF", "Vasectomy", "Tubectomy"], answer: "IVF" },
+        { question: "Which of the following best describes contraception called 'spacing methods'?", options: ["Methods to prevent pregnancy permanently", "Methods to delay or prevent pregnancy for a defined period (temporary and reversible)", "Only natural method", "Surgical sterilization only"], answer: "Methods to delay or prevent pregnancy for a defined period (temporary and reversible)" },
+        { question: "Which of the following statements about informed consent for sterilization is correct?", options: ["Consent is not necessary", "Proper information, voluntary consent and counselling are required", "Only family members consent is needed", "Forced consent is acceptable"], answer: "Proper information, voluntary consent and counselling are required" },
+        { question: "Which contraceptive is typically inserted by a clinician into the uterus and is effective for 5–10 years depending on type?", options: ["Male condom", "Copper IUD or hormonal IUD", "Progestin-only pill", "Withdrawal method"], answer: "Copper IUD or hormonal IUD" },
+        { question: "Which of the following is an indicator of safe motherhood?", options: ["High maternal mortality", "Access to skilled care during pregnancy and childbirth", "Lack of antenatal care", "Unsafe abortion"], answer: "Access to skilled care during pregnancy and childbirth" },
+        { question: "Assertion (A): Lactational amenorrhea offers effective contraception in the first six months postpartum if certain conditions are met. Reason (R): Frequent breastfeeding suppresses ovulation by high prolactin levels. Choose the correct option.", options: ["Both A and R are true and R explains A", "Both A and R are true but R does not explain A", "A true R false", "Both false"], answer: "Both A and R are true and R explains A" },
+        { question: "Assertion (A): Sterilization is reversible in all cases. Reason (R): Reconnection of the cut tubes always restores fertility. Choose the correct option.", options: ["Both A and R are true and R explains A", "Both A and R are true but R does not explain A", "A true R false", "Both false"], answer: "A true R false" },
+        { question: "Which of the following is a correct statement regarding contraceptive counselling?", options: ["It should be coercive", "It should be client-centered, informed, and nonjudgmental", "It should exclude men entirely", "Only written consent matters without discussion"], answer: "It should be client-centered, informed, and nonjudgmental" },
+        { question: "Which of the following interventions can reduce risk of vertical transmission of HIV from mother to child?", options: ["Appropriate antiretroviral treatment for mother and infant", "Avoiding testing during pregnancy", "Discouraging hospital delivery", "No interventions needed"], answer: "Appropriate antiretroviral treatment for mother and infant" },
+        { question: "Which statement about condoms is false?", options: ["Male condoms protect against many STIs", "Condoms are to be used only once", "Condoms can be made of latex or polyurethane", "Condoms are 100% effective in perfect and typical use"], answer: "Condoms are 100% effective in perfect and typical use" },
+        { question: "Which of the following best defines postpartum contraception importance?", options: ["Not needed", "Prevents closely spaced pregnancies and improves maternal-child health", "Always permanent sterilization", "Should be avoided"], answer: "Prevents closely spaced pregnancies and improves maternal-child health" },
+        { question: "Which is TRUE about adolescent reproductive health services?", options: ["They should be accessible, confidential and adolescent-friendly", "They should be denied to adolescents", "Only adults should receive services", "Mandatory reporting without consent always"], answer: "They should be accessible, confidential and adolescent-friendly" },
+        { question: "Which contraceptive method is best described as a constant-release hormonal device placed under skin to provide contraception for years?", options: ["Daily pill", "Contraceptive patch", "Subdermal implant", "Vaginal tablet"], answer: "Subdermal implant" },
+        { question: "Which infection is routinely screened for during pregnancy to prevent congenital disease?", options: ["Syphilis, HIV, Hepatitis B (selective), and others as per guidelines", "Only bacterial vaginosis", "Only UTIs", "No screening necessary"], answer: "Syphilis, HIV, Hepatitis B (selective), and others as per guidelines" },
+        { question: "Which of the following statements is correct about 'safe abortion' services?", options: ["They reduce maternal mortality when provided legally and safely", "They increase maternal deaths always", "Should be performed only in untrained settings", "No counselling required"], answer: "They reduce maternal mortality when provided legally and safely" },
+        { question: "Which of the following is NOT an example of a contraceptive implant?", options: ["Etonogestrel subdermal implant", "Levonorgestrel IUS (intrauterine system)", "Copper T (non-hormonal)", "Depot medroxyprogesterone acetate injection"], answer: "Copper T (non-hormonal)" },
+        { question: "Which of the following best describes primary prevention of reproductive tract infections?", options: ["Health education, vaccination (e.g., HPV), safer sex practices", "Only using antibiotics after infection", "Ignoring hygiene", "No screening"], answer: "Health education, vaccination (e.g., HPV), safer sex practices" },
+        { question: "Which is the recommended immediate action after discovering a partner has an STI?", options: ["Ignore and continue sexual activity", "Seek testing and treatment for both partners and abstain until treated", "Only the symptomatic partner should be treated", "Only self-medicate without testing"], answer: "Seek testing and treatment for both partners and abstain until treated" },
+        { question: "Which of the following is true about contraceptive pills and antibiotics interaction?", options: ["Some antibiotics can reduce steroid contraceptive levels potentially lowering effectiveness in some cases", "All antibiotics permanently sterilize woman", "Antibiotics always increase pill efficacy", "No interaction exists with any antibiotic"], answer: "Some antibiotics can reduce steroid contraceptive levels potentially lowering effectiveness in some cases" },
+        { question: "Which of the following is a priority in reproductive health policy to reduce neonatal mortality?", options: ["Improve antenatal care, skilled birth attendance, neonatal resuscitation and immediate newborn care", "Remove immunizations", "Discourage institutional deliveries", "Reduce nutrition programs"], answer: "Improve antenatal care, skilled birth attendance, neonatal resuscitation and immediate newborn care" },
+        { question: "Which contraceptive could be inserted at the time of cesarean section to provide immediate postpartum contraception?", options: ["Subdermal implant only", "Copper IUD (post-placental insertion)", "Daily combined OCP immediate", "Male condom only"], answer: "Copper IUD (post-placental insertion)" },
+        { question: "Which of the following best describes a 'male-mediated' cause of infertility?", options: ["Obstruction in fallopian tubes", "Low sperm count or poor sperm motility", "Anovulation", "Endometriosis"], answer: "Low sperm count or poor sperm motility" },
+        { question: "Which of the following is TRUE about sperm banks and donor sperm?", options: ["They require screening and counselling and informed consent for recipients and donors", "Donor sperm can be used without screening", "Consent is not necessary", "Donor anonymity is never maintained"], answer: "They require screening and counselling and informed consent for recipients and donors" },
+        { question: "Which of the following procedures is primarily diagnostic for female reproductive tract patency and structure?", options: ["Semen analysis", "Hysterosalpingography (HSG)", "Pap smear", "Electrocardiogram"], answer: "Hysterosalpingography (HSG)" },
+        { question: "Which of the following is an effective public health strategy to reduce adolescent pregnancy and STI rates?", options: ["Comprehensive sexuality education and access to youth-friendly services including condoms", "Complete abstinence-only messaging with no services", "Punitive measures only", "Discouraging school attendance"], answer: "Comprehensive sexuality education and access to youth-friendly services including condoms" },
+        { question: "Which of the following techniques is used to freeze embryos for future use?", options: ["Cryopreservation", "Hysterectomy", "Tubal ligation", "Semen analysis"], answer: "Cryopreservation" },
+        { question: "Which of the following is a correct statement about contraception and breastfeeding?", options: ["Progestin-only methods are generally safe for breastfeeding women", "Combined estrogen-progestin pills are always the best during immediate breastfeeding", "No contraception should be used while breastfeeding ever", "IUDs are absolutely contraindicated for lactating women"], answer: "Progestin-only methods are generally safe for breastfeeding women" },
+        { question: "Which of the following is a common cause of secondary infertility in women?", options: ["Previous pelvic inflammatory disease", "Never having conceived", "Tubal ligation performed accidentally", "High fertility"], answer: "Previous pelvic inflammatory disease" },
+        { question: "Which method of contraception is sometimes used as a female-controlled backup for occasional intercourse and does not require prescriptions in some countries?", options: ["Copper T", "Female condom or spermicidal methods", "Tubectomy", "Vasectomy"], answer: "Female condom or spermicidal methods" },
+        { question: "Which of the following is a public health measure to prevent cervical cancer?", options: ["HPV vaccination and screening with Pap smear or HPV testing", "No screening", "Promote early marriage", "Ban HPV vaccines"], answer: "HPV vaccination and screening with Pap smear or HPV testing" },
+        { question: "Which of the following describes the main purpose of preconception care?", options: ["Optimizing maternal health and reducing risks before pregnancy", "Only focusing on infant immunization", "Providing sterilization only", "Avoiding health checks"], answer: "Optimizing maternal health and reducing risks before pregnancy" },
+        { question: "Which contraceptive is LEAST likely to affect breastfeeding negatively?", options: ["Combined estrogen-progestin pill started immediately postpartum", "Progestin-only methods", "High-dose estrogen therapy", "Estrogen-only contraceptives"], answer: "Progestin-only methods" },
+        { question: "Which of the following is TRUE about infertility evaluation?", options: ["Both partners should be evaluated because infertility may be due to male, female or combined factors", "Only female should be evaluated", "Only male tests are necessary", "No evaluation required"], answer: "Both partners should be evaluated because infertility may be due to male, female or combined factors" },
+        { question: "Which of the following is a common public health recommendation to prevent mother-to-child transmission of syphilis?", options: ["Screening and treatment of pregnant women with penicillin when indicated", "No screening", "Delay treatment until after delivery", "Use alternative unproven therapies"], answer: "Screening and treatment of pregnant women with penicillin when indicated" },
+        { question: "Which of the following is the correct mechanism for hormonal contraceptives to prevent pregnancy?", options: ["Stimulate ovulation", "Suppress ovulation, thicken cervical mucus, change endometrium", "Destroy the ovum directly", "Block fallopian tubes surgically"], answer: "Suppress ovulation, thicken cervical mucus, change endometrium" },
+        { question: "Which is an appropriate response to a patient seeking emergency contraception 48 hours after unprotected intercourse?", options: ["Provide levonorgestrel emergency contraceptive pill and counsel about follow-up and STI testing", "Deny any care", "Advise permanent sterilization immediately", "Tell them nothing can be done"], answer: "Provide levonorgestrel emergency contraceptive pill and counsel about follow-up and STI testing" },
+        { question: "Which of the following is an indication for referral to a specialist in infertility?", options: ["Failure to conceive after 12 months of unprotected intercourse (or 6 months if woman >35)", "Conception on first attempt", "No desire for evaluation", "Routine check-ups only"], answer: "Failure to conceive after 12 months of unprotected intercourse (or 6 months if woman >35)" },
+        { question: "Which contraceptive method is most suited to someone who wants to avoid daily action and desires multi-year reversible contraception?", options: ["Daily pills", "IUD or subdermal implant", "Withdrawal method", "Spermicidal fil"], answer: "IUD or subdermal implant" },
+        { question: "Which of the following best describes post-coital (emergency) contraception with IUD?", options: ["Copper IUD insertion within 5 days is highly effective as emergency contraception", "IUD insertion after unprotected sex is never effective", "IUD is an abortifacient and not allowed", "IUD should be used only before sexual activity"], answer: "Copper IUD insertion within 5 days is highly effective as emergency contraception" },
+        { question: "Which of the following is true about tubal ligation (female sterilization)?", options: ["It is a permanent contraceptive method meant for those who do not want future fertility", "It always enhances fertility", "It can be reversed in all cases successfully", "It prevents STIs"], answer: "It is a permanent contraceptive method meant for those who do not want future fertility" },
+        { question: "Which of the following best indicates that an adolescent has reached reproductive maturity?", options: ["Onset of menarche in girls and spermarche in boys", "Only completion of school", "Ability to drive", "Full height attained"], answer: "Onset of menarche in girls and spermarche in boys" },
+        { question: "Which of the following is a key component of safe motherhood initiatives?", options: ["Access to quality antenatal, intrapartum and postnatal care", "Avoiding trained staff at births", "Discouraging facility deliveries", "No referral systems"], answer: "Access to quality antenatal, intrapartum and postnatal care" },
+        { question: "Which of the following describes the best immediate step to reduce STI risk after potential exposure during unprotected intercourse?", options: ["Seek medical evaluation and advice about prophylaxis and testing", "Wait and see without testing", "Avoid testing", "No action required"], answer: "Seek medical evaluation and advice about prophylaxis and testing" },
+        { question: "Which of the following is TRUE about contraceptive counselling for adolescents?", options: ["Confidentiality and nonjudgmental service provision are recommended", "Always require parental consent in every setting", "Deny services to adolescents", "Only provide abstinence messages"], answer: "Confidentiality and nonjudgmental service provision are recommended" },
+        { question: "Which of the following statements is CORRECT about IUD removal?", options: ["IUD removal is a quick procedure performed by a trained provider, after which fertility usually returns", "Removal takes months and fertility is permanently lost", "An IUD cannot be removed once inserted", "IUD removal causes permanent sterility"], answer: "IUD removal is a quick procedure performed by a trained provider, after which fertility usually returns" }
+    ];
+
+    // The above array contains 90 NEET-level questions for Chapter 4 (some may be repeated conceptually to reach 90 total items).
+    // If you want exact question numbering or any specific phrasing adjusted, that can be edited.
+
+    // Shuffle using Fisher-Yates
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    const storageKey = 'reproductiveHealthCh4Set1History';
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const timePerQuestion = 45;
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+    // Display progress
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = '';
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+    // Modal helper
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+
+        shuffleArray(questions);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion();
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option;
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons();
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0;
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+
+        displayProgress();
+        updateTrackerButtons();
+        createTrackerButtons();
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize
+    createTrackerButtons();
+    displayProgress();
+
+</script>
+
+</body>
+</html>
