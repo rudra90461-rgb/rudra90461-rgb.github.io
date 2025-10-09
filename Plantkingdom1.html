@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>NEET Biology Mock Test - Plant Kingdom (Set 1)</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0;
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Chapter: Plant Kingdom (Set 1)</h2>
+        <p style="font-size: 1.1em; color: #555;">This test contains <strong style="color: #d32f2f;">100 questions</strong> at NEET level. The question order is randomized each attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/100</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* QUESTIONS: 100 NEET-level questions for a topic. */
+    const questions = [
+        { question: "A student observes a plant with a dominant gametophytic generation, a multicellular, dependent sporophyte, and the presence of antheridia and archegonia. To which group does this plant most likely belong?", options: ["(A) Algae", "(B) Bryophytes", "(C) Pteridophytes", "(D) Gymnosperms"], answer: "(B) Bryophytes" },
+        { question: "The presence of which of the following is a key difference between pteridophytes and bryophytes?", options: ["(A) Alternation of generations", "(B) Vascular tissue", "(C) Archegonia", "(D) Spores"], answer: "(B) Vascular tissue" },
+        { question: "Which of the following statements about gymnosperms is incorrect?", options: ["(A) They are heterosporous.", "(B) The male and female gametophytes are free-living.", "(C) The ovules are not enclosed by an ovary wall.", "(D) They include some of the tallest trees in the world."], answer: "(B) The male and female gametophytes are free-living." },
+        { question: "The endosperm of an angiosperm is typically triploid (3n), while the endosperm of a gymnosperm is:", options: ["(A) Haploid (n)", "(B) Diploid (2n)", "(C) Triploid (3n)", "(D) Tetraploid (4n)"], answer: "(A) Haploid (n)" },
+        { question: "Which of the following algae contains chlorophyll a, chlorophyll d, and phycoerythrin?", options: ["(A) Chlorophyceae (green algae)", "(B) Phaeophyceae (brown algae)", "(C) Rhodophyceae (red algae)", "(D) Bacillariophyceae (diatoms)"], answer: "(C) Rhodophyceae (red algae)" },
+        { question: "The gemma cups, which are involved in asexual reproduction, are a characteristic feature of:", options: ["(A) Mosses", "(B) Liverworts", "(C) Ferns", "(D) Cycads"], answer: "(B) Liverworts" },
+        { question: "Which of the following is a 'living fossil' among the gymnosperms?", options: ["(A) Pinus", "(B) Cycas", "(C) Ginkgo biloba", "(D) Cedrus"], answer: "(C) Ginkgo biloba" },
+        { question: "The 'prothallus' of a fern is:", options: ["(A) The diploid sporophyte", "(B) The haploid gametophyte", "(C) A reproductive structure of the sporophyte", "(D) The embryonic stage of the sporophyte"], answer: "(B) The haploid gametophyte" },
+        { question: "Double fertilization, a unique feature of angiosperms, results in the formation of:", options: ["(A) Two zygotes", "(B) A zygote and a primary endosperm nucleus", "(C) Two primary endosperm nuclei", "(D) A zygote and a cotyledon"], answer: "(B) A zygote and a primary endosperm nucleus" },
+        { question: "The cell wall of diatoms is characteristically composed of:", options: ["(A) Cellulose and pectin", "(B) Silica", "(C) Chitin", "(D) Peptidoglycan"], answer: "(B) Silica" },
+        { question: "The main plant body of a pteridophyte is:", options: ["(A) Gametophyte", "(B) Sporophyte", "(C) Haploid", "(D) Both A and C"], answer: "(B) Sporophyte" },
+        { question: "In which of the following groups would you place a plant that produces seeds but lacks flowers and fruits?", options: ["(A) Algae", "(B) Bryophytes", "(C) Pteridophytes", "(D) Gymnosperms"], answer: "(D) Gymnosperms" },
+        { question: "Floridean starch is the stored food in:", options: ["(A) Chlorophyceae", "(B) Phaeophyceae", "(C) Rhodophyceae", "(D) Xanthophyceae"], answer: "(C) Rhodophyceae" },
+        { question: "The antherozoids of bryophytes are:", options: ["(A) Uniflagellate", "(B) Biflagellate", "(C) Multiflagellate", "(D) Aflagellate"], answer: "(B) Biflagellate" },
+        { question: "In mosses, the sporophyte is differentiated into:", options: ["(A) Stem and leaves", "(B) Root, stem, and leaves", "(C) Foot, seta, and capsule", "(D) Protonema, foot, and capsule"], answer: "(C) Foot, seta, and capsule" },
+        { question: "The giant redwood tree (Sequoia sempervirens) is a/an:", options: ["(A) Angiosperm", "(B) Gymnosperm", "(C) Pteridophyte", "(D) Bryophyte"], answer: "(B) Gymnosperm" },
+        { question: "Which of the following is not a characteristic feature of brown algae?", options: ["(A) Presence of fucoxanthin", "(B) Laminarin as stored food", "(C) Biflagellate zoospores", "(D) Presence of phycoerythrin"], answer: "(D) Presence of phycoerythrin" },
+        { question: "The development of a young embryo from the female gametophyte is a characteristic feature of:", options: ["(A) Algae", "(B) Fungi", "(C) Pteridophytes", "(D) All of the above"], answer: "(C) Pteridophytes" },
+        { question: "Coralloid roots are a feature of:", options: ["(A) Pinus", "(B) Cycas", "(C) Cedrus", "(D) Gnetum"], answer: "(B) Cycas" },
+        { question: "In pteridophytes, the reduction division occurs in:", options: ["(A) Spore mother cells", "(B) Gamete mother cells", "(C) Zygote", "(D) Prothallus"], answer: "(A) Spore mother cells" },
+        { question: "Agar-agar is commercially obtained from:", options: ["(A) Gelidium and Gracilaria", "(B) Laminaria and Sargassum", "(C) Chlorella and Spirulina", "(D) Ulothrix and Spirogyra"], answer: "(A) Gelidium and Gracilaria" },
+        { question: "In angiosperms, the functional megaspore develops into:", options: ["(A) Embryo", "(B) Endosperm", "(C) Embryo sac", "(D) Ovule"], answer: "(C) Embryo sac" },
+        { question: "Which of the following is a homosporous pteridophyte?", options: ["(A) Selaginella", "(B) Salvinia", "(C) Lycopodium", "(D) Marsilea"], answer: "(C) Lycopodium" },
+        { question: "The protonema stage in the life cycle of mosses is:", options: ["(A) Diploid", "(B) Haploid", "(C) Triploid", "(D) Tetraploid"], answer: "(B) Haploid" },
+        { question: "The smallest angiosperm is:", options: ["(A) Rafflesia", "(B) Wolffia", "(C) Eucalyptus", "(D) Pistia"], answer: "(B) Wolffia" },
+        { question: "Which of the following is not a correct match?", options: ["(A) Chlamydomonas - Unicellular flagellated algae", "(B) Volvox - Colonial non-flagellated algae", "(C) Ulothrix - Filamentous algae", "(D) Spirogyra - Filamentous algae"], answer: "(B) Volvox - Colonial non-flagellated algae" },
+        { question: "The plant group that shows the highest degree of evolution is:", options: ["(A) Bryophytes", "(B) Pteridophytes", "(C) Gymnosperms", "(D) Angiosperms"], answer: "(D) Angiosperms" },
+        { question: "The pyrenoids are structures for the storage of:", options: ["(A) Protein", "(B) Starch", "(C) Both A and B", "(D) Fat"], answer: "(C) Both A and B" },
+        { question: "In gymnosperms, the pollen chamber represents:", options: ["(A) The microsporangium", "(B) The megasporangium", "(C) The cavity in the ovule where pollen grains are stored after pollination", "(D) The opening of the female gametophyte"], answer: "(C) The cavity in the ovule where pollen grains are stored after pollination" },
+        { question: "Which of the following is an example of a liverwort?", options: ["(A) Funaria", "(B) Sphagnum", "(C) Marchantia", "(D) Polytrichum"], answer: "(C) Marchantia" },
+        { question: "The cell wall of green algae is made up of:", options: ["(A) Cellulose and pectin", "(B) Chitin and cellulose", "(C) Silica and pectin", "(D) Pectin and fucoxanthin"], answer: "(A) Cellulose and pectin" },
+        { question: "In which of the following, the gametophyte is not an independent, free-living generation?", options: ["(A) Marchantia", "(B) Funaria", "(C) Dryopteris", "(D) Pinus"], answer: "(D) Pinus" },
+        { question: "A plant that has vascular tissues but lacks seeds is a:", options: ["(A) Bryophyte", "(B) Pteridophyte", "(C) Gymnosperm", "(D) Angiosperm"], answer: "(B) Pteridophyte" },
+        { question: "The unique feature of bryophytes compared to other plant groups is that:", options: ["(A) They produce spores.", "(B) They lack vascular tissues.", "(C) Their sporophyte is attached to the gametophyte.", "(D) They show alternation of generations."], answer: "(C) Their sporophyte is attached to the gametophyte." },
+        { question: "The economic importance of Sphagnum is:", options: ["(A) As a food source", "(B) As fuel (peat) and for packing material", "(C) For nitrogen fixation", "(D) As a source of agar-agar"], answer: "(B) As fuel (peat) and for packing material" },
+        { question: "The ovule of a gymnosperm is:", options: ["(A) Anatropous", "(B) Orthotropous", "(C) Amphitropous", "(D) Circinotropous"], answer: "(B) Orthotropous" },
+        { question: "Which of the following is a vascular cryptogam?", options: ["(A) Equisetum", "(B) Ginkgo", "(C) Marchantia", "(D) Cedrus"], answer: "(A) Equisetum" },
+        { question: "In which of the following is the antheridium embedded in the thallus?", options: ["(A) Funaria", "(B) Marchantia", "(C) Selaginella", "(D) Dryopteris"], answer: "(B) Marchantia" },
+        { question: "The main difference between the life cycle of a moss and a fern is:", options: ["(A) The presence of a dominant sporophyte in the fern.", "(B) The presence of a dominant gametophyte in the moss.", "(C) The presence of an independent gametophyte in both.", "(D) Both A and B."], answer: "(D) Both A and B." },
+        { question: "The alga rich in protein is:", options: ["(A) Chlorella", "(B) Spirogyra", "(C) Ulothrix", "(D) Oscillatoria"], answer: "(A) Chlorella" },
+        { question: "Which of the following is an aquatic fern?", options: ["(A) Adiantum", "(B) Dryopteris", "(C) Salvinia", "(D) Equisetum"], answer: "(C) Salvinia" },
+        { question: "The motile reproductive structures are completely absent in:", options: ["(A) Green algae", "(B) Brown algae", "(C) Red algae", "(D) Bryophytes"], answer: "(C) Red algae" },
+        { question: "The archegonium of a bryophyte is:", options: ["(A) Flask-shaped", "(B) Club-shaped", "(C) Spherical", "(D) Elongated"], answer: "(A) Flask-shaped" },
+        { question: "Which of the following is called the 'maidenhair fern'?", options: ["(A) Adiantum", "(B) Pteris", "(C) Dryopteris", "(D) Marsilea"], answer: "(A) Adiantum" },
+        { question: "The endosperm in gymnosperms develops:", options: ["(A) Before fertilization", "(B) After fertilization", "(C) Simultaneously with fertilization", "(D) Does not develop"], answer: "(A) Before fertilization" },
+        { question: "The leaf-like photosynthetic organ of a brown alga is called:", options: ["(A) Frond", "(B) Stipe", "(C) Holdfast", "(D) Thallus"], answer: "(A) Frond" },
+        { question: "The most advanced gymnosperms are:", options: ["(A) Cycadales", "(B) Coniferales", "(C) Gnetales", "(D) Ginkgoales"], answer: "(C) Gnetales" },
+        { question: "In which of the following does the embryo develop in situ?", options: ["(A) Algae", "(B) Fungi", "(C) Bryophytes", "(D) Bacteria"], answer: "(C) Bryophytes" },
+        { question: "Which of the following is not a pteridophyte?", options: ["(A) Selaginella", "(B) Equisetum", "(C) Ginkgo", "(D) Pteris"], answer: "(C) Ginkgo" },
+        { question: "The fusion of two gametes dissimilar in size is called:", options: ["(A) Isogamy", "(B) Anisogamy", "(C) Oogamy", "(D) Zoogamy"], answer: "(B) Anisogamy" },
+        { question: "The dominant generation in the life cycle of a gymnosperm is the:", options: ["(A) Gametophyte", "(B) Sporophyte", "(C) Endosperm", "(D) Embryo"], answer: "(B) Sporophyte" },
+        { question: "Which of the following is a colonial alga?", options: ["(A) Chlamydomonas", "(B) Volvox", "(C) Ulothrix", "(D) Spirogyra"], answer: "(B) Volvox" },
+        { question: "Elaters are present in the capsule of:", options: ["(A) Riccia", "(B) Marchantia", "(C) Funaria", "(D) Sphagnum"], answer: "(B) Marchantia" },
+        { question: "Which of the following is a characteristic of monocots?", options: ["(A) Taproot system", "(B) Pentamerous flowers", "(C) Parallel venation in leaves", "(D) Two cotyledons in the seed"], answer: "(C) Parallel venation in leaves" },
+        { question: "In Pinus, the male cone bears a large number of:", options: ["(A) Microsporophylls", "(B) Megasporophylls", "(C) Anthers", "(D) Ligules"], answer: "(A) Microsporophylls" },
+        { question: "Which of the following is not a feature of angiosperms?", options: ["(A) Double fertilization", "(B) Presence of vessels in the xylem", "(C) Naked ovules", "(D) Triploid endosperm"], answer: "(C) Naked ovules" },
+        { question: "The plant body is a thallus in:", options: ["(A) Funaria", "(B) Marchantia", "(C) Selaginella", "(D) Pinus"], answer: "(B) Marchantia" },
+        { question: "The life cycle of Ectocarpus and Polysiphonia is:", options: ["(A) Haplontic", "(B) Diplontic", "(C) Haplo-diplontic", "(D) None of the above"], answer: "(C) Haplo-diplontic" },
+        { question: "The wings of the pollen grain of Pinus are derived from the:", options: ["(A) Intine", "(B) Exine", "(C) Both A and B", "(D) None of the above"], answer: "(B) Exine" },
+        { question: "Which of the following is a source of turpentine oil?", options: ["(A) Cycas", "(B) Pinus", "(C) Cedrus", "(D) Gnetum"], answer: "(B) Pinus" },
+        { question: "In angiosperms, the pollen tube liberates the male gametes into the:", options: ["(A) Egg cell", "(B) Central cell", "(C) Synergids", "(D) Antipodals"], answer: "(C) Synergids" },
+        { question: "The presence of a diplontic life cycle is a characteristic of:", options: ["(A) Spirogyra", "(B) Fucus", "(C) Volvox", "(D) Chlamydomonas"], answer: "(B) Fucus" },
+        { question: "The term 'amphibians of the plant kingdom' is used for:", options: ["(A) Algae", "(B) Bryophytes", "(C) Pteridophytes", "(D) Fungi"], answer: "(B) Bryophytes" },
+        { question: "In which of the following does the sporophyte not have a free-living existence?", options: ["(A) Funaria", "(B) Dryopteris", "(C) Cycas", "(D) Marchantia"], answer: "(D) Marchantia" },
+        { question: "The presence of a carinal canal in the vascular bundles is a feature of:", options: ["(A) Equisetum", "(B) Selaginella", "(C) Lycopodium", "(D) Pteris"], answer: "(A) Equisetum" },
+        { question: "Which of the following is a characteristic feature of Cycas?", options: ["(A) Circinate vernation", "(B) Presence of a taproot system", "(C) Presence of coralloid roots", "(D) All of the above"], answer: "(D) All of the above" },
+        { question: "In angiosperms, the endosperm is formed by the fusion of the male gamete with the:", options: ["(A) Egg cell", "(B) Synergids", "(C) Antipodal cells", "(D) Secondary nucleus"], answer: "(D) Secondary nucleus" },
+        { question: "The study of algae is called:", options: ["(A) Mycology", "(B) Phycology", "(C) Bryology", "(D) Pteridology"], answer: "(B) Phycology" },
+        { question: "Which of the following is a saprophytic bryophyte?", options: ["(A) Buxbaumia", "(B) Funaria", "(C) Marchantia", "(D) Riccia"], answer: "(A) Buxbaumia" },
+        { question: "The ligule is a characteristic feature of the leaves of:", options: ["(A) Lycopodium", "(B) Selaginella", "(C) Equisetum", "(D) Pteris"], answer: "(B) Selaginella" },
+        { question: "The number of cotyledons in the embryo of Cycas is:", options: ["(A) One", "(B) Two", "(C) Many", "(D) None"], answer: "(B) Two" },
+        { question: "In which of the following is the male gamete motile?", options: ["(A) Pinus", "(B) Cycas", "(C) Gnetum", "(D) Ephedra"], answer: "(B) Cycas" },
+        { question: "The largest ovule in the plant kingdom is found in:", options: ["(A) Pinus", "(B) Cycas", "(C) Gnetum", "(D) Sequoia"], answer: "(B) Cycas" },
+        { question: "Which of the following is a characteristic feature of dicots?", options: ["(A) Fibrous root system", "(B) Trimerous flowers", "(C) Reticulate venation in leaves", "(D) One cotyledon in the seed"], answer: "(C) Reticulate venation in leaves" },
+        { question: "The 'resurrection plant' is:", options: ["(A) Selaginella", "(B) Lycopodium", "(C) Equisetum", "(D) Pteris"], answer: "(A) Selaginella" },
+        { question: "Which of the following is not a gymnosperm?", options: ["(A) Cycas", "(B) Pinus", "(C) Gnetum", "(D) Wolffia"], answer: "(D) Wolffia" },
+        { question: "The perianth is a characteristic feature of:", options: ["(A) Monocots", "(B) Dicots", "(C) Both A and B", "(D) None of the above"], answer: "(A) Monocots" },
+        { question: "In which of the following is the flower the reproductive unit?", options: ["(A) Bryophytes", "(B) Pteridophytes", "(C) Gymnosperms", "(D) Angiosperms"], answer: "(D) Angiosperms" },
+        { question: "Which of the following is a characteristic feature of the anther of an angiosperm?", options: ["(A) It is typically bilobed.", "(B) Each lobe has two theca.", "(C) It is a dithecous structure.", "(D) All of the above."], answer: "(D) All of the above." },
+        { question: "In angiosperms, the ovule is attached to the placenta by a stalk called the:", options: ["(A) Funicle", "(B) Hilum", "(C) Micropyle", "(D) Chalaza"], answer: "(A) Funicle" },
+        { question: "The tapetum is a layer of nutritive cells found in the:", options: ["(A) Ovary wall", "(B) Anther wall", "(C) Ovule", "(D) Embryo sac"], answer: "(B) Anther wall" },
+        { question: "The process of fusion of the male and female gametes is called:", options: ["(A) Pollination", "(B) Fertilization", "(C) Syngamy", "(D) Both B and C"], answer: "(D) Both B and C" },
+        { question: "The most common type of embryo sac in angiosperms is:", options: ["(A) Monosporic", "(B) Bisporic", "(C) Tetrasporic", "(D) None of the above"], answer: "(A) Monosporic" },
+        { question: "The entry of the pollen tube into the ovule through the micropyle is called:", options: ["(A) Porogamy", "(B) Chalazogamy", "(C) Mesogamy", "(D) Allogamy"], answer: "(A) Porogamy" },
+        { question: "The scutellum is the cotyledon of:", options: ["(A) Monocots", "(B) Dicots", "(C) Gymnosperms", "(D) Pteridophytes"], answer: "(A) Monocots" },
+        { question: "The aleurone layer in maize is rich in:", options: ["(A) Starch", "(B) Protein", "(C) Fat", "(D) Vitamins"], answer: "(B) Protein" },
+        { question: "The fruit is a ripened:", options: ["(A) Ovary", "(B) Ovule", "(C) Embryo", "(D) Endosperm"], answer: "(A) Ovary" },
+        { question: "Which of the following is a false fruit?", options: ["(A) Mango", "(B) Apple", "(C) Banana", "(D) Grape"], answer: "(B) Apple" },
+        { question: "The edible part of a coconut is the:", options: ["(A) Endosperm", "(B) Mesocarp", "(C) Endocarp", "(D) Pericarp"], answer: "(A) Endosperm" },
+        { question: "Parthenocarpy is the development of a fruit without:", options: ["(A) Pollination", "(B) Fertilization", "(C) Seed formation", "(D) Both B and C"], answer: "(D) Both B and C" },
+        { question: "Apomixis is the development of a seed without:", options: ["(A) Pollination", "(B) Fertilization", "(C) Meiosis", "(D) Both B and C"], answer: "(D) Both B and C" },
+        { question: "Polyembryony is the occurrence of more than one embryo in a seed. It was first observed in:", options: ["(A) Citrus", "(B) Mango", "(C) Onion", "(D) Maize"], answer: "(A) Citrus" },
+        { question: "The filiform apparatus is a characteristic feature of the:", options: ["(A) Egg cell", "(B) Synergids", "(C) Antipodal cells", "(D) Central cell"], answer: "(B) Synergids" },
+        { question: "The coleoptile and coleorhiza are the protective sheaths of the:", options: ["(A) Plumule and radicle in monocots", "(B) Plumule and radicle in dicots", "(C) Cotyledons in monocots", "(D) Cotyledons in dicots"], answer: "(A) Plumule and radicle in monocots" },
+        { question: "The endosperm is completely consumed by the developing embryo in:", options: ["(A) Pea", "(B) Castor", "(C) Maize", "(D) Coconut"], answer: "(A) Pea" },
+        { question: "The pollination of flowers by insects is called:", options: ["(A) Anemophily", "(B) Hydrophily", "(C) Entomophily", "(D) Ornithophily"], answer: "(C) Entomophily" },
+        { question: "The pollination of flowers by birds is called:", options: ["(A) Anemophily", "(B) Hydrophily", "(C) Entomophily", "(D) Ornithophily"], answer: "(D) Ornithophily" },
+        { question: "The pollination of flowers by wind is called:", options: ["(A) Anemophily", "(B) Hydrophily", "(C) Entomophily", "(D) Ornithophily"], answer: "(A) Anemophily" },
+        { question: "The transfer of pollen grains from the anther to the stigma of the same flower is called:", options: ["(A) Autogamy", "(B) Geitonogamy", "(C) Xenogamy", "(D) Allogamy"], answer: "(A) Autogamy" },
+        { question: "The transfer of pollen grains from the anther of one flower to the stigma of another flower of the same plant is called:", options: ["(A) Autogamy", "(B) Geitonogamy", "(C) Xenogamy", "(D) Allogamy"], answer: "(B) Geitonogamy" }
+    ];
+
+    // The above array contains 100 NEET-level questions for a topic.
+
+    // Shuffle using Fisher-Yates
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    const storageKey = 'plantKingdomSet1History';
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const timePerQuestion = 45;
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+    // Display progress
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = '';
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+    // Modal helper
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+
+        shuffleArray(questions);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion();
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option;
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons();
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0;
+        let detailedResults = [];
+
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+            let isCorrect = false;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                    isCorrect = true;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+
+            detailedResults.push({
+                question: `Q${i+1}. ${questions[i].question}`,
+                userAnswer: userAnswer || "Not Attempted",
+                correctAnswer: correctAnswer,
+                isCorrect: isCorrect,
+                score: (userAnswer === null) ? 0 : (isCorrect ? 4 : -1)
+            });
+        }
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, detailedResults };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">Q${index + 1}. ${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+
+        displayProgress();
+        updateTrackerButtons();
+        createTrackerButtons();
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize
+    createTrackerButtons();
+    displayProgress();
+
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
+</body>
+</html>
