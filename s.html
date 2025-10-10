@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solutions & Colligative Properties - Mock Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .option-btn {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-btn:hover {
+            background-color: #e0e7ff;
+        }
+        .option-btn.selected {
+            background-color: #c7d2fe;
+            border-color: #818cf8;
+            font-weight: 600;
+        }
+        .correct-answer {
+            background-color: #dcfce7;
+            border-left: 4px solid #4ade80;
+        }
+        .incorrect-answer {
+            background-color: #fee2e2;
+             border-left: 4px solid #f87171;
+        }
+        .user-choice-badge {
+            display: inline-block;
+            padding: 0.1rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .user-correct {
+            background-color: #22c55e;
+            color: white;
+        }
+        .user-incorrect {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="w-full max-w-3xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Chemistry Mock Test</h1>
+        <p class="text-slate-600 mb-6">Chapter: Solutions & Colligative Properties</p>
+        
+        <!-- Progress Bar -->
+        <div class="bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area" class="mb-6">
+            <p class="text-lg font-semibold text-slate-700 mb-4"><span id="question-number" class="mr-2"></span><span id="question-text"></span></p>
+            <div id="options-container" class="space-y-3">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center">
+            <button id="prev-btn" class="px-5 py-2.5 bg-slate-200 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+            <span id="question-counter" class="text-slate-600 font-medium"></span>
+            <button id="next-btn" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">Next</button>
+            <button id="submit-btn" class="hidden px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700">Submit Test</button>
+        </div>
+    </div>
+
+    <div id="results-container" class="hidden w-full max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Test Complete!</h2>
+        <p class="text-slate-600 mb-8">Here is your performance summary:</p>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-8">
+            <div>
+                <p class="text-3xl font-bold text-indigo-600" id="total-score"></p>
+                <p class="text-sm text-slate-500">Correct</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-red-500" id="incorrect-count"></p>
+                <p class="text-sm text-slate-500">Incorrect</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-700" id="attempted-count"></p>
+                <p class="text-sm text-slate-500">Attempted</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-500" id="unattempted-count"></p>
+                <p class="text-sm text-slate-500">Unattempted</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-lg mb-8">
+            <p class="text-xl font-bold text-slate-800" id="final-percentage"></p>
+            <p class="text-slate-600">Final Score</p>
+        </div>
+        
+        <button id="solutions-btn" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">View Detailed Solutions</button>
+    </div>
+
+    <div id="solutions-container" class="hidden w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-slate-800 mb-6">Solutions & Explanations</h2>
+        <div id="solutions-content" class="space-y-6">
+            <!-- Solutions will be dynamically inserted here -->
+        </div>
+        <button onclick="location.reload()" class="mt-8 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">Restart Test</button>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "A solution is a homogeneous mixture of two or more substances. The component present in the largest quantity is known as the:", options: ["Solute", "Solvent", "Mixture", "Compound"], answer: 1, description: "The solvent determines the physical state of the solution and is the medium in which the solute dissolves." },
+            { question: "Which of the following concentration terms is independent of temperature?", options: ["Molarity (M)", "Molality (m)", "Normality (N)", "Mass by volume percentage (w/V)"], answer: 1, description: "Molality is defined as moles of solute per kilogram of solvent (moles/mass). Since mass doesn't change with temperature, molality is temperature-independent. All other options involve volume, which is temperature-dependent." },
+            { question: "What is the molarity of a solution containing 4 g of NaOH in 250 mL of solution? (Molar mass of NaOH = 40 g/mol)", options: ["0.1 M", "0.4 M", "0.8 M", "1.0 M"], answer: 1, description: "Moles of NaOH = 4g / 40 g/mol = 0.1 mol. Volume = 250 mL = 0.250 L. Molarity (M) = Moles/Volume(L) = 0.1 / 0.250 = 0.4 M." },
+            { question: "The number of moles of a component divided by the total number of moles of all components in the solution is called:", options: ["Molarity", "Molality", "Mole fraction (x)", "Parts per million (ppm)"], answer: 2, description: "Mole fraction (x) is a unitless quantity. The sum of the mole fractions of all components in a solution is always equal to 1." },
+            { question: "A solution of sucrose (molar mass = 342 g/mol) is prepared by dissolving 34.2 g of it in 1000 g of water. What is the molality of the solution?", options: ["0.1 m", "0.5 m", "1.0 m", "0.01 m"], answer: 0, description: "Moles of sucrose = 34.2 g / 342 g/mol = 0.1 mol. Mass of solvent (water) = 1000 g = 1 kg. Molality (m) = Moles of solute / Mass of solvent (kg) = 0.1 / 1 = 0.1 m." },
+            { question: "Parts per million (ppm) is used to express the concentration of a solution when the solute is present in:", options: ["large quantities", "moderate quantities", "trace quantities", "gaseous form only"], answer: 2, description: "ppm is a convenient way to express very dilute concentrations, such as the concentration of pollutants in water or air." },
+            { question: "If 10 g of a substance is present in 10⁶ g of the solution, its concentration is:", options: ["10 ppm", "1 ppm", "100 ppm", "0.1 ppm"], answer: 0, description: "ppm = (Mass of solute / Mass of solution) × 10⁶ = (10 / 10⁶) × 10⁶ = 10 ppm." },
+            { question: "The mole fraction of a solute in a 1.00 m aqueous solution is:", options: ["0.0177", "0.177", "1.770", "0.0354"], answer: 0, description: "1.00 m solution means 1 mole of solute in 1000 g (1 kg) of water. Moles of water = 1000 g / 18 g/mol = 55.55 mol. Mole fraction of solute = 1 / (1 + 55.55) = 1 / 56.55 ≈ 0.0177." },
+            { question: "What is the sum of the mole fractions of all components in a binary solution?", options: ["0", "1", "100", "It depends on the components."], answer: 1, description: "If x₁ and x₂ are the mole fractions of the two components, then by definition, x₁ + x₂ = 1." },
+            { question: "How many grams of concentrated nitric acid solution (70% HNO₃) should be used to prepare 250 mL of 2.0 M HNO₃? (Molar mass of HNO₃ = 63 g/mol)", options: ["45.0 g", "90.0 g", "70.0 g", "54.0 g"], answer: 0, description: "First, calculate the mass of pure HNO₃ needed: Moles = M × V = 2.0 M × 0.250 L = 0.5 mol. Mass = 0.5 mol × 63 g/mol = 31.5 g. The concentrated acid is 70% by mass, so the mass of the solution required is (31.5 g / 0.70) = 45.0 g." },
+            { question: "Which of the following units is useful in relating the concentration of a solution with its vapour pressure?", options: ["Mole fraction", "Parts per million", "Mass percentage", "Molality"], answer: 0, description: "Raoult's Law, which describes the vapour pressure of solutions, directly relates the partial vapour pressure of a component to its mole fraction in the solution." },
+            { question: "The molarity of pure water is:", options: ["1 M", "18 M", "55.5 M", "100 M"], answer: 2, description: "Consider 1 L (1000 mL) of water. The density of water is ~1 g/mL, so the mass is 1000 g. Moles of water = 1000 g / 18 g/mol = 55.5 mol. Molarity = 55.5 mol / 1 L = 55.5 M." },
+            { question: "The solubility of a gas in a liquid decreases with:", options: ["increase in temperature.", "decrease in temperature.", "increase in pressure.", "decrease in volume."], answer: 0, description: "The dissolution of most gases in liquids is an exothermic process. According to Le Chatelier's principle, increasing the temperature shifts the equilibrium to the left (favoring the gas phase), thus decreasing solubility." },
+            { question: "The law which states that the solubility of a gas in a liquid is directly proportional to the partial pressure of the gas present above the surface of the liquid is:", options: ["Raoult's Law", "Henry's Law", "Dalton's Law", "Boyle's Law"], answer: 1, description: "Henry's Law is mathematically expressed as p = Kʜ x, where p is the partial pressure of the gas, x is its mole fraction in the solution, and Kʜ is the Henry's Law constant." },
+            { question: "The value of Henry's constant (Kʜ) is:", options: ["greater for gases with higher solubility.", "smaller for gases with higher solubility.", "constant for all gases.", "independent of the nature of the gas."], answer: 1, description: "From the equation p = Kʜ x, for a given pressure, if solubility (x) is high, Kʜ must be small. A higher Kʜ value indicates lower solubility." },
+            { question: "To increase the solubility of CO₂ in soft drinks and soda water, the bottle is sealed under:", options: ["low temperature.", "high pressure.", "high temperature.", "low pressure."], answer: 1, description: "According to Henry's Law, increasing the partial pressure of CO₂ gas above the liquid forces more gas to dissolve in it." },
+            { question: "At high altitudes, the partial pressure of oxygen is less than that at ground level. This leads to:", options: ["low concentrations of oxygen in the blood and tissues of climbers.", "high concentrations of oxygen in the blood of climbers.", "no effect on the oxygen concentration in the blood.", "a medical condition called the bends."], answer: 0, description: "This causes climbers to become weak and unable to think clearly, a condition known as anoxia." },
+            { question: "The painful condition known as 'the bends' is experienced by scuba divers and is caused by:", options: ["the release of dissolved nitrogen from the blood as bubbles when they ascend too quickly.", "the high concentration of oxygen in the blood.", "the low pressure deep under the sea.", "the lack of helium in the breathing tank."], answer: 0, description: "To avoid the bends, scuba tanks are filled with air diluted with helium (11.7% helium, 56.2% nitrogen, and 32.1% oxygen), as helium is less soluble in blood than nitrogen." },
+            { question: "The solubility of solids in liquids is significantly affected by:", options: ["pressure only.", "temperature only.", "both temperature and pressure.", "neither temperature nor pressure."], answer: 1, description: "For solids and liquids, pressure has a negligible effect on solubility. However, solubility changes significantly with temperature." },
+            { question: "If the dissolution process is endothermic (ΔsolH > 0), the solubility should:", options: ["decrease with an increase in temperature.", "increase with an increase in temperature.", "not change with an increase in temperature.", "decrease with a decrease in pressure."], answer: 1, description: "According to Le Chatelier's principle, for an endothermic process, adding heat (increasing temperature) will shift the equilibrium to the right, favoring more dissolution." },
+            { question: "Raoult's law states that for a solution of volatile liquids, the partial vapour pressure of each component in the solution is directly proportional to its:", options: ["Molality", "Molarity", "Mole fraction", "Mass percentage"], answer: 2, description: "Raoult's Law is given by pᵢ = pᵢ⁰ xᵢ, where pᵢ is the partial vapour pressure of component 'i', pᵢ⁰ is its vapour pressure in the pure state, and xᵢ is its mole fraction in the solution." },
+            { question: "An ideal solution is one that:", options: ["obeys Raoult's law over the entire range of concentration.", "has a ΔHₘᵢₓ = 0 and ΔVₘᵢₓ = 0.", "has solute-solvent interactions similar to solute-solute and solvent-solvent interactions.", "all of the above."], answer: 3, description: "Ideal solutions are formed when the intermolecular forces between unlike molecules (A-B) are nearly equal to those between like molecules (A-A and B-B)." },
+            { question: "A mixture of n-hexane and n-heptane is an example of:", options: ["an ideal solution.", "a non-ideal solution with positive deviation.", "a non-ideal solution with negative deviation.", "an azeotrope."], answer: 0, description: "Because n-hexane and n-heptane have similar structures and intermolecular forces, they form a nearly ideal solution. Other examples include bromoethane & chloroethane, and benzene & toluene." },
+            { question: "When a solution shows a positive deviation from Raoult's law, the A-B interactions are:", options: ["stronger than A-A and B-B interactions.", "weaker than A-A and B-B interactions.", "equal to A-A and B-B interactions.", "non-existent."], answer: 1, description: "In positive deviation, molecules find it easier to escape into the vapour phase, leading to a higher vapour pressure than predicted by Raoult's law. ΔHₘᵢₓ > 0 and ΔVₘᵢₓ > 0." },
+            { question: "A mixture of ethanol and acetone shows which type of deviation from Raoult's law?", options: ["Positive deviation", "Negative deviation", "No deviation (it is an ideal solution)", "Cannot be predicted"], answer: 0, description: "The intermolecular hydrogen bonds in ethanol are broken when acetone is added, weakening the overall forces and leading to positive deviation." },
+            { question: "When a solution shows a negative deviation from Raoult's law, the A-B interactions are:", options: ["stronger than A-A and B-B interactions.", "weaker than A-A and B-B interactions.", "equal to A-A and B-B interactions.", "negligible."], answer: 0, description: "In negative deviation, molecules are held more tightly in the solution, making it harder for them to escape. This results in a lower vapour pressure than predicted. ΔHₘᵢₓ < 0 and ΔVₘᵢₓ < 0." },
+            { question: "A mixture of phenol and aniline is an example of a solution showing:", options: ["Positive deviation", "Negative deviation", "Ideal behavior", "Azeotropic behavior at all compositions"], answer: 1, description: "The formation of strong intermolecular hydrogen bonds between the phenolic proton and the lone pair on the nitrogen of aniline leads to negative deviation." },
+            { question: "Azeotropes are binary mixtures having the same composition in liquid and vapour phase and:", options: ["boil at different temperatures.", "boil at a constant temperature.", "can be separated by fractional distillation.", "are always ideal solutions."], answer: 1, description: "Azeotropes behave like pure liquids and cannot be separated into their components by fractional distillation." },
+            { question: "Solutions that show a large positive deviation from Raoult’s law form a ________ azeotrope.", options: ["minimum boiling", "maximum boiling", "no", "ideal"], answer: 0, description: "A minimum boiling azeotrope has a boiling point lower than either of its pure components. Example: ethanol-water mixture (95% ethanol by volume)." },
+            { question: "Solutions that show a large negative deviation from Raoult’s law form a ________ azeotrope.", options: ["minimum boiling", "maximum boiling", "no", "ideal"], answer: 1, description: "A maximum boiling azeotrope has a boiling point higher than either of its pure components. Example: nitric acid-water mixture (68% nitric acid)." },
+            { question: "When a non-volatile solute is added to a volatile solvent, the vapour pressure of the solution:", options: ["increases.", "decreases.", "remains the same.", "may increase or decrease."], answer: 1, description: "The non-volatile solute particles occupy some of the surface area, reducing the number of solvent molecules that can escape into the vapour phase. This is the basis for colligative properties." },
+            { question: "Colligative properties are properties of solutions that depend on the:", options: ["nature of the solute particles.", "nature of the solvent.", "number of solute particles, irrespective of their nature.", "number of solvent particles."], answer: 2, description: "Colligative properties include Relative Lowering of Vapour Pressure, Elevation in Boiling Point, Depression in Freezing Point, and Osmotic Pressure. They all depend on the concentration of solute particles, not their identity." },
+            { question: "The relative lowering of vapour pressure (RLVP) of a solution containing a non-volatile solute is equal to the:", options: ["mole fraction of the solvent.", "mole fraction of the solute.", "molality of the solution.", "molarity of the solution."], answer: 1, description: "Mathematically, RLVP = (p₁⁰ - p₁) / p₁⁰ = x₂. This is another statement of Raoult's Law for non-volatile solutes." },
+            { question: "The boiling point of a liquid is the temperature at which its vapour pressure becomes equal to the:", options: ["freezing point.", "atmospheric pressure.", "osmotic pressure.", "critical pressure."], answer: 1, description: "When a non-volatile solute is added, the vapour pressure is lowered, so the solution must be heated to a higher temperature to make its vapour pressure equal to the atmospheric pressure. This is boiling point elevation." },
+            { question: "The elevation in boiling point (ΔTₑ) is directly proportional to the:", options: ["Molarity of the solution.", "Molality of the solution.", "Mole fraction of the solvent.", "Mass percentage of the solute."], answer: 1, description: "The relationship is given by ΔTₑ = Kₑ * m, where Kₑ is the Ebullioscopic Constant." },
+            { question: "The molal elevation constant (Kₑ), also known as the ebullioscopic constant, depends only on the:", options: ["nature of the solute.", "nature of the solvent.", "concentration of the solution.", "temperature."], answer: 1, description: "Kₑ is a characteristic property of the solvent and is independent of the solute." },
+            { question: "The freezing point of a substance is the temperature at which the vapour pressure of the substance in its liquid phase is equal to its vapour pressure in the:", options: ["gaseous phase.", "solid phase.", "critical phase.", "plasma phase."], answer: 1, description: "Adding a non-volatile solute lowers the vapour pressure of the liquid, causing it to freeze at a lower temperature. This is freezing point depression." },
+            { question: "The depression in freezing point (ΔTₒ) is directly proportional to the:", options: ["Molarity of the solution.", "Molality of the solution.", "Mole fraction of the solvent.", "Mass percentage of the solute."], answer: 1, description: "The relationship is ΔTₒ = Kₒ * m, where Kₒ is the Cryoscopic Constant." },
+            { question: "The molal depression constant (Kₒ), or cryoscopic constant, depends on the:", options: ["nature of the solute.", "nature of the solvent.", "amount of solute added.", "atmospheric pressure."], answer: 1, description: "Kₒ is a characteristic property of the solvent. For water, Kₒ = 1.86 K kg/mol." },
+            { question: "The spontaneous net movement of solvent molecules through a semi-permeable membrane from a region of higher solvent concentration to a region of lower solvent concentration is called:", options: ["Diffusion", "Osmosis", "Active transport", "Effusion"], answer: 1, description: "Osmosis is a crucial process in biological systems, driven by differences in water potential or solute concentration." },
+            { question: "A semipermeable membrane (SPM) allows the passage of:", options: ["only solute molecules.", "only solvent molecules.", "both solute and solvent molecules.", "neither solute nor solvent molecules."], answer: 1, description: "The pores of an SPM are small enough to block the passage of larger solute particles while allowing smaller solvent molecules to pass through." },
+            { question: "The pressure that must be applied to a solution to prevent the inward flow of its pure solvent across a semipermeable membrane is called:", options: ["Vapour pressure", "Atmospheric pressure", "Osmotic pressure (π)", "Turgor pressure"], answer: 2, description: "Osmotic pressure is a colligative property and is proportional to the molarity of the solution." },
+            { question: "According to the van't Hoff equation, osmotic pressure (π) is given by:", options: ["π = mRT", "π = CRT", "π = xRT", "π = kRT"], answer: 1, description: "Here, C is the molarity of the solution, R is the gas constant, and T is the temperature in Kelvin." },
+            { question: "Two solutions having the same osmotic pressure at a given temperature are called:", options: ["Isotonic solutions", "Hypertonic solutions", "Hypotonic solutions", "Saturated solutions"], answer: 0, description: "If two isotonic solutions are separated by an SPM, there is no net flow of solvent between them. For example, 0.9% (mass/volume) sodium chloride solution is isotonic with human blood cells." },
+            { question: "If a solution has a higher osmotic pressure than another solution, it is called:", options: ["Isotonic", "Hypertonic", "Hypotonic", "Unsaturated"], answer: 1, description: "If a cell is placed in a hypertonic solution, water will flow out of the cell, causing it to shrink (crenation in animal cells, plasmolysis in plant cells)." },
+            { question: "If a solution has a lower osmotic pressure than another solution, it is called:", options: ["Isotonic", "Hypertonic", "Hypotonic", "Saturated"], answer: 2, description: "If a cell is placed in a hypotonic solution, water will flow into the cell, causing it to swell and possibly burst (hemolysis in RBCs)." },
+            { question: "The process of desalination of seawater is achieved through:", options: ["Osmosis", "Reverse Osmosis (RO)", "Distillation", "Filtration"], answer: 1, description: "In reverse osmosis, a pressure greater than the osmotic pressure is applied to the saltwater side, forcing pure water molecules through the SPM to the freshwater side." },
+            { question: "Why is measuring osmotic pressure a preferred method for determining the molar masses of macromolecules like proteins and polymers?", options: ["The pressure magnitude is small even for dilute solutions.", "The measurements are done at room temperature, preventing denaturation.", "Molarity is used instead of molality.", "Both b and c."], answer: 3, description: "Osmometry is gentle (no boiling/freezing), and the pressure change is large enough to be measured accurately even for very dilute solutions. Also, using molarity is more convenient for preparing these solutions." },
+            { question: "When a solute undergoes association or dissociation in a solution, the molar mass determined by colligative properties is different from the theoretical value. This is called:", options: ["Normal molar mass", "Abnormal molar mass", "Molar mass anomaly", "Colligative defect"], answer: 1, description: "Colligative properties depend on the actual number of particles in the solution. Association decreases the number of particles, while dissociation increases it, leading to abnormal molar masses." },
+            { question: "The van't Hoff factor (i) is defined as:", options: ["Normal molar mass / Observed molar mass", "Observed colligative property / Calculated colligative property", "Total number of moles of particles after association/dissociation / Number of moles of formula units dissolved", "All of the above"], answer: 3, description: "The van't Hoff factor (i) corrects for the effect of solute association or dissociation on colligative properties." },
+            { question: "For a solute that undergoes dissociation in solution, the van't Hoff factor (i) is:", options: ["less than 1.", "greater than 1.", "equal to 1.", "equal to 0."], answer: 1, description: "Dissociation increases the number of particles in the solution. For example, for complete dissociation of NaCl (NaCl ⟶ Na⁺ + Cl⁻), i = 2." },
+            { question: "For a solute that undergoes association in solution, the van't Hoff factor (i) is:", options: ["less than 1.", "greater than 1.", "equal to 1.", "equal to 0."], answer: 0, description: "Association decreases the number of effective particles. For example, if two molecules of acetic acid dimerize in benzene (2CH₃COOH ⟶ (CH₃COOH)₂), i = 0.5." },
+            { question: "For a non-electrolyte solute that does not associate or dissociate (like glucose or urea), the van't Hoff factor (i) is:", options: ["less than 1.", "greater than 1.", "equal to 1.", "equal to 0."], answer: 2, description: "For non-electrolytes, the observed and calculated values are the same, so no correction is needed (i = 1)." },
+            { question: "The modified equation for elevation in boiling point including the van't Hoff factor is:", options: ["ΔTₑ = m * Kₑ", "ΔTₑ = i * m * Kₑ", "ΔTₑ = m * Kₑ / i", "ΔTₑ = i * M * R * T"], answer: 1, description: "All colligative property equations must be multiplied by 'i' to account for abnormal molar masses." },
+            { question: "What is the value of the van't Hoff factor (i) for a dilute aqueous solution of K₂SO₄ (assuming complete dissociation)?", options: ["1", "2", "3", "4"], answer: 2, description: "K₂SO₄ dissociates into three ions: 2K⁺ and 1SO₄²⁻. Therefore, i = 3." },
+            { question: "The degree of dissociation (α) is related to the van't Hoff factor (i) by the equation (where 'n' is the number of ions per formula unit):", options: ["α = (i - 1) / (n - 1)", "α = (i + 1) / (n + 1)", "α = (1 - i) / (1 - n)", "α = (i - n) / (n - 1)"], answer: 0, description: "This equation allows you to calculate the degree of dissociation if you know the experimental van't Hoff factor." },
+            { question: "Ethanoic acid (acetic acid) dimerises in benzene. The van't Hoff factor for a solution of ethanoic acid in benzene will be:", options: ["i = 1", "i > 1", "i < 1", "i = 0"], answer: 2, description: "Dimerisation is a form of association, which reduces the number of particles in the solution, making i < 1. For complete dimerisation, i = 0.5." },
+            { question: "Which of the following has the highest boiling point?", options: ["0.1 M Glucose", "0.1 M NaCl", "0.1 M BaCl₂", "0.1 M AlCl₃"], answer: 3, description: "Elevation in boiling point is a colligative property that depends on the number of particles. AlCl₃ produces the most particles (i=4), followed by BaCl₂ (i=3), NaCl (i=2), and Glucose (i=1)." },
+            { question: "Which of the following will have the lowest freezing point?", options: ["1 m Sucrose", "1 m KCl", "1 m CaCl₂", "1 m Al₂(SO₄)₃"], answer: 3, description: "The greatest depression in freezing point will be caused by the solute that produces the most particles. Al₂(SO₄)₃ dissociates into 2Al³⁺ and 3SO₄²⁻, giving i = 5." },
+            { question: "The vapour pressure of a solution of a non-volatile solute is always:", options: ["higher than the vapour pressure of the pure solvent.", "lower than the vapour pressure of the pure solvent.", "equal to the vapour pressure of the pure solvent.", "independent of the concentration."], answer: 1, description: "Adding a non-volatile solute lowers the vapour pressure." },
+            { question: "A 5% solution of cane sugar (molar mass = 342 g/mol) is isotonic with a 1% solution of a substance X. The molar mass of X is:", options: ["68.4 g/mol", "34.2 g/mol", "171.2 g/mol", "136.8 g/mol"], answer: 0, description: "For isotonic solutions, π₁ = π₂ or C₁ = C₂. (5/342)/V = (1/Mₓ)/V. So, Mₓ = 342/5 = 68.4 g/mol." },
+            { question: "An unripe mango placed in a concentrated salt solution to prepare pickle shrivels because:", options: ["it gains water due to osmosis.", "it loses water due to reverse osmosis.", "it loses water due to osmosis.", "it gains salt due to diffusion."], answer: 2, description: "The salt solution is hypertonic compared to the mango's cells, so water moves out of the mango." },
+            { question: "The Henry's law constant (Kʜ) for a gas is dependent on:", options: ["the nature of the gas and the temperature.", "the pressure of the gas.", "the volume of the solvent.", "the amount of gas dissolved."], answer: 0, description: "Kʜ is specific to each gas-solvent pair and varies with temperature." },
+            { question: "A liquid mixture that boils without any change in its composition is called:", options: ["An ideal solution", "A non-ideal solution", "An azeotrope", "A saturated solution"], answer: 2, description: "This is the definition of an azeotropic mixture." },
+            { question: "For an ideal solution, the enthalpy of mixing (ΔHₘᵢₓ) is:", options: ["Positive", "Negative", "Zero", "Greater than the volume of mixing"], answer: 2, description: "For an ideal solution, ΔHₘᵢₓ = 0 and ΔVₘᵢₓ = 0." },
+            { question: "Which gas is used in the breathing equipment for scuba divers to avoid 'the bends'?", options: ["Neon", "Argon", "Krypton", "Helium"], answer: 3, description: "Helium is used to dilute the nitrogen in breathing tanks because of its very low solubility in blood." },
+            { question: "A person suffering from 'anoxia' at high altitudes is a direct application of:", options: ["Raoult's Law", "Henry's Law", "The van't Hoff factor", "Osmotic pressure"], answer: 1, description: "At high altitudes, the low partial pressure of oxygen leads to lower solubility in the blood, as explained by Henry's Law." },
+            { question: "The cryoscopic constant (Kₒ) is defined as the depression in freezing point when:", options: ["the molarity of the solution is unity.", "the molality of the solution is unity.", "the mole fraction of the solute is unity.", "1 gram of solute is dissolved in 1000g of solvent."], answer: 1, description: "Kₒ is the freezing point depression for a 1 molal solution." },
+            { question: "The colligative property used to find the molar mass of polymers is:", options: ["Elevation in boiling point", "Depression in freezing point", "Osmotic pressure", "Relative lowering of vapour pressure"], answer: 2, description: "Osmotic pressure measurements are preferred for macromolecules as the effect is measurable even in dilute solutions and at room temperature." },
+            { question: "If red blood cells are placed in pure water, they will:", options: ["shrink.", "swell and burst.", "remain unaffected.", "first shrink, then swell."], answer: 1, description: "Pure water is hypotonic to the RBCs, causing water to rush in via osmosis, leading to hemolysis." },
+            { question: "For a solution showing negative deviation, the volume of mixing (ΔVₘᵢₓ) is:", options: ["Positive", "Negative", "Zero", "Equal to ΔHₘᵢₓ"], answer: 1, description: "In negative deviation, stronger A-B attractions pull the molecules closer, resulting in a volume contraction (ΔVₘᵢₓ < 0)." },
+            { question: "The relationship between osmotic pressure at two different temperatures T₁ and T₂ for the same solution is:", options: ["π₁/T₁ = π₂/T₂", "π₁T₁ = π₂T₂", "π₁/T₂ = π₂/T₁", "π₁ = π₂"], answer: 0, description: "Since π = CRT, the ratio π/T = CR is constant for a given solution." },
+            { question: "In a mixture of A and B, if the A-B interactions are stronger than the A-A and B-B interactions, the solution will show:", options: ["Positive deviation from Raoult's law", "Negative deviation from Raoult's law", "Ideal behavior", "No vapour pressure"], answer: 1, description: "Stronger A-B attractions make it harder for molecules to escape, lowering the vapour pressure below the ideal value." },
+            { question: "The freezing point of a 0.05 m solution of a non-electrolyte in water would be (Kₒ for water = 1.86 K kg/mol):", options: ["-0.093 °C", "-1.86 °C", "-0.186 °C", "-0.0465 °C"], answer: 0, description: "ΔTₒ = Kₒ * m = 1.86 * 0.05 = 0.093 K or 0.093 °C. Freezing point = 0 °C - 0.093 °C = -0.093 °C." },
+            { question: "Colligative properties are observed for:", options: ["Concentrated solutions only", "Dilute solutions only", "Gaseous solutions only", "All solutions"], answer: 1, description: "The laws for colligative properties are strictly valid only for ideal, dilute solutions." },
+            { question: "Raoult's Law becomes a special case of Henry's Law when:", options: ["Kʜ = p₁⁰", "Kʜ > p₁⁰", "Kʜ < p₁⁰", "Kʜ = 0"], answer: 0, description: "When the solute is also a volatile liquid, Henry's law constant (Kʜ) becomes equal to the vapour pressure of the pure component (p₁⁰)." },
+            { question: "The unit of the ebullioscopic constant (Kₑ) is:", options: ["K kg mol⁻¹", "K mol kg⁻¹", "kg mol K⁻¹", "K g mol⁻¹"], answer: 0, description: "From ΔTₑ = Kₑ * m, the units are (Kelvin) / (mol/kg) = K kg/mol." },
+            { question: "What is the observed colligative property for a solution of ethanoic acid in benzene as compared to the calculated value?", options: ["Higher", "Lower", "Same", "Zero"], answer: 1, description: "Ethanoic acid associates (dimerizes) in benzene, reducing the effective number of solute particles. This leads to a lower observed colligative effect (e.g., smaller ΔTₑ)." },
+            { question: "The vapour pressure of a pure liquid A is 70 torr at 300 K. It forms an ideal solution with another liquid B. The mole fraction of B is 0.6 and the total vapour pressure of the solution is 106 torr. The vapour pressure of pure liquid B is:", options: ["120 torr", "140 torr", "100 torr", "130 torr"], answer: 3, description: "Pₜₒₜₐₗ = (pₐ⁰ * xₐ) + (pₑ⁰ * xₑ). We have xₐ = 1 - 0.6 = 0.4. So, 106 = (70 * 0.4) + (pₑ⁰ * 0.6). 106 = 28 + 0.6pₑ⁰. 78 = 0.6pₑ⁰. Thus, pₑ⁰ = 130 torr." },
+            { question: "An example of a solid solution is:", options: ["Sugar in water", "Smoke in air", "22 carat gold", "Soda water"], answer: 2, description: "22 carat gold is an alloy, which is a homogeneous solid solution of gold and another metal like copper." },
+            { question: "The value of the Gas Constant (R) in the osmotic pressure equation (π=CRT) when C is in mol/L and π is in atmospheres is:", options: ["8.314 J K⁻¹ mol⁻¹", "0.0821 L atm K⁻¹ mol⁻¹", "1.987 cal K⁻¹ mol⁻¹", "9.8 m s⁻²"], answer: 1, description: "This is the value of R to be used when pressure is in atm and volume is in liters." },
+            { question: "Camphor in nitrogen gas is an example of what type of solution?", options: ["Solid in gas", "Gas in solid", "Gas in gas", "Liquid in gas"], answer: 0, description: "This is a solution where a solid solute (camphor) is dispersed in a gaseous solvent (nitrogen)." },
+            { question: "The unit Molarity can be expressed as:", options: ["mol/kg", "g/L", "mol/L", "g/kg"], answer: 2, description: "Molarity is defined as moles of solute per liter of solution." },
+            { question: "Which of the following is NOT a colligative property?", options: ["Osmotic Pressure", "Vapour Pressure", "Elevation in Boiling Point", "Depression in Freezing Point"], answer: 1, description: "The colligative property is the *Relative Lowering* of Vapour Pressure, not vapour pressure itself." },
+            { question: "If a solute associates in a solution, its experimentally determined molar mass will be:", options: ["higher than the true value.", "lower than the true value.", "the same as the true value.", "zero."], answer: 0, description: "Association leads to fewer particles. Since Molar Mass ∝ 1/Colligative Property, a smaller colligative effect results in a higher calculated molar mass." },
+            { question: "A mixture of chloroform and acetone forms a solution with a negative deviation because:", options: ["a hydrogen bond is formed between chloroform and acetone.", "the intermolecular forces are broken.", "the mixture is ideal.", "it forms a minimum boiling azeotrope."], answer: 0, description: "The formation of new, stronger H-bonds between chloroform's H and acetone's O leads to negative deviation." },
+            { question: "Which of the following aqueous solutions should have the highest boiling point?", options: ["1.0 M NaOH", "1.0 M Na₂SO₄", "1.0 M NH₄NO₃", "1.0 M KNO₃"], answer: 1, description: "The elevation in boiling point is proportional to the number of particles. Na₂SO₄ has the highest van't Hoff factor (i=3) among the choices." },
+            { question: "Equimolal solutions of NaCl and BaCl₂ are prepared in water. The freezing point depression of the NaCl solution will be:", options: ["less than that of the BaCl₂ solution.", "greater than that of the BaCl₂ solution.", "equal to that of the BaCl₂ solution.", "double that of the BaCl₂ solution."], answer: 0, description: "BaCl₂ (i=3) produces more particles than NaCl (i=2) at the same molality, so it will cause a greater freezing point depression." },
+            { question: "The preservation of meat by salting and of fruits by adding sugar prevents bacterial growth because:", options: ["bacteria die from lack of nutrients.", "bacteria lose water through plasmolysis and die.", "the salt/sugar acts as a poison.", "the high concentration increases the temperature."], answer: 1, description: "The hypertonic environment created by salt or sugar draws water out of bacterial cells, inhibiting their growth." },
+            { question: "The van't Hoff factor for a compound that undergoes trimerisation in an organic solvent is:", options: ["1/2", "1/3", "1/4", "2"], answer: 1, description: "Trimerisation means 3 molecules associate into 1 particle, so for complete trimerisation, i = 1/3." },
+        ];
+        
+        // --- DOM Elements ---
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const solutionsContainer = document.getElementById('solutions-container');
+        
+        const progressBar = document.getElementById('progress-bar');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionCounterEl = document.getElementById('question-counter');
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const solutionsBtn = document.getElementById('solutions-btn');
+
+        // --- State ---
+        let currentQuestion = 0;
+        const userAnswers = new Array(quizData.length).fill(null);
+        
+        // --- Functions ---
+        function loadQuestion(index) {
+            const questionData = quizData[index];
+            questionNumberEl.textContent = `Q. ${index + 1}`;
+            questionTextEl.innerHTML = questionData.question;
+            
+            optionsContainerEl.innerHTML = '';
+            questionData.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = 'option-btn w-full text-left p-4 border-2 border-slate-300 rounded-lg text-slate-700';
+                if (userAnswers[index] === i) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', () => selectOption(index, i));
+                optionsContainerEl.appendChild(button);
+            });
+            
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectOption(qIndex, oIndex) {
+            userAnswers[qIndex] = oIndex;
+            // Reload question to update selected styles
+            loadQuestion(qIndex);
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+            questionCounterEl.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+        }
+        
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showResults() {
+            let score = 0;
+            let attempted = 0;
+            
+            userAnswers.forEach((answer, index) => {
+                if (answer !== null) {
+                    attempted++;
+                    if (answer === quizData[index].answer) {
+                        score++;
+                    }
+                }
+            });
+            
+            const incorrect = attempted - score;
+            const unattempted = quizData.length - attempted;
+            const percentage = quizData.length > 0 ? ((score / quizData.length) * 100).toFixed(2) : 0;
+            
+            document.getElementById('total-score').textContent = score;
+            document.getElementById('incorrect-count').textContent = incorrect;
+            document.getElementById('attempted-count').textContent = attempted;
+            document.getElementById('unattempted-count').textContent = unattempted;
+            document.getElementById('final-percentage').textContent = `${percentage}%`;
+
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function showSolutions() {
+            const solutionsContent = document.getElementById('solutions-content');
+            solutionsContent.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const solutionBlock = document.createElement('div');
+                solutionBlock.className = 'p-4 rounded-lg border';
+
+                let questionHtml = `<p class="font-bold text-lg mb-4">Q.${index + 1}: ${q.question}</p>`;
+                
+                let optionsHtml = '<div class="space-y-2 mb-4">';
+                q.options.forEach((opt, i) => {
+                    let optionClass = 'p-3 rounded-md';
+                    let userChoiceBadgeHtml = '';
+
+                    // Check if user answered this question
+                    if(userAnswers[index] !== null) {
+                        if (i === q.answer) {
+                             optionClass += ' correct-answer'; // Highlight correct answer
+                        }
+                        if (i === userAnswers[index] && userAnswers[index] !== q.answer) {
+                            optionClass += ' incorrect-answer'; // Highlight user's wrong choice
+                        }
+                        
+                        // Add badge for user's choice
+                        if (i === userAnswers[index]){
+                            if(userAnswers[index] === q.answer){
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-correct">Your Answer</span>`;
+                            } else {
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-incorrect">Your Answer</span>`;
+                            }
+                        }
+                    } else { // if unattempted
+                         if (i === q.answer) {
+                             optionClass += ' correct-answer';
+                         }
+                    }
+
+                    optionsHtml += `<div class="${optionClass}">${String.fromCharCode(97 + i)}) ${opt} ${userChoiceBadgeHtml}</div>`;
+                });
+                optionsHtml += '</div>';
+
+                let explanationHtml = `<div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="font-semibold text-green-700">Correct Answer: ${String.fromCharCode(97 + q.answer)}) ${q.options[q.answer]}</p>
+                    <p class="text-sm text-slate-600 mt-2"><b>Explanation:</b> ${q.description}</p>
+                </div>`;
+                
+                solutionBlock.innerHTML = questionHtml + optionsHtml + explanationHtml;
+                solutionsContent.appendChild(solutionBlock);
+            });
+
+            resultsContainer.classList.add('hidden');
+            solutionsContainer.classList.remove('hidden');
+        }
+        
+        // --- Event Listeners ---
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        submitBtn.addEventListener('click', showResults);
+        solutionsBtn.addEventListener('click', showSolutions);
+        
+        // --- Initial Load ---
+        loadQuestion(currentQuestion);
+    </script>
+</body>
+</html>
