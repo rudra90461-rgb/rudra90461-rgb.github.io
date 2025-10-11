@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Mock Test: Units & Measurement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .option-btn {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-btn:hover {
+            background-color: #e0e7ff;
+        }
+        .option-btn.selected {
+            background-color: #c7d2fe;
+            border-color: #818cf8;
+            font-weight: 600;
+        }
+        .correct-answer {
+            background-color: #dcfce7;
+            border-left: 4px solid #4ade80;
+        }
+        .incorrect-answer {
+            background-color: #fee2e2;
+             border-left: 4px solid #f87171;
+        }
+        .user-choice-badge {
+            display: inline-block;
+            padding: 0.1rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .user-correct {
+            background-color: #22c55e;
+            color: white;
+        }
+        .user-incorrect {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="w-full max-w-3xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">Physics NEET Mock Test</h1>
+        <p class="text-slate-600 mb-6">Chapter: Physical World, Units, and Measurement</p>
+        
+        <!-- Progress Bar -->
+        <div class="bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area" class="mb-6">
+            <p class="text-lg font-semibold text-slate-700 mb-4"><span id="question-number" class="mr-2"></span><span id="question-text"></span></p>
+            <div id="options-container" class="space-y-3">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center">
+            <button id="prev-btn" class="px-5 py-2.5 bg-slate-200 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">Previous</button>
+            <span id="question-counter" class="text-slate-600 font-medium"></span>
+            <button id="next-btn" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">Next</button>
+            <button id="submit-btn" class="hidden px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700">Submit Test</button>
+        </div>
+    </div>
+
+    <div id="results-container" class="hidden w-full max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">Test Complete!</h2>
+        <p class="text-slate-600 mb-8">Here is your performance summary:</p>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-8">
+            <div>
+                <p class="text-3xl font-bold text-indigo-600" id="total-score"></p>
+                <p class="text-sm text-slate-500">Correct</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-red-500" id="incorrect-count"></p>
+                <p class="text-sm text-slate-500">Incorrect</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-700" id="attempted-count"></p>
+                <p class="text-sm text-slate-500">Attempted</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-500" id="unattempted-count"></p>
+                <p class="text-sm text-slate-500">Unattempted</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-lg mb-8">
+            <p class="text-xl font-bold text-slate-800" id="final-percentage"></p>
+            <p class="text-slate-600">Final Score</p>
+        </div>
+        
+        <button id="solutions-btn" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">View Detailed Solutions</button>
+    </div>
+
+    <div id="solutions-container" class="hidden w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-slate-800 mb-6">Solutions & Explanations</h2>
+        <div id="solutions-content" class="space-y-6">
+            <!-- Solutions will be dynamically inserted here -->
+        </div>
+        <button onclick="location.reload()" class="mt-8 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">Restart Test</button>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "1. Which of the following is considered the weakest force in nature?", options: ["a) Electromagnetic Force", "b) Gravitational Force", "c) Strong Nuclear Force", "d) Weak Nuclear Force"], answer: 1, description: "This is the weakest of the four fundamental forces, although it has an infinite range and governs the motion of celestial bodies." },
+            { question: "2. The principle of 'Unification' in physics aims to:", options: ["a) Break down complex systems into simpler constituent parts.", "b) Explain diverse physical phenomena in terms of a few concepts and laws.", "c) Discover new fundamental forces in nature.", "d) Focus only on macroscopic phenomena."], answer: 1, description: "This is the core idea of Unification, seeking to find a common explanation for seemingly different physical events (e.g., Newton's law of gravitation explaining a falling apple and planetary orbits)." },
+            { question: "3. The weak nuclear force is responsible for which of the following phenomena?", options: ["a) Holding protons and neutrons together in a nucleus.", "b) The binding of atoms to form molecules.", "c) Beta decay of a nucleus.", "d) The orbital motion of planets around the sun."], answer: 2, description: "The weak nuclear force is responsible for radioactive processes like beta decay, where a neutron changes into a proton (or vice versa)." },
+            { question: "4. Which of the following forces has the shortest range?", options: ["a) Gravitational Force", "b) Electromagnetic Force", "c) Strong Nuclear Force", "d) Weak Nuclear Force"], answer: 2, description: "This force is extremely strong but acts only within the confines of an atomic nucleus (about 10<sup>-15</sup> m)." },
+            { question: "5. The unification of electricity, magnetism, and optics was achieved by:", options: ["a) Isaac Newton", "b) Albert Einstein", "c) James Clerk Maxwell", "d) Michael Faraday"], answer: 2, description: "Maxwell's equations unified electricity and magnetism and showed that light is an electromagnetic wave." },
+            { question: "6. The 'reductionist' approach in physics involves:", options: ["a) Explaining different phenomena with a single theory.", "b) Understanding a complex system by studying the properties of its simpler constituents.", "c) Ignoring microscopic properties when studying a macroscopic system.", "d) Developing new technologies based on physical laws."], answer: 1, description: "Reductionism is the philosophy of breaking down a complex system into its basic parts to understand how it works as a whole." },
+            { question: "7. The exchange particle for the electromagnetic force is the:", options: ["a) Gluon", "b) Photon", "c) Graviton", "d) W and Z bosons"], answer: 1, description: "The electromagnetic force is mediated by the exchange of photons, which are quanta of light." },
+            { question: "8. Which of the following is NOT a characteristic of the electromagnetic force?", options: ["a) It can be attractive or repulsive.", "b) It has an infinite range.", "c) It is the strongest of the fundamental forces.", "d) It acts on charged particles."], answer: 2, description: "The strong nuclear force is the strongest fundamental force, about 100 times stronger than the electromagnetic force." },
+            { question: "9. The ratio of the strengths of the strong nuclear force, electromagnetic force, weak nuclear force, and gravitational force is approximately:", options: ["a) 1 : 10<sup>-2</sup> : 10<sup>-13</sup> : 10<sup>-38</sup>", "b) 1 : 10<sup>2</sup> : 10<sup>13</sup> : 10<sup>38</sup>", "c) 1 : 10<sup>-38</sup> : 10<sup>-13</sup> : 10<sup>-2</sup>", "d) 10<sup>-38</sup> : 10<sup>-13</sup> : 10<sup>-2</sup> : 1"], answer: 0, description: "This correctly represents the relative strengths, with the strong force being the strongest (normalized to 1) and the gravitational force being the weakest." },
+            { question: "10. The technology of rocketry and satellites is based on:", options: ["a) Newton's Laws of Motion and the Law of Gravitation.", "b) The principles of thermodynamics.", "c) Maxwell's theory of electromagnetism.", "d) Einstein's theory of relativity."], answer: 0, description: "Rocket propulsion is based on Newton's third law, and the orbits of satellites are governed by Newton's law of universal gravitation." },
+            { question: "11. Which scientist is credited with the discovery of the neutron?", options: ["a) J.J. Thomson", "b) Ernest Rutherford", "c) James Chadwick", "d) Niels Bohr"], answer: 2, description: "Chadwick discovered the neutron in 1932, a neutral particle in the atomic nucleus." },
+            { question: "12. The discovery of the expanding universe was made by:", options: ["a) S. Chandrasekhar", "b) Edwin Hubble", "c) C.V. Raman", "d) J.C. Bose"], answer: 1, description: "Hubble's observations of the redshift of distant galaxies provided the first evidence for the expansion of the universe." },
+            { question: "13. The study of the universe on a large scale is called:", options: ["a) Thermodynamics", "b) Cosmology", "c) Quantum Mechanics", "d) Optics"], answer: 1, description: "Cosmology is the branch of astronomy concerned with the origins and evolution of the universe." },
+            { question: "14. The work of S. Chandrasekhar is related to:", options: ["a) The inelastic scattering of light.", "b) The structure and evolution of stars.", "c) The unification of weak and electromagnetic forces.", "d) The theory of relativity."], answer: 1, description: "He is known for the Chandrasekhar limit, which defines the maximum mass of a stable white dwarf star." },
+            { question: "15. Which of the following principles is the basis for the functioning of a steam engine?", options: ["a) Electromagnetic Induction", "b) Laws of Thermodynamics", "c) Nuclear Fission", "d) Bernoulli's Principle"], answer: 1, description: "A steam engine is a heat engine that performs mechanical work using steam, operating based on the principles of thermodynamics." },
+            { question: "16. Which of the following is often called the 'domain of the middle' in physics?", options: ["a) Quantum mechanics", "b) Classical physics", "c) Relativity", "d) Cosmology"], answer: 1, description: "Classical physics deals with macroscopic phenomena that are intermediate between the very large (cosmological) and very small (quantum) scales." },
+            { question: "17. The law of conservation of angular momentum is a consequence of:", options: ["a) Homogeneity of time", "b) Homogeneity of space", "c) Isotropy of space", "d) Conservation of charge"], answer: 2, description: "Isotropy of space means that physical laws are the same regardless of orientation or direction. This symmetry leads to the conservation of angular momentum." },
+            { question: "18. Which of the following conservation laws is considered to be the most fundamental and is true for all known interactions?", options: ["a) Conservation of Mechanical Energy", "b) Conservation of Mass", "c) Conservation of Charge", "d) Conservation of Parity"], answer: 2, description: "In any physical process, the net electric charge of an isolated system remains constant. No exceptions have ever been found." },
+            { question: "19. The Law of Conservation of Energy is a consequence of:", options: ["a) Isotropy of space", "b) Homogeneity of space", "c) Homogeneity of time", "d) Invariance under charge conjugation"], answer: 2, description: "Homogeneity of time means that the laws of physics do not change over time. This symmetry is mathematically linked to the conservation of energy." },
+            { question: "20. The law of conservation of linear momentum is a consequence of:", options: ["a) Isotropy of space", "b) Homogeneity of time", "c) Homogeneity of space", "d) The existence of gravitational force"], answer: 2, description: "Homogeneity of space means that the laws of physics are the same at all locations. This symmetry is linked to the conservation of linear momentum." },
+            { question: "21. The conversion of a neutron into a proton is a key process in:", options: ["a) Chemical reactions", "b) Gravitational collapse", "c) Beta decay", "d) Electromagnetic induction"], answer: 2, description: "In beta-minus decay, a neutron inside a nucleus turns into a proton, emitting an electron and an antineutrino. This process is governed by the weak nuclear force." },
+            { question: "22. Which of the following statements is incorrect?", options: ["a) All fundamental forces are conservative in nature.", "b) A physical law can be proven to be absolutely true.", "c) The law of conservation of momentum is based on the homogeneity of space.", "d) The weak nuclear force is stronger than the gravitational force."], answer: 1, description: "Scientific laws are based on repeated experiments and observations but can never be proven absolutely true. They can only be verified or falsified by new evidence." },
+            { question: "23. Which of the following is NOT a fundamental physical quantity in the SI system?", options: ["a) Luminous Intensity", "b) Electric Charge", "c) Amount of Substance", "d) Thermodynamic Temperature"], answer: 1, description: "Electric Current (Ampere) is the fundamental quantity; charge is a derived quantity (Charge = Current × Time)." },
+            { question: "24. The 'light year' is a unit of:", options: ["a) Time", "b) Distance", "c) Luminous Intensity", "d) Speed"], answer: 1, description: "A light year is the distance that light travels in one year in a vacuum, used for measuring astronomical distances." },
+            { question: "25. The SI unit of pressure is Pascal (Pa). It is equivalent to:", options: ["a) N m", "b) N m²", "c) N m⁻¹", "d) N m⁻²"], answer: 3, description: "Pressure is defined as Force per unit Area. The SI unit of force is Newton (N) and area is square meter (m²), so pressure is N/m²." },
+            { question: "26. The unit 'parsec' is used to measure:", options: ["a) Very small time intervals", "b) Very large astronomical distances", "c) Pressure of a gas", "d) Energy of a particle"], answer: 1, description: "A parsec (parallax second) is a unit of length used to measure large distances to astronomical objects. 1 parsec ≈ 3.26 light-years." },
+            { question: "27. The solid angle subtended by the surface of a sphere at its center is:", options: ["a) 2π steradian", "b) 4π steradian", "c) π steradian", "d) 1 steradian"], answer: 1, description: "The solid angle is defined as (Surface Area) / (Radius)². For a sphere, this is (4πr²) / r² = 4π steradians." },
+            { question: "28. If the value of a physical quantity is measured to be n₁u₁ in one system and n₂u₂ in another system, then:", options: ["a) n₁u₁ = n₂u₂", "b) n₁u₂ = n₂u₁", "c) n₁n₂ = u₁u₂", "d) n₁/u₁ = n₂/u₂"], answer: 0, description: "The magnitude of a physical quantity remains constant regardless of the system of units used (e.g., 1 m = 100 cm)." },
+            { question: "29. Which of the following is NOT a unit of time?", options: ["a) Shake", "b) Leap year", "c) Barn", "d) Lunar month"], answer: 2, description: "A 'barn' is a unit of area used in nuclear physics, equal to 10<sup>-28</sup> m². It's not a unit of time." },
+            { question: "30. The order of magnitude of the radius of the Earth is:", options: ["a) 10<sup>4</sup> m", "b) 10<sup>7</sup> m", "c) 10<sup>9</sup> m", "d) 10<sup>3</sup> m"], answer: 1, description: "The Earth's radius is approx. 6400 km = 6.4 × 10<sup>6</sup> m. The order of magnitude is the nearest power of 10, which is 10<sup>7</sup> m." },
+            { question: "31. Which of the following units is not a base unit in the SI system?", options: ["a) Kelvin", "b) Candela", "c) Joule", "d) Mole"], answer: 2, description: "Joule is the derived unit of energy or work (kg·m²·s⁻²). It is not a base unit." },
+            { question: "32. Which of the following is a derived unit?", options: ["a) Ampere", "b) Kilogram", "c) Second", "d) Volt"], answer: 3, description: "Volt is a derived unit for electric potential, defined as Joule per Coulomb (J/C)." },
+            { question: "33. The parallax method is used for measuring:", options: ["a) The mass of stars.", "b) The size of very small atoms.", "c) Large distances, such as the distance to a nearby star.", "d) The time period of a pendulum."], answer: 2, description: "The parallax method involves observing an object from two different points and measuring the apparent shift in its position." },
+            { question: "34. The prefix 'giga' corresponds to a factor of:", options: ["a) 10<sup>6</sup>", "b) 10<sup>9</sup>", "c) 10<sup>12</sup>", "d) 10<sup>-9</sup>"], answer: 1, description: "Giga (G) represents a factor of one billion, or 10<sup>9</sup>." },
+            { question: "35. If the unit of force is 100 N, the unit of length is 10 m, and the unit of time is 100 s, what is the unit of mass in this new system?", options: ["a) 10<sup>3</sup> kg", "b) 10<sup>4</sup> kg", "c) 10<sup>5</sup> kg", "d) 10<sup>6</sup> kg"], answer: 2, description: "Since F = ma, Mass = Force / Acceleration = F / (L/T²) = FL⁻¹T². New unit of mass = (100 N) · (10 m)⁻¹ · (100 s)² = 100 × 0.1 × 10000 = 100000 kg = 10<sup>5</sup> kg." },
+            { question: "36. The density of a material in the CGS system is 4 g/cm³. In a system of units in which the unit of length is 10 cm and the unit of mass is 100 g, the value of density of the material will be:", options: ["a) 40", "b) 0.4", "c) 400", "d) 0.04"], answer: 0, description: "n₂ = n₁ [M₁/M₂]¹ [L₁/L₂]⁻³ = 4 [g/100g] [cm/10cm]⁻³ = 4 × (1/100) × (10)³ = 4000/100 = 40." },
+            { question: "37. The dimensional formula for gravitational constant 'G' is:", options: ["a) [MLT<sup>-2</sup>]", "b) [M<sup>-1</sup>L<sup>3</sup>T<sup>-2</sup>]", "c) [ML<sup>2</sup>T<sup>-2</sup>]", "d) [M<sup>-1</sup>L<sup>2</sup>T<sup>-1</sup>]"], answer: 1, description: "From F = G (m₁m₂/r²), we get G = Fr²/(m₁m₂). Dimensions are [MLT⁻²][L²]/([M][M]) = [M⁻¹L³T⁻²]." },
+            { question: "38. Which of the following pairs of physical quantities have the same dimensional formula?", options: ["a) Force and Power", "b) Work and Torque", "c) Momentum and Energy", "d) Pressure and Stress"], answer: 1, description: "Both Work (Force × distance) and Torque (Force × perpendicular distance) have the dimensional formula [ML²T⁻²]." },
+            { question: "39. Which of the following is a dimensionless quantity?", options: ["a) Planck's Constant", "b) Strain", "c) Surface Tension", "d) Frequency"], answer: 1, description: "Strain is the ratio of change in dimension to the original dimension (e.g., ΔL/L), making it dimensionless." },
+            { question: "40. According to the principle of homogeneity of dimensions, in a correct physical equation:", options: ["a) The dimensions of all terms on both sides must be identical.", "b) The units of all terms must be in the SI system.", "c) The equation must not contain any dimensionless constants.", "d) All quantities must be scalars."], answer: 0, description: "This principle states that we can only add or subtract quantities that have the same dimensions." },
+            { question: "41. The dimensional formula for Impulse is the same as that for:", options: ["a) Force", "b) Momentum", "c) Energy", "d) Power"], answer: 1, description: "Impulse (Force × Time) is equal to the change in momentum (mass × velocity). Both have dimensions [MLT⁻¹]." },
+            { question: "42. In the equation (P + a/V²)(V - b) = RT, the dimensional formula of 'a' is:", options: ["a) [ML<sup>5</sup>T<sup>-2</sup>]", "b) [ML<sup>-1</sup>T<sup>-2</sup>]", "c) [L<sup>3</sup>]", "d) [ML<sup>2</sup>T<sup>-2</sup>]"], answer: 0, description: "The dimensions of P must equal the dimensions of a/V². So, [a] = [P][V²] = [ML⁻¹T⁻²][(L³)³] = [ML⁵T⁻²]." },
+            { question: "43. The time period 'T' of a simple pendulum may depend on its mass 'm', length 'l', and acceleration due to gravity 'g'. Using dimensional analysis, the correct expression for 'T' is:", options: ["a) T = k √(m/g)", "b) T = k √(g/l)", "c) T = k √(l/g)", "d) T = k (ml/g)"], answer: 2, description: "Checking dimensions: [T] = √([L]/[LT⁻²]) = √([T²]) = [T]. This is dimensionally correct." },
+            { question: "44. If momentum (P), area (A), and time (T) are taken to be fundamental quantities, then the dimensional formula for energy is:", options: ["a) [PA⁻¹T]", "b) [PA<sup>1/2</sup>T<sup>-1</sup>]", "c) [P²AT⁻¹]", "d) [P A<sup>-1/2</sup> T]"], answer: 1, description: "Checking dimensions: [MLT⁻¹][(L²)<sup>1/2</sup>][T⁻¹] = [MLT⁻¹][L][T⁻¹] = [ML²T⁻²], which matches energy." },
+            { question: "45. The equation for the velocity 'v' of a particle is given by v = At² + Bt + C, where 't' is time. The dimensions of B are:", options: ["a) [LT⁻¹]", "b) [LT⁻²]", "c) [LT⁻³]", "d) [L]"], answer: 1, description: "The term Bt must have the dimensions of velocity. So, [B][T] = [LT⁻¹], which gives [B] = [LT⁻²]." },
+            { question: "46. The dimensional formula of latent heat is:", options: ["a) [ML²T⁻²]", "b) [M⁰L²T⁻²]", "c) [MLT⁻²]", "d) [ML²T⁻¹]"], answer: 1, description: "Latent heat L = Q/m. Dimensions are [ML²T⁻²] / [M] = [L²T⁻²]." },
+            { question: "47. Which of the following is a limitation of dimensional analysis?", options: ["a) It can be used to check the dimensional consistency of equations.", "b) It cannot determine the value of dimensionless constants.", "c) It can be used to convert units from one system to another.", "d) It works for all types of physical relationships."], answer: 1, description: "Dimensional analysis can derive the form of a relationship but cannot find the value of proportionality constants like 'k' or π." },
+            { question: "48. The physical quantity that has the dimensional formula [M¹ L⁻³ T⁰] is:", options: ["a) Work", "b) Pressure", "c) Density", "d) Velocity"], answer: 2, description: "Density is Mass / Volume. Dimensions are [M] / [L³] = [ML⁻³]." },
+            { question: "49. The dimensional formula for angular velocity is:", options: ["a) [M⁰L⁰T⁻¹]", "b) [M⁰LT⁻²]", "c) [MLT⁻¹]", "d) [ML²T⁻²]"], answer: 0, description: "Angular velocity is angle (dimensionless) per unit time. So its dimension is [T⁻¹]." },
+            { question: "50. The dimensional formula for Boltzmann constant (k_B) is:", options: ["a) [ML²T⁻²]", "b) [ML²T⁻²K⁻¹]", "c) [MLT⁻²K⁻¹]", "d) [M⁰L⁰T⁰K⁻¹]"], answer: 1, description: "From E = (3/2)k_B T, we get k_B = E/T. Dimensions are [ML²T⁻²] / [K] = [ML²T⁻²K⁻¹]." },
+            { question: "51. The quantity having dimensions [ML²T⁻³] is:", options: ["a) Work", "b) Power", "c) Momentum", "d) Pressure"], answer: 1, description: "Power is Work / Time. Dimensions are [ML²T⁻²] / [T] = [ML²T⁻³]." },
+            { question: "52. If force F, length L and time T are chosen as the fundamental quantities, the dimensional formula for mass would be:", options: ["a) [FLT⁻²]", "b) [FL⁻¹T²]", "c) [FL⁻¹T⁻¹]", "d) [FLT]"], answer: 1, description: "From [F] = [MLT⁻²], we rearrange to find mass: [M] = [F] / [LT⁻²] = [FL⁻¹T²]." },
+            { question: "53. The dimensional formula [ML⁻¹T⁻¹] corresponds to:", options: ["a) Viscosity", "b) Surface Tension", "c) Frequency", "d) Stress"], answer: 0, description: "From Stoke's law, F = 6πηrv, the coefficient of viscosity η has dimensions [ML⁻¹T⁻¹]." },
+            { question: "54. The dimensional formula of universal gas constant (R) is:", options: ["a) [ML²T⁻²]", "b) [ML²T⁻²mol⁻¹K⁻¹]", "c) [MLT⁻²mol⁻¹]", "d) [M⁰L⁰T⁰]"], answer: 1, description: "From PV = nRT, R = PV / (nT). Dimensions are [ML⁻¹T⁻²][L³] / ([mol][K]) = [ML²T⁻²mol⁻¹K⁻¹]." },
+            { question: "55. A unitless quantity:", options: ["a) Never has a dimension.", "b) Always has a non-zero dimension.", "c) May have a non-zero dimension.", "d) Exists only in theory."], answer: 0, description: "A quantity without units (like strain or refractive index) is also without dimensions." },
+            { question: "56. The dimensional formula of Stefan's constant (σ) is:", options: ["a) [ML²T⁻³K⁻⁴]", "b) [MT⁻³K⁻⁴]", "c) [MLT⁻³K⁻¹]", "d) [M⁰L²T⁻¹K⁻²]"], answer: 1, description: "From Stefan-Boltzmann law, Power/Area = σT⁴. So, σ = (E/t)/A * (1/T⁴). Dimensions are [ML²T⁻³] / ([L²][K⁴]) = [MT⁻³K⁻⁴]." },
+            { question: "57. The dimensional formula for the coefficient of thermal conductivity is:", options: ["a) [MLT⁻³K⁻¹]", "b) [ML²T⁻²]", "c) [ML²T⁻³K⁻¹]", "d) [M⁰L²T⁻²K⁻¹]"], answer: 0, description: "From dQ/dt = kA(dT/dx), dimensions of k are [ML²T⁻³] / ([L²][K]/[L]) = [MLT⁻³K⁻¹]." },
+            { question: "58. The physical quantity 'permeability of free space' (μ₀) has the dimensional formula:", options: ["a) [MLT⁻²A⁻²]", "b) [MLT⁻²A⁻¹]", "c) [M⁻¹L⁻³T⁴A²]", "d) [ML²T⁻²A⁻²]"], answer: 0, description: "From the formula for force per unit length between two parallel currents, F/L = μ₀ I₁ I₂ / (2πr), the dimensions of μ₀ are [MLT⁻²A⁻²]." },
+            { question: "59. A quantity X is given by X = ε₀ L (ΔV/Δt), where ε₀ is the permittivity of free space, L is a length, ΔV is a potential difference and Δt is a time interval. The dimensional formula for X is the same as that of:", options: ["a) Charge", "b) Current", "c) Resistance", "d) Voltage"], answer: 1, description: "This expression represents displacement current. Maxwell's equations show that displacement current has the same dimensions as conduction current [A]." },
+            { question: "60. The dimensional formula for specific heat capacity is:", options: ["a) [ML²T⁻²K⁻¹]", "b) [M⁰L²T⁻²K⁻¹]", "c) [ML²T⁻²]", "d) [L²T⁻²]"], answer: 1, description: "From Q = mcΔT, specific heat capacity c = Q / (mΔT). Dimensions are [ML²T⁻²] / ([M][K]) = [L²T⁻²K⁻¹]." },
+            { question: "61. If the error in the measurement of the radius of a sphere is 2%, what is the percentage error in the measurement of its volume?", options: ["a) 2%", "b) 4%", "c) 6%", "d) 8%"], answer: 2, description: "Volume V ∝ r³. The percentage error in volume is three times the percentage error in the radius. So, 3 × 2% = 6%." },
+            { question: "62. The number of significant figures in the measurement 0.005060 is:", options: ["a) 3", "b) 4", "c) 6", "d) 2"], answer: 1, description: "Leading zeros are not significant. The digits 5, 0, 6, and the trailing zero after the decimal point are all significant." },
+            { question: "63. A physical quantity P is related to four observables a, b, c, and d as follows: P = (a³b²)/(√c d). The percentage errors in the measurement of a, b, c, and d are 1%, 3%, 4%, and 2%, respectively. What is the percentage error in the quantity P?", options: ["a) 10%", "b) 13%", "c) 7%", "d) 12%"], answer: 1, description: "% error in P = 3(1%) + 2(3%) + (1/2)(4%) + 1(2%) = 3% + 6% + 2% + 2% = 13%." },
+            { question: "64. A student measures the length of a rod and writes it as 3.50 cm. Which instrument did he use to measure it?", options: ["a) A meter scale", "b) A vernier caliper", "c) A screw gauge", "d) A measuring tape"], answer: 1, description: "A vernier caliper has a least count of 0.01 cm, allowing for measurement up to two decimal places. The trailing zero in 3.50 is significant." },
+            { question: "65. The sum of the numbers 436.32, 227.2, and 0.301 in appropriate significant figures is:", options: ["a) 663.821", "b) 663.8", "c) 663.82", "d) 664"], answer: 1, description: "When adding, the result must be rounded to the same number of decimal places as the number with the least decimal places (227.2 has one)." },
+            { question: "66. The least count of an instrument is:", options: ["a) The largest value it can measure.", "b) The smallest value that can be measured accurately by the instrument.", "c) The error always present in the measurement.", "d) The average of all possible measurements."], answer: 1, description: "The least count represents the smallest division on the instrument's scale, defining its resolution." },
+            { question: "67. The density of a cube is measured by measuring its mass and the length of its side. If the maximum errors in the measurement of mass and length are 3% and 2% respectively, the maximum error in the measurement of density will be:", options: ["a) 5%", "b) 7%", "c) 9%", "d) 1%"], answer: 2, description: "Density = Mass / (Length)³. % error in density = (% error in Mass) + 3 × (% error in Length) = 3% + 3 × 2% = 9%." },
+            { question: "68. A vernier callipers has 20 divisions on the vernier scale, which coincide with 19 divisions on the main scale. If the main scale division is 1 mm, the least count of the instrument is:", options: ["a) 0.1 mm", "b) 0.05 mm", "c) 0.02 mm", "d) 0.01 mm"], answer: 1, description: "Least Count = 1 MSD - 1 VSD = 1 mm - (19/20) mm = 1/20 mm = 0.05 mm." },
+            { question: "69. Rounding off the number 2.745 to 3 significant figures gives:", options: ["a) 2.75", "b) 2.74", "c) 2.70", "d) 2.8"], answer: 1, description: "If the digit to be dropped is 5 (not followed by non-zero digits), and the preceding digit is even, it is left unchanged." },
+            { question: "70. The number 23.023 has five significant figures. If this number is written in scientific notation, the number of significant figures will be:", options: ["a) Three", "b) Four", "c) Five", "d) Two"], answer: 2, description: "Writing the number as 2.3023 × 10¹ does not alter the number of significant figures." },
+            { question: "71. The length, breadth, and thickness of a rectangular sheet are 4.234 m, 1.005 m, and 2.01 cm, respectively. The volume of the sheet to the correct significant figures is:", options: ["a) 0.0855 m³", "b) 0.08552 m³", "c) 0.086 m³", "d) 0.09 m³"], answer: 0, description: "The thickness (2.01 cm = 0.0201 m) has the least number of significant figures (three). The result must be rounded to three significant figures." },
+            { question: "72. The number of significant figures in 6.023 × 10²³ is:", options: ["a) 23", "b) 4", "c) 2", "d) 27"], answer: 1, description: "In scientific notation, all digits in the coefficient (6.023) are significant." },
+            { question: "73. Zero error in an instrument is an example of:", options: ["a) Random error", "b) Systematic error", "c) Personal error", "d) Least count error"], answer: 1, description: "A zero error is a type of instrumental error, which is a systematic error because it affects all measurements in the same way." },
+            { question: "74. The accuracy of a measurement is a measure of:", options: ["a) How close the measured value is to the true value of the quantity.", "b) What resolution or limit the quantity is measured to.", "c) The number of significant figures in the measurement.", "d) The consistency of repeated measurements."], answer: 0, description: "Accuracy refers to the correctness of a measurement." },
+            { question: "75. To reduce random errors in an experiment, one should:", options: ["a) Use a more precise instrument.", "b) Take a large number of readings and calculate their mean.", "c) Correct for any zero error in the instrument.", "d) Perform the experiment in a controlled environment."], answer: 1, description: "Random errors are unpredictable. By taking many readings, these fluctuations tend to cancel each other out." },
+            { question: "76. A screw gauge has a least count of 0.01 mm and there are 50 divisions in its circular scale. The pitch of the screw gauge is:", options: ["a) 0.25 mm", "b) 0.5 mm", "c) 1.0 mm", "d) 0.005 mm"], answer: 1, description: "Pitch = Least Count × Number of divisions = 0.01 mm × 50 = 0.5 mm." },
+            { question: "77. An error that can be either positive or negative is called:", options: ["a) Systematic error", "b) Random error", "c) Zero error", "d) Least count error"], answer: 1, description: "Random errors cause unpredictable fluctuations, making the measured value sometimes higher and sometimes lower than the true value." },
+            { question: "78. A measurement can be highly precise but not accurate. This can happen if there is a significant:", options: ["a) Random error", "b) Systematic error", "c) Personal error", "d) Least count error"], answer: 1, description: "High precision means readings are close to each other. A systematic error can shift this entire cluster of readings away from the true value, resulting in low accuracy." },
+            { question: "79. What is the result of (10.25 + 7.3) with due regard to significant figures?", options: ["a) 17.55", "b) 17.6", "c) 17.5", "d) 18"], answer: 1, description: "The result must be rounded to one decimal place, matching the least precise number (7.3)." },
+            { question: "80. Which of the following measurements is the most precise?", options: ["a) 20.0 g", "b) 2 g", "c) 0.0002 g", "d) 2.0 x 10⁻³ g"], answer: 2, description: "Precision refers to the resolution of the measurement. 0.0002 g is measured to the nearest 0.0001 g, which is the smallest absolute uncertainty among the options." },
+            { question: "81. Systematic errors in an experiment can be caused by:", options: ["a) Random fluctuations in temperature and pressure.", "b) Imperfect calibration of the instrument or a flaw in the experimental procedure.", "c) Unpredictable mistakes made by the observer.", "d) A large number of observations."], answer: 1, description: "Systematic errors are consistent and repeatable, often due to faulty equipment or method." },
+            { question: "82. In an experiment, four quantities a, b, c, and d are measured with percentage errors 1%, 2%, 3%, and 4% respectively. Quantity P is calculated as P = (a³b²)/(cd). The percentage error in P is:", options: ["a) 10%", "b) 14%", "c) 4%", "d) 7%"], answer: 1, description: "% error in P = 3(1%) + 2(2%) + 1(3%) + 1(4%) = 3% + 4% + 3% + 4% = 14%." },
+            { question: "83. The physical quantity that has the dimensional formula [ML⁻¹T⁻²] is:", options: ["a) Work", "b) Pressure", "c) Density", "d) Velocity"], answer: 1, description: "Pressure is Force/Area. Dimensions are [MLT⁻²]/[L²] = [ML⁻¹T⁻²]." },
+            { question: "84. The dimensional formula for frequency is:", options: ["a) [T]", "b) [T⁻¹]", "c) [LT⁻¹]", "d) [M⁰L⁰T⁰]"], answer: 1, description: "Frequency is the reciprocal of the time period. Its dimension is [1/T] = [T⁻¹]." },
+            { question: "85. The dimensional formula of E/G, where E is energy and G is the gravitational constant, is:", options: ["a) [M²L⁻¹T⁰]", "b) [M²L⁻²T⁻¹]", "c) [ML⁻¹T⁻²]", "d) [M⁰L⁰T⁰]"], answer: 0, description: "Dimensions are [ML²T⁻²] / [M⁻¹L³T⁻²] = [M²L⁻¹T⁰]." },
+            { question: "86. If the dimensions of a physical quantity are given by [Mª Lᵇ Tᶜ], then the physical quantity will be:", options: ["a) Pressure if a=1, b=-1, c=-2", "b) Velocity if a=1, b=0, c=-1", "c) Acceleration if a=1, b=1, c=-2", "d) Force if a=1, b=1, c=-1"], answer: 0, description: "The dimensions of pressure (Force/Area) are [MLT⁻²]/[L²] = [ML⁻¹T⁻²]." },
+            { question: "87. The equation of state of a gas is given by (P + a/V³)V² = CT. The dimensions of 'a' are:", options: ["a) [ML⁸T⁻²]", "b) [ML⁵T⁻²]", "c) [M⁰L³T⁰]", "d) [ML²T⁻²]"], answer: 0, description: "Dimensions of P must equal dimensions of a/V³. So, [a] = [P][V³] = [ML⁻¹T⁻²][(L³)] = [ML⁸T⁻²]." },
+            { question: "88. The principle of homogeneity cannot be used to:", options: ["a) Check the correctness of a physical equation.", "b) Derive the relationship between physical quantities.", "c) Determine if a quantity is a scalar or a vector.", "d) Convert a physical quantity from one system of units to another."], answer: 2, description: "Dimensional analysis provides no information about the vector or scalar nature of a quantity." },
+            { question: "89. Which of the following physical quantities is a vector?", options: ["a) Electric Potential", "b) Work", "c) Angular Momentum", "d) Energy"], answer: 2, description: "Angular momentum is a vector quantity, with its direction given by the right-hand rule." },
+            { question: "90. In the famous equation E = mc², the quantity 'c' represents:", options: ["a) The charge of an electron.", "b) Planck's constant.", "c) The speed of light in vacuum.", "d) The gravitational constant."], answer: 2, description: "This equation relates mass-energy equivalence, where 'c' is the universal constant representing the speed of light." }
+        ];
+        
+        // --- DOM Elements ---
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const solutionsContainer = document.getElementById('solutions-container');
+        
+        const progressBar = document.getElementById('progress-bar');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionCounterEl = document.getElementById('question-counter');
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const solutionsBtn = document.getElementById('solutions-btn');
+
+        // --- State ---
+        let currentQuestion = 0;
+        const userAnswers = new Array(quizData.length).fill(null);
+        
+        // --- Functions ---
+        function loadQuestion(index) {
+            const questionData = quizData[index];
+            questionNumberEl.textContent = `Q. ${index + 1}`;
+            questionTextEl.innerHTML = questionData.question;
+            
+            optionsContainerEl.innerHTML = '';
+            questionData.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = 'option-btn w-full text-left p-4 border-2 border-slate-300 rounded-lg text-slate-700';
+                if (userAnswers[index] === i) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', () => selectOption(index, i));
+                optionsContainerEl.appendChild(button);
+            });
+            
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectOption(qIndex, oIndex) {
+            userAnswers[qIndex] = oIndex;
+            loadQuestion(qIndex);
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+            questionCounterEl.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+        }
+        
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showResults() {
+            let score = 0;
+            let attempted = 0;
+            
+            userAnswers.forEach((answer, index) => {
+                if (answer !== null) {
+                    attempted++;
+                    if (answer === quizData[index].answer) {
+                        score++;
+                    }
+                }
+            });
+            
+            const incorrect = attempted - score;
+            const unattempted = quizData.length - attempted;
+            const percentage = quizData.length > 0 ? ((score / quizData.length) * 100).toFixed(2) : 0;
+            
+            document.getElementById('total-score').textContent = score;
+            document.getElementById('incorrect-count').textContent = incorrect;
+            document.getElementById('attempted-count').textContent = attempted;
+            document.getElementById('unattempted-count').textContent = unattempted;
+            document.getElementById('final-percentage').textContent = `${percentage}%`;
+
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function showSolutions() {
+            const solutionsContent = document.getElementById('solutions-content');
+            solutionsContent.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const solutionBlock = document.createElement('div');
+                solutionBlock.className = 'p-4 rounded-lg border';
+
+                let questionHtml = `<p class="font-bold text-lg mb-4">Q.${index + 1}: ${q.question}</p>`;
+                
+                let optionsHtml = '<div class="space-y-2 mb-4">';
+                q.options.forEach((opt, i) => {
+                    let optionClass = 'p-3 rounded-md';
+                    let userChoiceBadgeHtml = '';
+
+                    if(userAnswers[index] !== null) {
+                        if (i === q.answer) {
+                             optionClass += ' correct-answer';
+                        }
+                        if (i === userAnswers[index] && userAnswers[index] !== q.answer) {
+                            optionClass += ' incorrect-answer';
+                        }
+                        
+                        if (i === userAnswers[index]){
+                            if(userAnswers[index] === q.answer){
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-correct">Your Answer</span>`;
+                            } else {
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-incorrect">Your Answer</span>`;
+                            }
+                        }
+                    } else {
+                         if (i === q.answer) {
+                             optionClass += ' correct-answer';
+                         }
+                    }
+
+                    optionsHtml += `<div class="${optionClass}">${opt} ${userChoiceBadgeHtml}</div>`;
+                });
+                optionsHtml += '</div>';
+
+                let explanationHtml = `<div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="font-semibold text-green-700">Correct Answer: ${q.options[q.answer]}</p>
+                    <p class="text-sm text-slate-600 mt-2"><b>Explanation:</b> ${q.description}</p>
+                </div>`;
+                
+                solutionBlock.innerHTML = questionHtml + optionsHtml + explanationHtml;
+                solutionsContent.appendChild(solutionBlock);
+            });
+
+            resultsContainer.classList.add('hidden');
+            solutionsContainer.classList.remove('hidden');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        submitBtn.addEventListener('click', showResults);
+        solutionsBtn.addEventListener('click', showSolutions);
+        
+        loadQuestion(currentQuestion);
+    </script>
+</body>
+</html>
+
