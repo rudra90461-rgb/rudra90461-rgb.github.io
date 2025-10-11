@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>मॉक टेस्ट: जीवों की जीवित दुनिया</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .option-btn {
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .option-btn:hover {
+            background-color: #e0e7ff;
+        }
+        .option-btn.selected {
+            background-color: #c7d2fe;
+            border-color: #818cf8;
+            font-weight: 600;
+        }
+        .correct-answer {
+            background-color: #dcfce7;
+            border-left: 4px solid #4ade80;
+        }
+        .incorrect-answer {
+            background-color: #fee2e2;
+             border-left: 4px solid #f87171;
+        }
+        .user-choice-badge {
+            display: inline-block;
+            padding: 0.1rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+        .user-correct {
+            background-color: #22c55e;
+            color: white;
+        }
+        .user-incorrect {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="w-full max-w-3xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2">जीव विज्ञान मॉक टेस्ट</h1>
+        <p class="text-slate-600 mb-6">अध्याय: जीवों की जीवित दुनिया</p>
+        
+        <div class="bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <div id="question-area" class="mb-6">
+            <p class="text-lg font-semibold text-slate-700 mb-4"><span id="question-number" class="mr-2"></span><span id="question-text"></span></p>
+            <div id="options-container" class="space-y-3">
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center">
+            <button id="prev-btn" class="px-5 py-2.5 bg-slate-200 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-300 disabled:opacity-50 disabled:cursor-not-allowed">पिछला</button>
+            <span id="question-counter" class="text-slate-600 font-medium"></span>
+            <button id="next-btn" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">अगला</button>
+            <button id="submit-btn" class="hidden px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700">टेस्ट जमा करें</button>
+        </div>
+    </div>
+
+    <div id="results-container" class="hidden w-full max-w-3xl bg-white p-8 rounded-2xl shadow-lg text-center">
+        <h2 class="text-3xl font-bold text-slate-800 mb-4">टेस्ट पूरा हुआ!</h2>
+        <p class="text-slate-600 mb-8">यहाँ आपका प्रदर्शन सारांश है:</p>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-8">
+            <div>
+                <p class="text-3xl font-bold text-indigo-600" id="total-score"></p>
+                <p class="text-sm text-slate-500">सही उत्तर</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-red-500" id="incorrect-count"></p>
+                <p class="text-sm text-slate-500">गलत उत्तर</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-700" id="attempted-count"></p>
+                <p class="text-sm text-slate-500">हल किए गए</p>
+            </div>
+            <div>
+                <p class="text-3xl font-bold text-slate-500" id="unattempted-count"></p>
+                <p class="text-sm text-slate-500">छोड़े गए</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 p-6 rounded-lg mb-8">
+            <p class="text-xl font-bold text-slate-800" id="final-percentage"></p>
+            <p class="text-slate-600">कुल अंक</p>
+        </div>
+        
+        <button id="solutions-btn" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">विस्तृत समाधान देखें</button>
+    </div>
+
+    <div id="solutions-container" class="hidden w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-slate-800 mb-6">समाधान और स्पष्टीकरण</h2>
+        <div id="solutions-content" class="space-y-6">
+        </div>
+        <button onclick="location.reload()" class="mt-8 w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">टेस्ट फिर से शुरू करें</button>
+    </div>
+
+    <script>
+        const quizData = [
+            { question: "1. जीवों की पहचान, नामकरण और वर्गीकरण से संबंधित विज्ञान कहलाता है –", options: ["(A) पर्यावरण विज्ञान", "(B) शरीर क्रिया विज्ञान", "(C) वर्गीकरण विज्ञान (टैक्सोनॉमी)", "(D) जैव प्रौद्योगिकी"], answer: 2 },
+            { question: "2. द्विनाम पद्धति (Binomial Nomenclature) का प्रतिपादन किसने किया था?", options: ["(A) डार्विन", "(B) लीनियस", "(C) अरस्तू", "(D) हक्सले"], answer: 1 },
+            { question: "3. ‘Homo sapiens’ में ‘Homo’ क्या दर्शाता है?", options: ["(A) वंश", "(B) जाति", "(C) कुल", "(D) गण"], answer: 0 },
+            { question: "4. ‘Homo sapiens’ में ‘sapiens’ क्या दर्शाता है?", options: ["(A) वंश", "(B) जाति", "(C) कुल", "(D) गण"], answer: 1 },
+            { question: "5. वैज्ञानिक नाम किस भाषा में लिखे जाते हैं?", options: ["(A) संस्कृत", "(B) अंग्रेज़ी", "(C) लैटिन", "(D) ग्रीक"], answer: 2 },
+            { question: "6. वर्गीकरण की सबसे छोटी इकाई है –", options: ["(A) वंश", "(B) कुल", "(C) जाति", "(D) गण"], answer: 2 },
+            { question: "7. वर्गीकरण की सबसे बड़ी श्रेणी है –", options: ["(A) कुल", "(B) संघ", "(C) वर्ग", "(D) गण"], answer: 1 },
+            { question: "8. मनुष्य का वैज्ञानिक नाम क्या है?", options: ["(A) Homo erectus", "(B) Homo sapiens", "(C) Homo habilis", "(D) Homo neanderthalensis"], answer: 1 },
+            { question: "9. पौधों के वर्गीकरण का प्रथम वैज्ञानिक प्रयास किसने किया था?", options: ["(A) अरस्तू", "(B) थियोफ्रेस्टस", "(C) लीनियस", "(D) लैमार्क"], answer: 1 },
+            { question: "10. “Genus” का हिन्दी अर्थ है –", options: ["(A) वर्ग", "(B) कुल", "(C) वंश", "(D) जाति"], answer: 2 },
+            { question: "11. टैक्सोनॉमी शब्द किस भाषा से लिया गया है?", options: ["(A) लैटिन", "(B) ग्रीक", "(C) संस्कृत", "(D) फ्रेंच"], answer: 1 },
+            { question: "12. टैक्सोनॉमी में कुल (Family) के बाद कौन-सा स्तर आता है?", options: ["(A) वर्ग", "(B) गण", "(C) वंश", "(D) जाति"], answer: 1 },
+            { question: "13. वर्गीकरण की सात मुख्य श्रेणियाँ कौन-सी हैं?", options: ["(A) वंश, जाति, कुल, गण, वर्ग, संघ, जगत", "(B) जगत, संघ, वर्ग, गण, कुल, वंश, जाति", "(C) वर्ग, संघ, गण, कुल, वंश, जाति, जगत", "(D) संघ, कुल, गण, वर्ग, जगत, वंश, जाति"], answer: 1 },
+            { question: "14. किसी क्षेत्र की सभी पौध प्रजातियों की सूची कहलाती है –", options: ["(A) की", "(B) फ्लोरा", "(C) हर्बेरियम", "(D) मोनोग्राफ"], answer: 1 },
+            { question: "15. जीवों की पहचान के लिए प्रयोग की जाने वाली पुस्तक को क्या कहते हैं?", options: ["(A) की (Key)", "(B) मोनोग्राफ", "(C) फ्लोरा", "(D) फौना"], answer: 0 },
+            { question: "16. संग्रहालय (Museum) में क्या रखा जाता है?", options: ["(A) जीवित पौधे", "(B) संरक्षित नमूने", "(C) सूक्ष्मजीव संस्कृति", "(D) मिट्टी के नमूने"], answer: 1 },
+            { question: "17. हर्बेरियम में क्या रखा जाता है?", options: ["(A) जीवित पौधे", "(B) दबाए और सुखाए गए पौध नमूने", "(C) पशुओं के जीवाश्म", "(D) मिट्टी के नमूने"], answer: 1 },
+            { question: "18. टैक्सोनॉमिक अध्ययन में सबसे पहला चरण है –", options: ["(A) नामकरण", "(B) पहचान", "(C) वर्गीकरण", "(D) वर्णन"], answer: 1 },
+            { question: "19. जीवों का नामकरण किस नियम से किया जाता है?", options: ["(A) एक नाम प्रणाली", "(B) द्विनाम पद्धति", "(C) त्रिनाम पद्धति", "(D) साधारण नाम प्रणाली"], answer: 1 },
+            { question: "20. लीनियस का कार्य प्रसिद्ध ग्रंथ में संकलित है –", options: ["(A) Origin of Species", "(B) Systema Naturae", "(C) Genera Plantarum", "(D) Species Plantarum"], answer: 1 },
+            { question: "21. पौधों का अध्ययन करने वाला वैज्ञानिक कहलाता है –", options: ["(A) प्राणिविज्ञानी", "(B) जीवविज्ञानी", "(C) वनस्पतिविज्ञानी", "(D) पर्यावरणविद्"], answer: 2 },
+            { question: "22. किसी क्षेत्र के जानवरों की सूची कहलाती है –", options: ["(A) फ्लोरा", "(B) फौना", "(C) मोनोग्राफ", "(D) की"], answer: 1 },
+            { question: "23. जीवित वस्तुओं में कौन-सा गुण नहीं पाया जाता?", options: ["(A) प्रजनन", "(B) वृद्धि", "(C) चयापचय", "(D) दहन"], answer: 3 },
+            { question: "24. सभी जीवों में कौन-सी प्रक्रिया समान होती है?", options: ["(A) प्रकाश संश्लेषण", "(B) चयापचय", "(C) प्रजनन", "(D) गति"], answer: 1 },
+            { question: "25. कौन-सा गुण जीवों को निर्जीव वस्तुओं से पृथक करता है?", options: ["(A) चयापचय", "(B) रासायनिक संघटन", "(C) संरचना", "(D) घनत्व"], answer: 0 },
+            { question: "26. “ICBN” का पूर्ण रूप क्या है?", options: ["(A) International Code for Biological Names", "(B) International Code of Botanical Nomenclature", "(C) Indian Code of Botanical Names", "(D) International Council for Botanical Names"], answer: 1 },
+            { question: "27. “ICZN” संबंधित है –", options: ["(A) पौधों से", "(B) पशुओं से", "(C) जीवाणुओं से", "(D) कवकों से"], answer: 1 },
+            { question: "28. टैक्सोनॉमी में कितने मुख्य चरण होते हैं?", options: ["(A) 2", "(B) 3", "(C) 4", "(D) 5"], answer: 2 },
+            { question: "29. वर्गीकरण की कौन-सी श्रेणी वंश और कुल के बीच होती है?", options: ["(A) वर्ग", "(B) गण", "(C) संघ", "(D) जाति"], answer: 1 },
+            { question: "30. “Mango” का वैज्ञानिक नाम है –", options: ["(A) Mangifera indica", "(B) Musa paradisiaca", "(C) Solanum tuberosum", "(D) Triticum aestivum"], answer: 0 },
+            { question: "31. मनुष्य किस कुल (Family) से संबंधित है?", options: ["(A) Hominidae", "(B) Pongidae", "(C) Canidae", "(D) Felidae"], answer: 0 },
+            { question: "32. पौधों के वैज्ञानिक नाम का निर्धारण कौन करता है?", options: ["(A) ICZN", "(B) ICBN", "(C) WHO", "(D) FAO"], answer: 1 },
+            { question: "33. टैक्सोनॉमिक अध्ययन में मोनोग्राफ का उपयोग होता है –", options: ["(A) किसी एक वंश के विस्तृत अध्ययन हेतु", "(B) सभी पौधों की सूची हेतु", "(C) पहचान के लिए", "(D) संरक्षण के लिए"], answer: 0 },
+            { question: "34. हर्बेरियम में नमूनों के साथ क्या जोड़ा जाता है?", options: ["(A) लेबल (सूचना पर्ची)", "(B) फोटो", "(C) बीज", "(D) पत्ती"], answer: 0 },
+            { question: "35. वर्गीकरण का उद्देश्य है –", options: ["(A) पहचान", "(B) अध्ययन को सरल बनाना", "(C) प्रयोग करना", "(D) प्रजनन"], answer: 1 },
+            { question: "36. किसी जीव के नाम का पहला अक्षर हमेशा –", options: ["(A) छोटा होता है", "(B) बड़ा होता है", "(C) रेखांकित नहीं किया जाता", "(D) संक्षिप्त लिखा जाता है"], answer: 1 },
+            { question: "37. वैज्ञानिक नाम लिखते समय दोनों शब्दों को –", options: ["(A) कैपिटल अक्षरों में लिखा जाता है", "(B) छोटे अक्षरों में", "(C) इटैलिक में या रेखांकित किया जाता है", "(D) कोष्ठक में लिखा जाता है"], answer: 2 },
+            { question: "38. “Systema Naturae” किसका ग्रंथ है?", options: ["(A) डार्विन", "(B) लीनियस", "(C) लैमार्क", "(D) मेंडल"], answer: 1 },
+            { question: "39. टैक्सोनॉमिक अध्ययन में जीवों को रखने का क्रम है –", options: ["(A) वर्गीकरण → पहचान → नामकरण", "(B) पहचान → वर्णन → वर्गीकरण → नामकरण", "(C) नामकरण → पहचान → वर्गीकरण", "(D) नामकरण → वर्णन → पहचान"], answer: 1 },
+            { question: "40. “Taxa” शब्द का अर्थ है –", options: ["(A) जीवों का समूह", "(B) वर्गीकरण का स्तर", "(C) पहचान की विधि", "(D) नामकरण की प्रक्रिया"], answer: 0 },
+            { question: "41. वर्गीकरण में “Order” का हिन्दी नाम है –", options: ["(A) कुल", "(B) वर्ग", "(C) गण", "(D) वंश"], answer: 2 },
+            { question: "42. जीवों का वैज्ञानिक नाम दो भागों में क्यों होता है?", options: ["(A) पहचान सरल बनाने हेतु", "(B) प्रजनन हेतु", "(C) विकास हेतु", "(D) प्रयोग हेतु"], answer: 0 },
+            { question: "43. टैक्सोनॉमी में प्रयुक्त ‘Key’ होती है –", options: ["(A) दो विकल्पों वाली पहचान विधि", "(B) पौधों की सूची", "(C) संग्रहालय", "(D) मोनोग्राफ"], answer: 0 },
+            { question: "44. जीव विज्ञान में अध्ययन का प्रारंभिक चरण है –", options: ["(A) प्रयोग", "(B) वर्गीकरण", "(C) पहचान", "(D) संरचना"], answer: 2 },
+            { question: "45. “Species Plantarum” पुस्तक किसने लिखी थी?", options: ["(A) लीनियस", "(B) अरस्तू", "(C) थियोफ्रेस्टस", "(D) डार्विन"], answer: 0 },
+            { question: "46. टैक्सोनॉमी में “Hierarchy” का अर्थ है –", options: ["(A) अनुक्रमिक वर्गीकरण", "(B) नामकरण", "(C) वर्णन", "(D) प्रयोग"], answer: 0 },
+            { question: "47. पौधों के जीवित नमूने कहाँ रखे जाते हैं?", options: ["(A) संग्रहालय", "(B) वनस्पति उद्यान (Botanical Garden)", "(C) हर्बेरियम", "(D) प्रयोगशाला"], answer: 1 },
+            { question: "48. जीवों की पहचान का मुख्य उद्देश्य क्या है?", options: ["(A) उनका वर्गीकरण", "(B) प्रयोग करना", "(C) नामकरण", "(D) आकार ज्ञात करना"], answer: 0 },
+            { question: "49. वर्गीकरण में समान लक्षणों के आधार पर जीवों को समूहित किया जाता है, इसे कहते हैं –", options: ["(A) Identification", "(B) Taxonomy", "(C) Classification", "(D) Nomenclature"], answer: 2 },
+            { question: "50. टैक्सोनॉमी में उपयोग की जाने वाली “मोनोग्राफ” का अर्थ है –", options: ["(A) किसी एक टैक्सोन का विस्तृत अध्ययन", "(B) सभी जीवों का अध्ययन", "(C) कीट विज्ञान", "(D) सूक्ष्मजीवों की सूची"], answer: 0 }
+        ];
+        
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const solutionsContainer = document.getElementById('solutions-container');
+        
+        const progressBar = document.getElementById('progress-bar');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionCounterEl = document.getElementById('question-counter');
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const solutionsBtn = document.getElementById('solutions-btn');
+
+        let currentQuestion = 0;
+        const userAnswers = new Array(quizData.length).fill(null);
+        
+        function loadQuestion(index) {
+            const questionData = quizData[index];
+            questionNumberEl.textContent = `प्रश्न ${index + 1}`;
+            questionTextEl.innerHTML = questionData.question;
+            
+            optionsContainerEl.innerHTML = '';
+            questionData.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = 'option-btn w-full text-left p-4 border-2 border-slate-300 rounded-lg text-slate-700';
+                if (userAnswers[index] === i) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', () => selectOption(index, i));
+                optionsContainerEl.appendChild(button);
+            });
+            
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectOption(qIndex, oIndex) {
+            userAnswers[qIndex] = oIndex;
+            loadQuestion(qIndex);
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                submitBtn.classList.add('hidden');
+            }
+            questionCounterEl.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+        }
+        
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showResults() {
+            let score = 0;
+            let attempted = 0;
+            
+            userAnswers.forEach((answer, index) => {
+                if (answer !== null) {
+                    attempted++;
+                    if (answer === quizData[index].answer) {
+                        score++;
+                    }
+                }
+            });
+            
+            const incorrect = attempted - score;
+            const unattempted = quizData.length - attempted;
+            const percentage = quizData.length > 0 ? ((score / quizData.length) * 100).toFixed(2) : 0;
+            
+            document.getElementById('total-score').textContent = score;
+            document.getElementById('incorrect-count').textContent = incorrect;
+            document.getElementById('attempted-count').textContent = attempted;
+            document.getElementById('unattempted-count').textContent = unattempted;
+            document.getElementById('final-percentage').textContent = `${percentage}%`;
+
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function showSolutions() {
+            const solutionsContent = document.getElementById('solutions-content');
+            solutionsContent.innerHTML = '';
+            
+            quizData.forEach((q, index) => {
+                const solutionBlock = document.createElement('div');
+                solutionBlock.className = 'p-4 rounded-lg border';
+
+                let questionHtml = `<p class="font-bold text-lg mb-4">प्रश्न ${index + 1}: ${q.question}</p>`;
+                
+                let optionsHtml = '<div class="space-y-2 mb-4">';
+                q.options.forEach((opt, i) => {
+                    let optionClass = 'p-3 rounded-md';
+                    let userChoiceBadgeHtml = '';
+
+                    if(userAnswers[index] !== null) {
+                        if (i === q.answer) {
+                             optionClass += ' correct-answer';
+                        }
+                        if (i === userAnswers[index] && userAnswers[index] !== q.answer) {
+                            optionClass += ' incorrect-answer';
+                        }
+                        
+                        if (i === userAnswers[index]){
+                            if(userAnswers[index] === q.answer){
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-correct">आपका उत्तर</span>`;
+                            } else {
+                                userChoiceBadgeHtml = `<span class="user-choice-badge user-incorrect">आपका उत्तर</span>`;
+                            }
+                        }
+                    } else {
+                         if (i === q.answer) {
+                             optionClass += ' correct-answer';
+                         }
+                    }
+
+                    optionsHtml += `<div class="${optionClass}">${opt} ${userChoiceBadgeHtml}</div>`;
+                });
+                optionsHtml += '</div>';
+
+                let explanationHtml = `<div class="mt-4 pt-4 border-t border-gray-200">
+                    <p class="font-semibold text-green-700">सही उत्तर: ${q.options[q.answer]}</p>
+                </div>`;
+                
+                solutionBlock.innerHTML = questionHtml + optionsHtml + explanationHtml;
+                solutionsContent.appendChild(solutionBlock);
+            });
+
+            resultsContainer.classList.add('hidden');
+            solutionsContainer.classList.remove('hidden');
+        }
+        
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        submitBtn.addEventListener('click', showResults);
+        solutionsBtn.addEventListener('click', showSolutions);
+        
+        loadQuestion(currentQuestion);
+    </script>
+</body>
+</html>
+
