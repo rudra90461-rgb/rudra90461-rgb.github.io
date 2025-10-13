@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - Unit 1: Diversity in the Living World</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0;
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="main-test-content" style="display: flex; justify-content: center; align-items: center; width: 100%; min-height: 100vh;">
+    <div class="container">
+        <div id="intro-screen">
+            <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+            <h2 style="color: #4caf50;">Unit 1: Diversity in the Living World</h2>
+            <p style="font-size: 1.1em; color: #555;">This unit test contains <strong style="color: #d32f2f;">200 questions</strong>. The question order is randomized on every attempt.</p>
+            <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+            <p style="margin-top: 20px;">Enter your name to begin:</p>
+            <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+            <button id="start-button" style="margin-top: 20px;">Start Test</button>
+            <div id="progress-tracker">
+                <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+                <table id="progress-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+            </div>
+        </div>
+        <div id="test-screen" style="display: none;">
+            <div class="timer-container">
+                <span id="question-number">Question 1/200</span>
+                <span id="timer">Time Left: 45s</span>
+            </div>
+            <div id="question-text"></div>
+            <ul id="options-container" class="options-list"></ul>
+            <div class="navigation-buttons">
+                <button id="prev-button" style="display: none;">Previous</button>
+                <button id="next-button">Next</button>
+                <button id="submit-button" style="display: none;">End Test & Submit</button>
+                <button id="question-tracker-button">Question Tracker</button>
+            </div>
+        </div>
+        <div id="tracker-overlay">
+            <div class="tracker-content"></div>
+        </div>
+        <div id="message-modal">
+            <div class="modal-content">
+                <p id="modal-message"></p>
+                <div class="modal-buttons">
+                    <button id="modal-ok-btn" style="display:none;">OK</button>
+                    <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                    <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+                </div>
+            </div>
+        </div>
+        <div id="result-screen" style="display: none;">
+            <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+            <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+                <p id="total-questions-p"></p>
+                <p id="attempted-p"></p>
+                <p id="unattempted-p"></p>
+                <p id="correct-p" class="correct"></p>
+                <p id="wrong-p" class="wrong"></p>
+                <p id="raw-score"></p>
+                <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+            </div>
+            <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+            <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+        </div>
+        <div id="review-screen" style="display: none;">
+            <h2 style="color: #1976d2;">Answer Key Review</h2>
+            <ul id="answers-list" class="review-list"></ul>
+            <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+        </div>
+    </div>
+</div>
+<script>
+    const questions = [
+        // This is a consolidated and corrected list of 200 questions.
+        { question: "Which of the following is not a defining feature of living organisms?", options: ["Growth", "Reproduction", "Metabolism", "Consciousness"], answer: "Reproduction" },
+        { question: "Binomial nomenclature was given by:", options: ["John Ray", "Carolus Linnaeus", "Aristotle", "Theophrastus"], answer: "Carolus Linnaeus" },
+        { question: "The correct sequence of taxonomic categories is:", options: ["Species → Genus → Family → Order → Class → Phylum → Kingdom", "Genus → Species → Family → Order → Class → Phylum → Kingdom", "Species → Family → Genus → Order → Class → Phylum → Kingdom", "Genus → Family → Order → Class → Species → Phylum → Kingdom"], answer: "Species → Genus → Family → Order → Class → Phylum → Kingdom" },
+        { question: "Which of the following is an example of a taxon at the kingdom level?", options: ["Plantae", "Cat", "Tree", "Mammalia"], answer: "Plantae" },
+        { question: "The term “systematics” refers to:", options: ["Naming of organisms", "The study of the diversity of organisms and their evolutionary relationships", "Classification only", "The study of fossils"], answer: "The study of the diversity of organisms and their evolutionary relationships" },
+        { question: "To which kingdom does a virus belong in the five-kingdom classification?", options: ["Monera", "Protista", "It is not included in any kingdom", "Fungi"], answer: "It is not included in any kingdom" },
+        { question: "The five-kingdom classification was proposed by:", options: ["R.H. Whittaker", "Carolus Linnaeus", "Ernst Haeckel", "Herbert Copeland"], answer: "R.H. Whittaker" },
+        { question: "Archaebacteria differ from other bacteria in having:", options: ["A cellulose cell wall", "A peptidoglycan cell wall", "A different cell wall structure (e.g., pseudomurein)", "A lignin cell wall"], answer: "A different cell wall structure (e.g., pseudomurein)" },
+        { question: "Which of the following is not a prokaryote?", options: ["Nostoc", "Mycoplasma", "Amoeba", "Oscillatoria"], answer: "Amoeba" },
+        { question: "Bacteriophages are viruses that infect:", options: ["Bacteria", "Algae", "Protozoa", "Fungi"], answer: "Bacteria" },
+        { question: "Which group of algae characteristically possesses the pigment phycoerythrin?", options: ["Red algae (Rhodophyceae)", "Brown algae (Phaeophyceae)", "Green algae (Chlorophyceae)", "Cyanobacteria"], answer: "Red algae (Rhodophyceae)" },
+        { question: "Agar, a commercial product, is obtained from:", options: ["Gelidium and Gracilaria (Red algae)", "Ulothrix (Green algae)", "Laminaria (Brown algae)", "Nostoc (Cyanobacteria)"], answer: "Gelidium and Gracilaria (Red algae)" },
+        { question: "The reserve food material in Rhodophyceae is:", options: ["Floridean starch", "Laminarin", "Mannitol", "Starch"], answer: "Floridean starch" },
+        { question: "Ectocarpus and Fucus are examples of:", options: ["Phaeophyceae (Brown algae)", "Chlorophyceae (Green algae)", "Rhodophyceae (Red algae)", "Myxophyceae (Cyanobacteria)"], answer: "Phaeophyceae (Brown algae)" },
+        { question: "The first successful terrestrial plants to possess vascular tissues were:", options: ["Bryophytes", "Pteridophytes", "Gymnosperms", "Algae"], answer: "Pteridophytes" },
+        { question: "Which plant group is known as the “amphibians of the plant kingdom”?", options: ["Bryophytes", "Algae", "Gymnosperms", "Pteridophytes"], answer: "Bryophytes" },
+        { question: "True roots, stems, and leaves first appeared in:", options: ["Pteridophytes", "Bryophytes", "Gymnosperms", "Angiosperms"], answer: "Pteridophytes" },
+        { question: "Which generation is dominant in the life cycle of mosses?", options: ["Gametophyte", "Sporophyte", "Both are equally dominant", "Alternating dominance"], answer: "Gametophyte" },
+        { question: "Gymnosperms are characterized by bearing:", options: ["Naked seeds", "Covered seeds", "No seeds", "Fruits"], answer: "Naked seeds" },
+        { question: "Double fertilization is a unique characteristic feature of:", options: ["Angiosperms", "Gymnosperms", "Pteridophytes", "Bryophytes"], answer: "Angiosperms" },
+        { question: "Which kingdom has organisms showing both autotrophic (photosynthetic) and heterotrophic (saprophytic/parasitic) modes of nutrition?", options: ["Protista", "Monera", "Plantae", "Fungi"], answer: "Protista" },
+        { question: "An example of a ciliated protozoan is:", options: ["Paramecium", "Amoeba", "Euglena", "Trypanosoma"], answer: "Paramecium" },
+        { question: "In fungi, the cell wall is primarily made up of:", options: ["Chitin and polysaccharides", "Cellulose", "Peptidoglycan", "Pectin"], answer: "Chitin and polysaccharides" },
+        { question: "Yeast, a unicellular fungus, primarily reproduces by:", options: ["Budding", "Fragmentation", "Binary fission", "Spore formation"], answer: "Budding" },
+        { question: "The symbiotic association between algae and fungi is known as:", options: ["Lichen", "Mycorrhiza", "Parasitism", "Commensalism"], answer: "Lichen" },
+        { question: "Assertion: Viruses are considered a link between living and non-living.<br>Reason: They are inert outside a host but replicate using the host's machinery.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Bryophytes are called amphibians of the plant kingdom.<br>Reason: They live in soil but require water for sexual reproduction.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Fungi are heterotrophic organisms.<br>Reason: They lack chlorophyll and cannot perform photosynthesis.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Blue-green algae are eukaryotic.<br>Reason: They have a true, membrane-bound nucleus.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are false." },
+        { question: "Assertion: Taxonomy and systematics are the same.<br>Reason: Both deal only with the naming and classification of organisms.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are false." },
+        { question: "Match the following and select the correct combination:<br>a. Mycorrhiza<br>b. Nostoc<br>c. Penicillium<br>d. Chlamydomonas<br><br>(i) Symbiotic association of fungi with roots<br>(ii) Nitrogen-fixing cyanobacterium<br>(iii) Source of an antibiotic<br>(iv) Unicellular green alga with flagella", options: ["a-i, b-ii, c-iii, d-iv", "a-ii, b-i, c-iv, d-iii", "a-iv, b-iii, c-ii, d-i", "a-iii, b-iv, c-i, d-ii"], answer: "a-i, b-ii, c-iii, d-iv" },
+        { question: "Which among the following is a coelenterate (cnidarian)?", options: ["Hydra", "Planaria", "Nereis", "Taenia"], answer: "Hydra" },
+        { question: "Which organism has flame cells as its excretory structure?", options: ["Planaria", "Earthworm", "Cockroach", "Amoeba"], answer: "Planaria" },
+        { question: "The exoskeleton of arthropods is made up of:", options: ["Chitin", "Cellulose", "Protein", "Lignin"], answer: "Chitin" },
+        { question: "Which phylum has both freshwater and marine species?", options: ["Mollusca", "Echinodermata", "Coelenterata", "Porifera"], answer: "Mollusca" },
+        { question: "Metameric segmentation is a characteristic feature of:", options: ["Annelida and Arthropoda", "Mollusca", "Echinodermata", "Platyhelminthes"], answer: "Annelida and Arthropoda" },
+        { question: "The first chordates appeared during the:", options: ["Cambrian period", "Devonian period", "Silurian period", "Jurassic period"], answer: "Cambrian period" },
+        { question: "Which phylum is characterized by a water vascular system?", options: ["Echinodermata", "Annelida", "Mollusca", "Coelenterata"], answer: "Echinodermata" },
+        { question: "Which feature is generally NOT seen in adult vertebrates?", options: ["A persistent notochord", "A post-anal tail", "Bilateral symmetry", "A dorsal hollow nerve cord"], answer: "A persistent notochord" },
+        { question: "The endoskeleton of sharks is made up of:", options: ["Cartilage", "Bone", "Both cartilage and bone", "Chitin"], answer: "Cartilage" },
+        { question: "Which of the following are cold-blooded (poikilothermic) animals?<br>a) Fish<br>b) Amphibians<br>c) Reptiles<br>d) Mammals", options: ["a, b, and c", "a and d", "b and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following show double fertilization?<br>a) Angiosperms<br>b) Gymnosperms<br>c) Mustard plant<br>d) Pea plant", options: ["a, c, and d", "a and b", "b only", "All are correct"], answer: "a, c, and d" },
+        { question: "Kingdom Fungi includes:<br>a) Yeast<br>b) Mucor<br>c) Mushroom<br>d) Nostoc", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following are asexual spores of fungi?<br>a) Conidia<br>b) Sporangiospores<br>c) Zoospores<br>d) Ascospores", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following green algae have flagellated cells at some stage?<br>a) Chlamydomonas<br>b) Spirogyra<br>c) Ulothrix<br>d) Volvox", options: ["a, c, and d", "b only", "a and b", "All are correct"], answer: "a, c, and d" },
+        { question: "How many kingdoms were proposed by R.H. Whittaker in his classification system?", options: ["5", "2", "3", "6"], answer: "5" },
+        { question: "How many 'classes' of plants were described by Linnaeus in his artificial system?", options: ["24", "10", "15", "30"], answer: "24" },
+        { question: "How many classes of vertebrates are there in the traditional five-kingdom system?", options: ["5 (Pisces, Amphibia, Reptilia, Aves, Mammalia)", "7", "4", "6"], answer: "5 (Pisces, Amphibia, Reptilia, Aves, Mammalia)" },
+        { question: "As per the NCERT textbook, how many phyla are described in the Animal Kingdom chapter?", options: ["11", "9", "10", "12"], answer: "11" },
+        { question: "What is the botanical name for Mango?", options: ["Mangifera indica", "Solanum tuberosum", "Panthera leo", "Homo sapiens"], answer: "Mangifera indica" },
+        { question: "The housefly (Musca domestica) belongs to which phylum?", options: ["Arthropoda", "Annelida", "Mollusca", "Chordata"], answer: "Arthropoda" },
+        { question: "The tapeworm (Taenia) belongs to which phylum?", options: ["Platyhelminthes", "Aschelminthes", "Annelida", "Cnidaria"], answer: "Platyhelminthes" },
+        { question: "The octopus belongs to which phylum?", options: ["Mollusca", "Echinodermata", "Arthropoda", "Annelida"], answer: "Mollusca" },
+        { question: "The starfish belongs to which phylum?", options: ["Echinodermata", "Mollusca", "Cnidaria", "Porifera"], answer: "Echinodermata" },
+        { question: "The earthworm belongs to which phylum?", options: ["Annelida", "Arthropoda", "Nematoda", "Platyhelminthes"], answer: "Annelida" },
+        { question: "Which organism has a pseudocoelom?", options: ["Ascaris (Roundworm)", "Planaria (Flatworm)", "Earthworm", "Leech"], answer: "Ascaris (Roundworm)" },
+        { question: "A closed circulatory system is found in:", options: ["Annelida", "Arthropoda", "most Mollusca", "Echinodermata"], answer: "Annelida" },
+        { question: "The body of an insect is divided into:", options: ["Head, thorax, and abdomen", "Head, neck, and trunk", "Cephalothorax and abdomen", "Head and trunk"], answer: "Head, thorax, and abdomen" },
+        { question: "Which of the following is considered a connecting link between reptiles and birds?", options: ["Archaeopteryx", "Platypus", "Peripatus", "Balanoglossus"], answer: "Archaeopteryx" },
+        { question: "Which organism is an oviparous (egg-laying) mammal?", options: ["Platypus", "Bat", "Whale", "Kangaroo"], answer: "Platypus" },
+        { question: "Assertion: Bryophytes have an independent gametophyte.<br>Reason: The sporophyte is nutritionally dependent, either partially or wholly, on the gametophyte.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Kingdom Monera includes cyanobacteria.<br>Reason: They possess membrane-bound organelles like mitochondria and chloroplasts.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "A is true, but R is false." },
+        { question: "Assertion: Algae are primarily autotrophic.<br>Reason: They contain chlorophyll and perform photosynthesis.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Mycoplasma are organisms that completely lack a cell wall.<br>Reason: They are the smallest known living cells and can survive without oxygen.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Biological classification is a dynamic and ever-evolving science.<br>Reason: New tools and techniques constantly refine our understanding of organisms and their interrelationships.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Pteridophytes are the first terrestrial plants to possess vascular tissues.<br>Reason: Their dominant phase is the gametophyte.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "A is true, but R is false." },
+        { question: "Assertion: All vertebrates are chordates.<br>Reason: All chordates are not vertebrates.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Diatoms are the chief 'producers' in the oceans.<br>Reason: They are microscopic and float passively in water currents (plankton).", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Lichens are very good pollution indicators.<br>Reason: They do not grow in polluted areas, especially with sulfur dioxide.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: In open type circulation, blood is pumped out of the heart and the cells and tissues are directly bathed in it.<br>Reason: This type of circulation is found in arthropods and molluscs.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Fungi show great diversity in morphology and habitat.<br>Reason: Most fungi are heterotrophic and absorb soluble organic matter from dead substrates.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: In mosses, the second stage of the gametophyte is the leafy stage.<br>Reason: The leafy stage develops from the secondary protonema as a lateral bud.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: A taxonomic key is an artificial analytical device.<br>Reason: It is based on a pair of contrasting characters known as a couplet.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: In Phylum Porifera, water enters the body through the osculum.<br>Reason: The body is supported by a skeleton made up of spicules or spongin fibres.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "A is false, but R is true." },
+        { question: "Assertion: Mammals are warm-blooded (homoiothermous).<br>Reason: They are able to maintain a constant body temperature irrespective of ambient temperature.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Members of kingdom Monera include:<br>a) Archaebacteria<br>b) Cyanobacteria<br>c) Eubacteria<br>d) Mycoplasma", options: ["a and c only", "b and d only", "a, b, and c only", "All are correct"], answer: "All are correct" },
+        { question: "Eukaryotic organisms are found in the kingdoms:<br>a) Protista<br>b) Fungi<br>c) Plantae<br>d) Animalia", options: ["a and b only", "c and d only", "a, b, and c only", "All are correct"], answer: "All are correct" },
+        { question: "Examples of non-chordates include:<br>a) Hydra<br>b) Earthworm<br>c) Snail<br>d) Fish", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following algae are generally non-motile in their vegetative phase?<br>a) Red algae<br>b) Chlamydomonas<br>c) Spirogyra<br>d) Brown algae", options: ["a and c", "b and d", "a only", "All are correct"], answer: "a and c" },
+        { question: "Which of the following are endoparasitic flatworms?<br>a) Taenia (Tapeworm)<br>b) Fasciola (Liver fluke)<br>c) Planaria<br>d) Ascaris", options: ["a and b", "c and d", "a only", "All are correct"], answer: "a and b" },
+        { question: "Which class of vertebrates is entirely aquatic and respires through gills throughout life?", options: ["Amphibia", "Pisces", "Reptilia", "Mammalia"], answer: "Pisces" },
+        { question: "Frogs belong to which class of vertebrates?", options: ["Amphibia", "Pisces", "Reptilia", "Mammalia"], answer: "Amphibia" },
+        { question: "In which of the following does the notochord persist throughout adult life?", options: ["Cephalochordata (e.g., Amphioxus)", "Frog", "Human", "Most cartilaginous fishes"], answer: "Cephalochordata (e.g., Amphioxus)" },
+        { question: "Which chordates may have both gills (in larval stage) and lungs (in adult stage)?", options: ["Amphibians", "Fish", "Reptiles", "Birds"], answer: "Amphibians" },
+        { question: "A cloaca, a common chamber for the digestive, urinary, and reproductive tracts, is present in:", options: ["Amphibians, Reptiles, and Birds", "Mammals only", "Fish only", "All vertebrates"], answer: "Amphibians, Reptiles, and Birds" },
+        { question: "Excretion in birds is mainly:", options: ["Uricotelic", "Ureotelic", "Ammonotelic", "Both A & B"], answer: "Uricotelic" },
+        { question: "Which phylum exhibits radial symmetry in the adult stage?", options: ["Cnidaria", "Platyhelminthes", "Arthropoda", "Annelida"], answer: "Cnidaria" },
+        { question: "Acoelomates, animals without a body cavity, belong to the phylum:", options: ["Platyhelminthes", "Annelida", "Mollusca", "Arthropoda"], answer: "Platyhelminthes" },
+        { question: "A water vascular system is a unique feature of:", options: ["Echinodermata", "Arthropoda", "Mollusca", "Coelenterata"], answer: "Echinodermata" },
+        { question: "Segmentation (metamerism) is a key feature in:", options: ["Annelida", "Arthropoda", "Mollusca", "Both A & B"], answer: "Both A & B" },
+        { question: "Which phyla are considered acoelomates?<br>a) Platyhelminthes<br>b) Aschelminthes<br>c) Porifera<br>d) Cnidaria", options: ["a, c, and d", "a and b", "c only", "All are correct"], answer: "a, c, and d" },
+        { question: "Which of the following groups have a closed circulatory system?<br>a) Annelida<br>b) Cephalopoda (a class of Mollusca)<br>c) Arthropoda<br>d) Echinodermata", options: ["a and b", "c and d", "a, c, and d", "All are correct"], answer: "a and b" },
+        { question: "Which of the following are gnathostomes (jawed vertebrates)?<br>a) Amphibians<br>b) Pisces (Chondrichthyes & Osteichthyes)<br>c) Reptiles<br>d) Aves", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "All are correct" },
+        { question: "Which features are present in all chordates at some stage of their life?<br>a) Notochord<br>b) Dorsal hollow nerve cord<br>c) Pharyngeal slits<br>d) Post-anal tail", options: ["a, b, and c", "a and d", "b and d", "All are correct"], answer: "All are correct" },
+        { question: "Which of the following reptiles are known to be oviparous (egg-laying)?<br>a) Crocodiles<br>b) Most lizards<br>c) Most snakes<br>d) Alligators", options: ["a and d only", "b and c only", "a, c, and d", "All are correct"], answer: "All are correct" },
+        { question: "Assertion: Pisces are poikilothermic.<br>Reason: They lack the capacity to regulate their internal body temperature.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: In birds, the forelimbs are modified into wings.<br>Reason: This modification is an adaptation primarily for flight.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Amphibians need a water body for reproduction.<br>Reason: In most amphibians, fertilization is external and larval development is aquatic.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Lampreys and hagfishes are jawless fishes.<br>Reason: They belong to the superclass Agnatha.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Mammals typically show a high degree of parental care.<br>Reason: Most mammals are viviparous, giving birth to live young.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "How many classes are typically listed under the subphylum Vertebrata in a simplified classification?", options: ["5", "7", "4", "6"], answer: "5" },
+        { question: "Which class of Pisces has a cartilaginous endoskeleton?", options: ["Chondrichthyes", "Osteichthyes", "Agnatha", "Placodermi"], answer: "Chondrichthyes" },
+        { question: "Which class of Pisces has a bony endoskeleton?", options: ["Osteichthyes", "Chondrichthyes", "Agnatha", "Placodermi"], answer: "Osteichthyes" },
+        { question: "What are the primary nitrogenous wastes excreted by amphibians?", options: ["Ammonia (in larvae) and Urea (in adults)", "Uric acid only", "Urea only", "Ammonia only"], answer: "Ammonia (in larvae) and Urea (in adults)" },
+        { question: "The heart of a bird is:", options: ["Four-chambered", "Three-chambered", "Two-chambered", "Incompletely four-chambered"], answer: "Four-chambered" },
+        { question: "The heart of a mammal is:", options: ["Four-chambered", "Three-chambered", "Two-chambered", "Incompletely four-chambered"], answer: "Four-chambered" },
+        { question: "The heart of an amphibian is typically:", options: ["Three-chambered", "Four-chambered", "Two-chambered", "One-chambered"], answer: "Three-chambered" },
+        { question: "The heart of most reptiles is:", options: ["Incompletely four-chambered (three-chambered in most)", "Four-chambered", "Two-chambered", "Three-chambered"], answer: "Incompletely four-chambered (three-chambered in most)" },
+        { question: "Approximately how many animal phyla are recognized by biologists today?", options: ["Over 30", "Exactly 11", "Less than 10", "Around 20"], answer: "Over 30" },
+        { question: "How many classes are generally recognized within the subphylum Vertebrata?", options: ["7", "5", "9", "4"], answer: "7" },
+        { question: "The archegonium in bryophytes produces the:", options: ["Egg", "Sperm", "Spore", "Antherozoid"], answer: "Egg" },
+        { question: "The antheridium in bryophytes and pteridophytes produces the:", options: ["Antherozoids (sperm)", "Egg", "Spore", "Oogonium"], answer: "Antherozoids (sperm)" },
+        { question: "The spores produced by the sporophyte of a bryophyte are:", options: ["Haploid", "Diploid", "Triploid", "Aneuploid"], answer: "Haploid" },
+        { question: "Phloem is best described as:", options: ["Food-conducting tissue", "Water-conducting tissue", "Mechanical tissue", "Protective tissue"], answer: "Food-conducting tissue" },
+        { question: "Xylem is best described as:", options: ["Water-conducting tissue", "Food-conducting tissue", "Storage tissue", "Photosynthetic tissue"], answer: "Water-conducting tissue" },
+        { question: "Gymnosperm seeds are described as 'naked' because they are:", options: ["Not enclosed within an ovary wall", "Very small", "Lacking a seed coat", "Produced without fertilization"], answer: "Not enclosed within an ovary wall" },
+        { question: "Angiosperm seeds are found:", options: ["Enclosed within a fruit", "Naked on a cone scale", "On the surface of the leaf", "Underground"], answer: "Enclosed within a fruit" },
+        { question: "The storage carbohydrate in red algae is:", options: ["Floridean starch", "Laminarin", "Starch", "Glycogen"], answer: "Floridean starch" },
+        { question: "The storage carbohydrates in brown algae are:", options: ["Laminarin and mannitol", "Floridean starch", "Starch", "Glycogen"], answer: "Laminarin and mannitol" },
+        { question: "The storage carbohydrate in green algae is:", options: ["Starch", "Laminarin", "Floridean starch", "Mannitol"], answer: "Starch" },
+        { question: "The largest phylum in the Animal Kingdom is:", options: ["Arthropoda", "Mollusca", "Chordata", "Annelida"], answer: "Arthropoda" },
+        { question: "The largest known invertebrate is the:", options: ["Giant squid", "Giant clam", "Goliath beetle", "King crab"], answer: "Giant squid" },
+        { question: "The largest animal on Earth is the:", options: ["Blue whale", "African elephant", "Sperm whale", "Giraffe"], answer: "Blue whale" },
+        { question: "The world's smallest mammal is the:", options: ["Bumblebee bat", "Pygmy shrew", "Pygmy possum", "Etruscan shrew"], answer: "Bumblebee bat" },
+        { question: "The world's smallest known vertebrate is the:", options: ["Paedophryne amauensis (a frog)", "Stout infantfish", "Pygmy goby", "Bee hummingbird"], answer: "Paedophryne amauensis (a frog)" },
+        { question: "The tapeworm shows adaptations for what kind of life?", options: ["Endoparasitic", "Free-living", "Ectoparasitic", "Saprophytic"], answer: "Endoparasitic" },
+        { question: "Hydra primarily shows which body form?", options: ["Polyp", "Medusa", "Both equally", "None"], answer: "Polyp" },
+        { question: "The adult starfish exhibits:", options: ["Radial pentamerous symmetry", "Bilateral symmetry", "Asymmetry", "Biradial symmetry"], answer: "Radial pentamerous symmetry" },
+        { question: "The earthworm's body is characterized by:", options: ["Metameric segmentation", "Pseudosegmentation", "No segmentation", "Radial segmentation"], answer: "Metameric segmentation" },
+        { question: "The division of an arthropod's body into functional groups is called:", options: ["Tagmatization", "Metamerism", "Cephalization", "Strobilation"], answer: "Tagmatization" },
+        { question: "Which of the following are parasitic flatworms?<br>a) Fasciola<br>b) Taenia<br>c) Planaria<br>d) Schistosoma", options: ["a, b, and d", "a and c", "b and d", "All are correct"], answer: "a, b, and d" },
+        { question: "Which of the following are vertebrates?<br>a) Amphioxus<br>b) Frog<br>c) Fish<br>d) Reptiles", options: ["b, c, and d", "a only", "a and b", "All are correct"], answer: "b, c, and d" },
+        { question: "Which of the following are considered non-vascular plants (lacking xylem and phloem)?<br>a) Bryophytes<br>b) Pteridophytes<br>c) Algae<br>d) Lichens", options: ["a, c, and d", "b only", "a and b", "All are correct"], answer: "a, c, and d" },
+        { question: "Which of the following fungi are unicellular?<br>a) Yeast<br>b) Mucor<br>c) Saccharomyces<br>d) Penicillium", options: ["a and c", "b and d", "a only", "All are correct"], answer: "a and c" },
+        { question: "Which of the following are seedless vascular plants?<br>a) Bryophytes<br>b) Pteridophytes<br>c) Gymnosperms<br>d) Angiosperms", options: ["b only", "a and b", "c and d", "All are correct"], answer: "b only" },
+        { question: "Which of the following animals possess an exoskeleton?<br>a) Arthropods (chitinous)<br>b) Molluscs (calcareous shell)<br>c) Echinoderms (endoskeleton)<br>d) Annelids (hydrostatic skeleton)", options: ["a and b", "c and d", "a, b, and c", "All are correct"], answer: "a and b" },
+        { question: "Which of the following exhibit radial symmetry in their adult form?<br>a) Cnidaria<br>b) Echinodermata<br>c) Ctenophora<br>d) Platyhelminthes", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following are cold-blooded (poikilothermic) vertebrates?<br>a) Fish<br>b) Amphibians<br>c) Reptiles<br>d) Birds", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following organisms can reproduce both asexually and sexually?<br>a) Chlamydomonas<br>b) Spirogyra<br>c) Rhizopus<br>d) Yeast", options: ["a and b only", "c and d only", "a, b, and c only", "All are correct"], answer: "All are correct" },
+        { question: "Which of the following plant groups are vascular (tracheophytes)?<br>a) Pteridophytes<br>b) Gymnosperms<br>c) Bryophytes<br>d) Angiosperms", options: ["a, b, and d", "c only", "a and c", "All are correct"], answer: "a, b, and d" },
+        { question: "Assertion: Gymnosperms have naked seeds.<br>Reason: The seeds are not enclosed by an ovary wall.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Angiosperms are characterized by double fertilization.<br>Reason: One male gamete fuses with the egg, and the other fuses with the secondary nucleus.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Certain cyanobacteria can perform nitrogen fixation.<br>Reason: They possess specialized cells called heterocysts for this purpose.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Most fungi are saprophytic.<br>Reason: They secrete digestive enzymes onto dead organic matter and then absorb the nutrients.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Liverworts and mosses lack true roots, stems, and leaves.<br>Reason: They possess root-like (rhizoids), stem-like, and leaf-like structures.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: All chordates have a notochord during their embryonic stage.<br>Reason: The notochord is a flexible rod-like structure that is dorsal in position.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion: Amphibians show metamorphosis.<br>Reason: Their aquatic larval stage (like a tadpole) with gills transforms into a terrestrial, lung-breathing adult.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Red algae are mostly found in marine environments, especially in warmer areas.<br>Reason: They possess the red pigment phycoerythrin, which allows them to absorb blue light that penetrates deep water.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Echinoderms are considered evolutionary advanced among non-chordates.<br>Reason: They are deuterostomes, where the blastopore develops into the anus.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion: Mollusca is a coelomate phylum.<br>Reason: A true coelom is a body cavity that is lined by mesoderm.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "Both A and R are false."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "How many major animal phyla are typically studied in introductory biology?", options: ["Around 35", "11", "9", "20"], answer: "11" },
+        { question: "Which phylum is characterized by radial symmetry in adults and bilateral symmetry in larvae?", options: ["Cnidaria", "Echinodermata", "Porifera", "Ctenophora"], answer: "Echinodermata" },
+        { question: "Which of these phyla is characterized by bilateral symmetry and a flattened body?", options: ["Platyhelminthes", "Cnidaria", "Porifera", "Annelida"], answer: "Platyhelminthes" },
+        { question: "The largest known invertebrate, the giant squid, belongs to which phylum?", options: ["Mollusca", "Arthropoda", "Cnidaria", "Chordata"], answer: "Mollusca" },
+        { question: "Which of the following are examples of gymnosperms?", options: ["Ferns and Mosses", "Mango and Apple", "Cycas and Pinus", "Algae and Fungi"], answer: "Cycas and Pinus" },
+        { question: "Which of the following are examples of angiosperms?", options: ["Pine and Cedar", "Mustard and Mango", "Mosses and Ferns", "Cycas and Ginkgo"], answer: "Mustard and Mango" },
+        { question: "The type of pollination in gymnosperms, involving a pollen tube, is called:", options: ["Siphonogamy", "Zoogamy", "Anemophily", "Hydrophily"], answer: "Siphonogamy" },
+        { question: "The complete taxonomic classification of humans is:", options: ["Kingdom: Animalia, Phylum: Chordata, Class: Mammalia", "Kingdom: Protista, Phylum: Chordata, Class: Mammalia", "Kingdom: Animalia, Phylum: Arthropoda, Class: Mammalia", "Kingdom: Animalia, Phylum: Chordata, Class: Reptilia"], answer: "Kingdom: Animalia, Phylum: Chordata, Class: Mammalia" },
+        { question: "The scientific name for the pea plant studied by Mendel is:", options: ["Pisum sativum", "Mangifera indica", "Solanum tuberosum", "Oryza sativa"], answer: "Pisum sativum" },
+        { question: "Binomial nomenclature gives each organism a name consisting of:", options: ["Genus and Species", "Kingdom and Phylum", "Family and Order", "Class and Species"], answer: "Genus and Species" }
+    ];
+    // --- CORE TEST LOGIC ---
+    const storageKey = 'diversityUnit1Mock_200Q';
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const timePerQuestion = 45;
+    let timeLeft = timePerQuestion;
+    let userName = '';
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = '';
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${attempt.date}</td><td>${attempt.name}</td><td>${attempt.score}</td>`;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        shuffleArray(questions);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', () => location.reload());
+    restartFromReviewButton.addEventListener('click', () => location.reload());
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+        if (index < 0 || index >= questions.length) return;
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option;
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => item.classList.remove('selected'));
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0, wrongCount = 0, attemptedCount = 0, finalScore = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null) {
+                attemptedCount++;
+                if (userAnswers[i] === questions[i].answer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        return { correctCount, wrongCount, unattemptedCount: questions.length - attemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.rawScore}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+            let userAnswerDisplay = (userAnswer === null) ? '<span style="color: #ff9800;">Not Attempted</span>' : `<span class="${isCorrect ? 'correct-answer' : 'wrong-answer-user'}">${userAnswer}</span>`;
+            li.innerHTML = `<div class="question-text">${q.question}</div><div>Your Answer: ${userAnswerDisplay}</div><div class="correct-answer">Correct Answer: ${q.answer}</div>`;
+            answersList.appendChild(li);
+        });
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) btn.classList.add('attempted');
+            if (index === currentQuestionIndex) btn.classList.add('current');
+        });
+    }
+
+    createTrackerButtons();
+    displayProgress();
+
+</script>
+</body>
+</html>
