@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Full Syllabus Mock Test - Biology (Set 1)</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test - Set 1</h1>
+        <h2 style="color: #4caf50;">Full Syllabus (Class 11 & 12)</h2>
+        <p style="font-size: 1.1em; color: #555;">This test contains <strong style="color: #d32f2f;">90 questions</strong> from the full syllabus. The question order is randomized on every attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content"></div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    const questions = [
+        // Section A: Single Correct (1-55)
+        { question: "Which of the following is the smallest living cell known to lack a cell wall?", options: ["Mycoplasma", "Bacterium", "Virus", "Yeast"], answer: "Mycoplasma" },
+        { question: "The plant cell wall is mainly composed of:", options: ["Cellulose", "Protein", "Pectin", "Lignin"], answer: "Cellulose" },
+        { question: "Who proposed the five-kingdom classification system?", options: ["R.H. Whittaker", "Carolus Linnaeus", "Aristotle", "Ernst Haeckel"], answer: "R.H. Whittaker" },
+        { question: "Which of the following is not a nitrogen-fixing organism?", options: ["Nostoc", "Anabaena", "Rhizobium", "Pseudomonas"], answer: "Pseudomonas" },
+        { question: "The functional unit of heredity is the:", options: ["Chromosome", "Gene", "DNA", "RNA"], answer: "Gene" },
+        { question: "Mitochondria are known as the:", options: ["Powerhouse of the cell", "Brain of the cell", "Control center", "Storage site"], answer: "Powerhouse of the cell" },
+        { question: "Which among the following is a C4 plant?", options: ["Rice", "Wheat", "Maize", "Barley"], answer: "Maize" },
+        { question: "Which vitamin is synthesized in the skin upon exposure to sunlight?", options: ["Vitamin A", "Vitamin D", "Vitamin E", "Vitamin K"], answer: "Vitamin D" },
+        { question: "The double helical structure of DNA was proposed by:", options: ["Hershey and Chase", "Watson and Crick", "Franklin and Wilkins", "Griffith"], answer: "Watson and Crick" },
+        { question: "Which plant hormone is a gas and induces fruit ripening?", options: ["Auxin", "Cytokinin", "Ethylene", "Gibberellin"], answer: "Ethylene" },
+        { question: "The main enzyme complex involved in biological nitrogen fixation is:", options: ["Nitrogenase", "Reductase", "Nitrate synthase", "Nitrate reductase"], answer: "Nitrogenase" },
+        { question: "The pulmonary artery carries:", options: ["Oxygenated blood to the body", "Deoxygenated blood to the lungs", "Lymph to the heart", "Oxygenated blood to the lungs"], answer: "Deoxygenated blood to the lungs" },
+        { question: "Which part of the brain contains the respiratory rhythm center?", options: ["Cerebrum", "Cerebellum", "Medulla oblongata", "Pons"], answer: "Medulla oblongata" },
+        { question: "The kidney’s functional unit is the:", options: ["Neuron", "Nephron", "Glomerulus", "Tubule"], answer: "Nephron" },
+        { question: "The largest gland in the human body is the:", options: ["Thyroid", "Liver", "Pancreas", "Adrenal"], answer: "Liver" },
+        { question: "Transpiration, the loss of water from plants, occurs through:", options: ["Stomata", "Lenticels", "Cuticle", "All of these"], answer: "All of these" },
+        { question: "Which vascular tissue is responsible for transporting water and minerals in plants?", options: ["Phloem", "Xylem", "Cambium", "Parenchyma"], answer: "Xylem" },
+        { question: "The process of the breakdown of glucose to pyruvate is called:", options: ["Glycolysis", "Krebs cycle", "Electron Transport System (ETS)", "Fermentation"], answer: "Glycolysis" },
+        { question: "Which of the following is an example of a mutualistic symbiotic association?", options: ["Rhizobium in legume roots", "Algae on a rock", "Cuscuta on a host plant", "Lichen (alga and fungus)"], answer: "Lichen (alga and fungus)" },
+        { question: "The enzyme responsible for unzipping the DNA double helix during replication is:", options: ["DNA polymerase", "Helicase", "Ligase", "Topoisomerase"], answer: "Helicase" },
+        { question: "The first stable product of the C3 photosynthetic cycle is:", options: ["3-Phosphoglyceric acid (PGA)", "Phosphoenolpyruvate (PEP)", "Malate", "Oxaloacetate"], answer: "3-Phosphoglyceric acid (PGA)" },
+        { question: "The main site for photosynthesis in most plants is the:", options: ["Root", "Leaf", "Stem", "Flower"], answer: "Leaf" },
+        { question: "Which of the following tissues is responsible for secondary growth in dicots?", options: ["Apical meristem", "Intercalary meristem", "Lateral meristem (Cambium)", "Permanent tissue"], answer: "Lateral meristem (Cambium)" },
+        { question: "The genetic material in HIV (Human Immunodeficiency Virus) is:", options: ["DNA", "RNA", "Both DNA and RNA", "Protein"], answer: "RNA" },
+        { question: "A test cross involves crossing an individual with a dominant phenotype to a:", options: ["Homozygous recessive parent", "Homozygous dominant parent", "Heterozygous parent", "Sibling"], answer: "Homozygous recessive parent" },
+        { question: "Which blood group is considered the universal donor?", options: ["A", "B", "AB", "O"], answer: "O" },
+        { question: "Which plant hormone is primarily responsible for breaking seed dormancy?", options: ["Abscisic acid (ABA)", "Gibberellin (GA)", "Cytokinin", "Ethylene"], answer: "Gibberellin (GA)" },
+        { question: "The human placenta is formed by the interdigitation of the:", options: ["Chorionic villi and Allantois", "Chorionic villi and Uterine wall", "Amnion and Yolk sac", "Allantois only"], answer: "Chorionic villi and Uterine wall" },
+        { question: "The first vertebrates to successfully live on land were the:", options: ["Reptiles", "Amphibians", "Fishes", "Birds"], answer: "Reptiles" },
+        { question: "Which part of the human ear contains the organ of Corti for hearing?", options: ["Cochlea", "Semicircular canals", "Pinna", "Eustachian tube"], answer: "Cochlea" },
+        { question: "During meiosis, the exchange of genetic material (crossing over) occurs in:", options: ["Prophase I", "Metaphase I", "Anaphase II", "Telophase I"], answer: "Prophase I" },
+        { question: "Which of the following organelles are absent in mature mammalian RBCs?", options: ["Nucleus", "Mitochondria", "Endoplasmic Reticulum", "All of these"], answer: "All of these" },
+        { question: "The 'nif' gene, responsible for nitrogen fixation, is found in organisms like:", options: ["Rhizobium", "E. coli", "Nitrosomonas", "Yeast"], answer: "Rhizobium" },
+        { question: "The basic structural and functional unit of the kidney is the:", options: ["Nephron", "Neuron", "Nephridium", "Tubule"], answer: "Nephron" },
+        { question: "Which vitamin is essential for the synthesis of prothrombin, a blood clotting factor?", options: ["Vitamin A", "Vitamin K", "Vitamin C", "Vitamin D"], answer: "Vitamin K" },
+        { question: "Which cell organelle is called the “suicidal bag” due to its hydrolytic enzymes?", options: ["Lysosome", "Peroxisome", "Golgi body", "Ribosome"], answer: "Lysosome" },
+        { question: "The type of cell division that produces haploid gametes from a diploid parent cell is:", options: ["Mitosis", "Meiosis", "Amitosis", "Cytokinesis"], answer: "Meiosis" },
+        { question: "In the Hardy-Weinberg principle, the equation p² + 2pq + q² = 1 represents the:", options: ["Genotypic frequencies in a population at equilibrium", "Rate of gene mutation", "Chromosome number", "Rate of natural selection"], answer: "Genotypic frequencies in a population at equilibrium" },
+        { question: "The codon AUG functions as a start codon and also codes for the amino acid:", options: ["Methionine", "Leucine", "Glycine", "Stop"], answer: "Methionine" },
+        { question: "Which enzyme is responsible for converting inactive fibrinogen to active fibrin during blood clotting?", options: ["Thrombin", "Pepsin", "Trypsin", "Lipase"], answer: "Thrombin" },
+        { question: "Which element is a key component of the enzyme nitrogenase?", options: ["Molybdenum", "Zinc", "Magnesium", "Copper"], answer: "Molybdenum" },
+        { question: "Guard cells play a crucial role in regulating:", options: ["Photosynthesis", "Transpiration", "Respiration", "Conduction"], answer: "Transpiration" },
+        { question: "Phloem tissue is responsible for the transport of:", options: ["Water only", "Food (sugars)", "Minerals only", "Enzymes"], answer: "Food (sugars)" },
+        { question: "Which organelle is considered semi-autonomous because it has its own DNA and ribosomes?", options: ["Golgi apparatus", "Mitochondria", "Lysosome", "Endoplasmic Reticulum"], answer: "Mitochondria" },
+        { question: "The primary energy currency of the cell is:", options: ["ATP", "ADP", "AMP", "NADH"], answer: "ATP" },
+        { question: "Which animal shows an alternation of generations (metagenesis) between polyp and medusa forms?", options: ["Obelia", "Hydra", "Amoeba", "Paramecium"], answer: "Obelia" },
+        { question: "Which process is essential for maintaining a constant chromosome number across generations in sexually reproducing organisms?", options: ["Meiosis", "Mitosis", "Fertilization", "Budding"], answer: "Meiosis" },
+        { question: "The net end products of the Krebs cycle per molecule of Acetyl-CoA are:", options: ["2 CO₂, 1 ATP, 3 NADH, 1 FADH₂", "Glucose", "Pyruvate", "Oxygen"], answer: "2 CO₂, 1 ATP, 3 NADH, 1 FADH₂" },
+        { question: "The cell wall of most bacteria contains:", options: ["Peptidoglycan", "Cellulose", "Pectin", "Chitin"], answer: "Peptidoglycan" },
+        { question: "The universal energy carrier in all living cells is:", options: ["ATP", "GTP", "CTP", "UTP"], answer: "ATP" },
+        { question: "The structure that holds two sister chromatids together is the:", options: ["Centromere", "Centrosome", "Spindle fiber", "Telomere"], answer: "Centromere" },
+        { question: "Genetic drift is a random process that has a significant effect in:", options: ["Small populations", "Large populations", "Both small and large populations", "Only plant populations"], answer: "Small populations" },
+        { question: "Which of the following is a major greenhouse gas?", options: ["O₂", "CO₂", "N₂", "H₂"], answer: "CO₂" },
+        { question: "The main photosynthetic organ in most higher plants is the:", options: ["Leaf", "Root", "Stem", "Flower"], answer: "Leaf" },
+        { question: "Which enzyme is typically absent in animal cells, preventing them from digesting plant cell walls?", options: ["Cellulase", "Amylase", "Maltase", "Sucrase"], answer: "Cellulase" },
+        
+        // Section B: Match The Following
+        { question: "Match the organelle with its function:<br>a. Lysosome<br>b. Ribosome<br>c. Golgi apparatus<br>d. Mitochondria<br><br>1. Suicide bag<br>2. Protein synthesis<br>3. Packaging and secretion<br>4. ATP production", options: ["a-1, b-2, c-3, d-4", "a-2, b-3, c-1, d-4", "a-3, b-4, c-1, d-2", "a-1, b-3, c-2, d-4"], answer: "a-1, b-2, c-3, d-4" },
+        { question: "Match the organism with its structure for locomotion or osmoregulation:<br>a. Amoeba<br>b. Paramecium<br>c. Euglena<br>d. All three<br><br>1. Pseudopodia<br>2. Cilia<br>3. Flagella<br>4. Contractile vacuole", options: ["a-1, b-2, c-3, d-4", "a-2, b-1, c-3, d-4", "a-3, b-2, c-1, d-4", "a-4, b-3, c-2, d-1"], answer: "a-1, b-2, c-3, d-4" },
+        { question: "Match the plant tissue with its function:<br>a. Phloem<br>b. Xylem<br>c. Cambium<br>d. Collenchyma<br><br>1. Translocation of food<br>2. Conduction of water<br>3. Secondary growth<br>4. Mechanical support to young stems", options: ["a-1, b-2, c-3, d-4", "a-2, b-1, c-4, d-3", "a-4, b-3, c-2, d-1", "a-1, b-3, c-4, d-2"], answer: "a-1, b-2, c-3, d-4" },
+        { question: "Match the biomolecule with its primary role:<br>a. DNA<br>b. RNA<br>c. Enzyme<br>d. Antibody<br><br>1. Stores genetic information<br>2. Involved in protein synthesis<br>3. Acts as a biocatalyst<br>4. Provides immunity", options: ["a-1, b-2, c-3, d-4", "a-2, b-1, c-4, d-3", "a-4, b-3, c-2, d-1", "a-1, b-3, c-4, d-2"], answer: "a-1, b-2, c-3, d-4" },
+        { question: "Match the plant hormone with its major function:<br>a. ABA<br>b. GA<br>c. Cytokinin<br>d. Ethylene<br><br>1. Induces dormancy<br>2. Promotes bolting and germination<br>3. Promotes cell division<br>4. Promotes fruit ripening", options: ["a-1, b-2, c-3, d-4", "a-2, b-1, c-4, d-3", "a-4, b-3, c-2, d-1", "a-1, b-3, c-4, d-2"], answer: "a-1, b-2, c-3, d-4" },
+
+        // Section C: Assertion-Reason
+        { question: "Assertion (A): C4 plants are more photosynthetically efficient in hot, dry climates.<br>Reason (R): C4 plants have a mechanism to minimize photorespiration.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): DNA is a double-stranded helix.<br>Reason (R): In RNA, thymine is replaced by uracil.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion (A): Gibberellins help in stem elongation in plants like sugarcane.<br>Reason (R): They primarily induce cell division, not elongation.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "A is true, but R is false." },
+        { question: "Assertion (A): Lysosomes are absent in mature mammalian RBCs.<br>Reason (R): Mature mammalian RBCs also lack a nucleus.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, but R is not the correct explanation." },
+        { question: "Assertion (A): The enzyme nitrogenase is highly sensitive to oxygen.<br>Reason (R): To protect it, root nodules have an oxygen scavenger called leghaemoglobin.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Mendel’s law of segregation is a universal law of heredity.<br>Reason (R): It states that alleles for a trait separate during gamete formation.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Enzymes act as biological catalysts.<br>Reason (R): They increase the activation energy of a reaction.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "A is true, but R is false." },
+        { question: "Assertion (A): Mitochondria are considered semi-autonomous organelles.<br>Reason (R): They possess their own circular DNA, 70S ribosomes, and can synthesize some of their own proteins.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): ATP is known as the energy currency of the cell.<br>Reason (R): Energy is released upon the hydrolysis of its terminal high-energy phosphate bonds.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+        { question: "Assertion (A): Phloem is responsible for the translocation of food in plants.<br>Reason (R): Sieve tubes and companion cells are the main components of phloem for this transport.", options: ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation.", "A is true, but R is false.", "A is false, but R is true."], answer: "Both A and R are true, and R is the correct explanation of A." },
+
+        // Section D: Multiple Correct
+        { question: "Which of the following nitrogenous bases are pyrimidines?<br>a) Cytosine<br>b) Thymine<br>c) Adenine<br>d) Guanine", options: ["a and b", "c and d", "a and c", "b and d"], answer: "a and b" },
+        { question: "Which of the following are accessory photosynthetic pigments?<br>a) Chlorophyll b<br>b) Xanthophyll<br>c) Carotenoids<br>d) Chlorophyll a", options: ["d only", "a and d", "a, b, and c", "All are correct"], answer: "a, b, and c" },
+        { question: "Select the correct statements about enzymes:<br>a) They speed up biochemical reactions.<br>b) They are highly specific in their action.<br>c) They are permanently destroyed after a reaction.<br>d) They function best at an optimal pH and temperature.", options: ["a, b, and d", "a and c", "c and d", "All are correct"], answer: "a, b, and d" },
+        { question: "Select examples of ex-situ conservation:<br>a) Botanical gardens<br>b) Seed banks<br>c) Wildlife sanctuaries<br>d) Zoological parks", options: ["c only", "a and c", "a, b, and d", "All are correct"], answer: "a, b, and d" },
+        { question: "Choose the correct features of meiosis:<br>a) It is a reductional division.<br>b) It involves crossing over.<br>c) It results in the formation of gametes in diploid organisms.<br>d) It produces four genetically identical daughter cells.", options: ["a, b, and c", "d only", "a and d", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following contain 70S ribosomes?<br>a) Bacteria<br>b) Chloroplasts<br>c) Mitochondria<br>d) Cytoplasm of eukaryotes", options: ["d only", "a only", "a, b, and c", "All are correct"], answer: "a, b, and c" },
+        { question: "Which of the following are components of an ecosystem?<br>a) Biotic components (producers, consumers, decomposers)<br>b) Abiotic components (temperature, water, light, soil)<br>c) Food chains and food webs<br>d) Only the living organisms", options: ["d only", "a and b only", "a, b, and c", "All are correct"], answer: "a, b, and c" },
+        { question: "Select the parts of the human digestive system that secrete digestive enzymes:<br>a) Stomach<br>b) Pancreas<br>c) Liver<br>d) Small Intestine", options: ["a, b, and c", "c only", "a, b, and d", "All are correct"], answer: "a, b, and d" },
+        { question: "Choose the correct statements about the genetic code:<br>a) It is universal (with minor exceptions).<br>b) It is unambiguous.<br>c) It is overlapping.<br>d) It is triplet in nature.", options: ["c only", "a, b, and d", "a and c", "All are correct"], answer: "a, b, and d" },
+        { question: "Select the correct statements about natural selection:<br>a) It acts upon the heritable variations within a population.<br>b) It is a primary mechanism for evolution.<br>c) It is a random, directionless process.<br>d) It involves differential survival and reproduction.", options: ["c only", "a, b, and d", "a and c", "All are correct"], answer: "a, b, and d" },
+
+        // Section E: Data / Factual
+        { question: "What is the total number of chromosomes in a normal human somatic cell?", options: ["46", "23", "48", "24"], answer: "46" },
+        { question: "What is the approximate percentage of nitrogen in the Earth's atmosphere?", options: ["21%", "78%", "0.9%", "0.04%"], answer: "78%" },
+        { question: "What is the optimal pH for the activity of pepsin in the stomach?", options: ["1.5 - 3.5", "6.8", "7.4", "8.0"], answer: "1.5 - 3.5" },
+        { question: "What is the average lifespan of a human Red Blood Cell (RBC)?", options: ["10 days", "60 days", "120 days", "1 year"], answer: "120 days" },
+        { question: "What is the approximate net gain of ATP molecules from one molecule of glucose during aerobic respiration in eukaryotes?", options: ["2", "38", "30-32", "8"], answer: "30-32" },
+        { question: "In which year did Gregor Mendel publish his 'Experiments on Plant Hybridization'?", options: ["1866", "1859", "1900", "1953"], answer: "1866" },
+        { question: "What is the approximate percentage of oxygen in the Earth's atmosphere?", options: ["78%", "1%", "0.04%", "21%"], answer: "21%" },
+        { question: "How many bones are there in an adult human skeleton?", options: ["300", "180", "270", "206"], answer: "206" },
+        { question: "What is the normal core body temperature for a healthy human in Celsius?", options: ["35°C", "39°C", "36.1°C", "37°C"], answer: "37°C" },
+        { question: "What is the normal physiological pH of human blood?", options: ["7.0", "6.8", "8.0", "7.4"], answer: "7.4" }
+    ];
+
+    // --- CORE TEST LOGIC ---
+    const storageKey = 'neetFullSyllabusBioMockSet1';
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timerInterval;
+    const timePerQuestion = 45;
+    let timeLeft = timePerQuestion;
+    let userName = '';
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+    
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = '';
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${attempt.date}</td><td>${attempt.name}</td><td>${attempt.score}</td>`;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        shuffleArray(questions);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+
+    // MODIFIED RESTART LOGIC - NO PASSWORD
+    function restartTest() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        nameInput.value = '';
+        displayProgress();
+    }
+
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+        if (index < 0 || index >= questions.length) return;
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option;
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => item.classList.remove('selected'));
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0, wrongCount = 0, attemptedCount = 0, finalScore = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userAnswers[i] !== null) {
+                attemptedCount++;
+                if (userAnswers[i] === questions[i].answer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        return { correctCount, wrongCount, unattemptedCount: questions.length - attemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.rawScore}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+            let userAnswerDisplay = (userAnswer === null) ? '<span style="color: #ff9800;">Not Attempted</span>' : `<span class="${isCorrect ? 'correct-answer' : 'wrong-answer-user'}">${userAnswer}</span>`;
+            li.innerHTML = `<div class="question-text">${q.question}</div><div>Your Answer: ${userAnswerDisplay}</div><div class="correct-answer">Correct Answer: ${q.answer}</div>`;
+            answersList.appendChild(li);
+        });
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) btn.classList.add('attempted');
+            if (index === currentQuestionIndex) btn.classList.add('current');
+        });
+    }
+
+    createTrackerButtons();
+    displayProgress();
+
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
+</body>
+</html>
