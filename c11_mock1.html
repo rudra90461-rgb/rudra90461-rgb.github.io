@@ -322,8 +322,13 @@
     </style>
 </head>
 <body>
-
-<div class="container">
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
 
     <div id="intro-screen">
         <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
@@ -1384,7 +1389,30 @@
     createTrackerButtons();
     displayProgress(); // Display progress when the page first loads
 
-</script>
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
 
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
 </body>
 </html>
