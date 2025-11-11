@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ_PYDIA | NEET Animal Kingdom Mock Test (100 Questions) - Review Mode</title>
+    <style>
+        /* --- Base & Layout --- */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* For the watermark effect */
+        }
+        /* Watermark Styling (Optional, as requested) */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.04);
+            pointer-events: none;
+            z-index: 0;
+        }
+        #intro-screen, #test-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        /* --- Timer & Header --- */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Align items vertically */
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0;
+        }
+        
+        /* --- Subscribe Button Style --- */
+        #subscribe-reminder {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #ff0000; /* YouTube Red */
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.9em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* --- Question & Options --- */
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* --- Evaluation Styles --- */
+        .options-list li.correct {
+            background-color: #c8e6c9; 
+            border: 2px solid #4caf50; 
+            font-weight: 700;
+        }
+        .options-list li.wrong {
+            background-color: #ffcdd2; 
+            border: 2px solid #f44336;
+            font-weight: 700;
+        }
+
+        /* --- Answer & Solution Box --- */
+        #solution-box {
+            display: none;
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            border-left: 5px solid #4caf50;
+            background-color: #e8f5e9;
+        }
+        #solution-box strong {
+            color: #4caf50;
+            font-size: 1.1em;
+        }
+        #solution-box p {
+            margin-top: 5px;
+            font-size: 0.95em;
+            color: #388e3c;
+        }
+
+        /* --- Buttons --- */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 30px;
+        }
+        
+        /* --- Responsive --- */
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .navigation-buttons { flex-direction: column; }
+            .navigation-buttons button { width: 100%; margin: 5px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">🧬 NEET Animal Kingdom Mock Test</h1>
+        <h2 style="color: #4caf50;">100 NCERT-Based Questions (Interactive Mode)</h2>
+        <p style="font-size: 1.1em; color: #555;">Mode: Self-Paced Review. Select answer anytime for instant feedback.</p>
+        <p style="font-size: 1.1em; color: #d32f2f;">Total Questions: <span id="total-q-display"></span></p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <button id="subscribe-reminder">SUBSCRIBE NOW</button>
+            <span id="question-number">Question 1/100</span>
+            <span id="timer">Time Left: 30s</span>
+        </div>
+        
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        
+        <div id="solution-box">
+            <strong id="correct-answer-display">Correct Answer:</strong>
+            <p id="solution-text">Solution goes here.</p>
+        </div>
+        
+        <div class="navigation-buttons">
+            <button id="prev-button" style="background-color: #ff9800;">Previous Question</button>
+            <button id="next-button">Next Question</button>
+            <button id="end-test-button" style="background-color: #f44336; display:none;">End Test</button>
+        </div>
+    </div>
+
+    <div id="end-screen" style="display: none; text-align: center; padding: 50px;">
+        <h2 style="color: #1976d2;">Test Completed! 🎉</h2>
+        <p style="font-size: 1.2em;">Thank you for attempting the Animal Kingdom Mock Test. Click restart to try again.</p>
+        <button onclick="window.location.reload()" style="margin-top: 20px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* * QUESTION DATA ARRAY: ANIMAL KINGDOM (100 Questions)
+    * Asterisks removed and detailed options included for A/R questions.
+    */
+    const questions = [
+        // --- (A) NORMAL MCQS (Q1–Q60) ---
+        { 
+            question: "Q1. Presence of true coelom first appears in which phylum?", 
+            options: ["a) Annelida", "b) Arthropoda", "c) Mollusca", "d) Platyhelminthes"], 
+            answer: "a) Annelida", 
+            solution: "A true coelom, a body cavity lined by mesoderm, is first seen in the Annelida (earthworms, leeches)."
+        },
+        { 
+            question: "Q2. Diploblastic animals have:", 
+            options: ["a) Mesoderm only", "b) Ectoderm and mesoderm", "c) Ectoderm and endoderm", "d) Endoderm and coelom"], 
+            answer: "c) Ectoderm and endoderm", 
+            solution: "Diploblastic animals (Cnidaria, Ctenophora) have two germ layers: the external ectoderm and the internal endoderm, with a non-cellular mesoglea in between."
+        },
+        { 
+            question: "Q3. Which of the following shows radial symmetry?", 
+            options: ["a) Starfish", "b) Ascaris", "c) Earthworm", "d) Leech"], 
+            answer: "a) Starfish", 
+            solution: "Adult Echinoderms (like Starfish) show radial symmetry, although their larvae are bilaterally symmetrical."
+        },
+        { 
+            question: "Q4. Which one has an incomplete digestive system?", 
+            options: ["a) Hydra", "b) Planaria", "c) Ascaris", "d) Nereis"], 
+            answer: "a) Hydra", 
+            solution: "Cnidaria (Hydra) and Platyhelminthes (Planaria) exhibit an incomplete digestive system (single opening). Among the choices, Hydra is the classic coelenterate example."
+        },
+        { 
+            question: "Q5. Choanocytes are characteristic of:", 
+            options: ["a) Coelenterates", "b) Sponges", "c) Echinoderms", "d) Annelids"], 
+            answer: "b) Sponges", 
+            solution: "Choanocytes (collar cells) line the spongocoel and canals in Sponges (Phylum Porifera) and are responsible for filtering food."
+        },
+        { 
+            question: "Q6. Flame cells are concerned with:", 
+            options: ["a) Respiration", "b) Excretion", "c) Circulation", "d) Digestion"], 
+            answer: "b) Excretion", 
+            solution: "Flame cells (protonephridia) are the specialized excretory and osmoregulatory structures found in Platyhelminthes (Flatworms)."
+        },
+        { 
+            question: "Q7. Which animal lacks true tissues?", 
+            options: ["a) Leucosolenia", "b) Hydra", "c) Ascaris", "d) Taenia"], 
+            answer: "a) Leucosolenia", 
+            solution: "Leucosolenia is a sponge (Porifera), which exhibits cellular level of organization, meaning they lack true tissues."
+        },
+        { 
+            question: "Q8. The body of Hydra shows:", 
+            options: ["a) Bilateral symmetry", "b) Radial symmetry", "c) Asymmetry", "d) None of these"], 
+            answer: "b) Radial symmetry", 
+            solution: "Hydra belongs to Phylum Cnidaria, which is characterized by radial symmetry."
+        },
+        { 
+            question: "Q9. The nematocysts are found in:", 
+            options: ["a) Porifera", "b) Cnidaria", "c) Echinodermata", "d) Platyhelminthes"], 
+            answer: "b) Cnidaria", 
+            solution: "Nematocysts (stinging capsules) are discharged from cnidoblasts (or cnidocytes), characteristic cells of Phylum Cnidaria."
+        },
+        { 
+            question: "Q10. The body cavity between the body wall and gut wall is:", 
+            options: ["a) Coelom", "b) Pseudocoel", "c) Haemocoel", "d) None"], 
+            answer: "a) Coelom", 
+            solution: "The body cavity between the body wall and the gut wall is generally referred to as the coelom, specifically when it is lined by mesoderm on both sides (true coelom)."
+        },
+        { 
+            question: "Q11. Which of the following is not a pseudocoelomate?", 
+            options: ["a) Ascaris", "b) Rotifers", "c) Nereis", "d) Ancylostoma"], 
+            answer: "c) Nereis", 
+            solution: "Nereis is an Annelid, which possesses a true coelom (eucoelomate). Ascaris, Rotifers, and Ancylostoma (Roundworms) are pseudocoelomates."
+        },
+        { 
+            question: "Q12. Body of annelids is divided into:", 
+            options: ["a) Segments", "b) Lobes", "c) Chambers", "d) None"], 
+            answer: "a) Segments", 
+            solution: "Annelids exhibit metameric segmentation, meaning their body is externally and internally divided into segments."
+        },
+        { 
+            question: "Q13. In cockroach, the number of spiracles is:", 
+            options: ["a) 10 pairs", "b) 8 pairs", "c) 12 pairs", "d) 9 pairs"], 
+            answer: "a) 10 pairs", 
+            solution: "A cockroach has 10 pairs of spiracles (2 thoracic and 8 abdominal) for respiration."
+        },
+        { 
+            question: "Q14. Which of these is a hermaphrodite?", 
+            options: ["a) Earthworm", "b) Cockroach", "c) Ascaris (male)", "d) Prawn"], 
+            answer: "a) Earthworm", 
+            solution: "Earthworms are monoecious or hermaphrodites, meaning both male and female sex organs are present in the same individual."
+        },
+        { 
+            question: "Q15. In which animal is the notochord replaced by vertebral column?", 
+            options: ["a) Protochordates", "b) Vertebrates", "c) Urochordates", "d) Cephalochordates"], 
+            answer: "b) Vertebrates", 
+            solution: "In vertebrates, the notochord is replaced by a cartilaginous or bony vertebral column in the adult stage."
+        },
+        { 
+            question: "Q16. The excretory organs of Annelids are:", 
+            options: ["a) Malpighian tubules", "b) Nephridia", "c) Flame cells", "d) Green glands"], 
+            answer: "b) Nephridia", 
+            solution: "Nephridia (segmentally arranged, coiled tubes) are the primary excretory structures in Annelids."
+        },
+        { 
+            question: "Q17. Molluscs possess:", 
+            options: ["a) Triploblastic coelomate body", "b) Diploblastic coelomate body", "c) Triploblastic acoelomate", "d) None"], 
+            answer: "a) Triploblastic coelomate body", 
+            solution: "Molluscs are triploblastic (three germ layers) and coelomate, though the coelom is typically reduced to cavities around the heart, gonads, and excretory organs."
+        },
+        { 
+            question: "Q18. Which one is the largest phylum?", 
+            options: ["a) Mollusca", "b) Arthropoda", "c) Annelida", "d) Echinodermata"], 
+            answer: "b) Arthropoda", 
+            solution: "Arthropoda is the largest phylum of Animalia, including insects, crustaceans, etc., constituting over two-thirds of all named species on Earth."
+        },
+        { 
+            question: "Q19. The water vascular system is characteristic of:", 
+            options: ["a) Mollusca", "b) Echinodermata", "c) Coelenterata", "d) Hemichordata"], 
+            answer: "b) Echinodermata", 
+            solution: "The water vascular system (or ambulacral system) is the unique and characteristic feature of Echinodermata, functioning in locomotion, capture and transport of food, and respiration."
+        },
+        { 
+            question: "Q20. Which one shows pentamerous symmetry in adult stage?", 
+            options: ["a) Starfish", "b) Sea cucumber", "c) Brittle star", "d) All"], 
+            answer: "d) All", 
+            solution: "Starfish, Sea Cucumber, and Brittle Star are all Echinoderms, and adult echinoderms typically show pentamerous (five-rayed) radial symmetry."
+        },
+        { 
+            question: "Q21. The connective link between non-chordates and chordates is:", 
+            options: ["a) Balanoglossus", "b) Amphioxus", "c) Herdmania", "d) Scoliodon"], 
+            answer: "a) Balanoglossus", 
+            solution: "Balanoglossus belongs to Hemichordata (half chordates), previously considered a subphylum of Chordata, and is now placed as a non-chordate phylum, serving as a link."
+        },
+        { 
+            question: "Q22. Mammals are the only vertebrates that possess:", 
+            options: ["a) Hair and mammary glands", "b) Heart with two chambers", "c) Scales", "d) Gills"], 
+            answer: "a) Hair and mammary glands", 
+            solution: "The presence of hair on the body and mammary glands (milk-producing glands) are the two unique characteristics defining the Class Mammalia."
+        },
+        { 
+            question: "Q23. Which of the following have internal fertilization?", 
+            options: ["a) Fishes", "b) Amphibians", "c) Reptiles", "d) All"], 
+            answer: "c) Reptiles", 
+            solution: "Reptiles, Aves, and Mammals primarily show internal fertilization. Most fishes and amphibians show external fertilization."
+        },
+        { 
+            question: "Q24. Birds have:", 
+            options: ["a) Oviparity", "b) Four-chambered heart", "c) Pneumatic bones", "d) All"], 
+            answer: "d) All", 
+            solution: "Birds (Aves) are oviparous, possess a four-chambered heart, and have pneumatic (air-filled) bones to reduce body weight for flight."
+        },
+        { 
+            question: "Q25. The skeleton in shark is made up of:", 
+            options: ["a) Bone", "b) Cartilage", "c) Chitin", "d) Both a and b"], 
+            answer: "b) Cartilage", 
+            solution: "Sharks belong to Chondrichthyes (cartilaginous fishes), whose endoskeleton is entirely cartilaginous."
+        },
+        { 
+            question: "Q26. Fertilization in amphibians is:", 
+            options: ["a) External", "b) Internal", "c) Both", "d) None"], 
+            answer: "a) External", 
+            solution: "Most amphibians have external fertilization, usually occurring in water."
+        },
+        { 
+            question: "Q27. Scales in reptiles are made of:", 
+            options: ["a) Keratin", "b) Chitin", "c) Calcium carbonate", "d) Cellulose"], 
+            answer: "a) Keratin", 
+            solution: "The dry, scaly skin of reptiles is protected by epidermal scales or scutes made of the protein Keratin."
+        },
+        { 
+            question: "Q28. Which of the following are cold-blooded?", 
+            options: ["a) Reptiles", "b) Amphibians", "c) Fishes", "d) All"], 
+            answer: "d) All", 
+            solution: "Fishes (Pisces), Amphibians, and Reptiles are poikilotherms (cold-blooded), meaning they lack the capacity to regulate their body temperature internally."
+        },
+        { 
+            question: "Q29. Which one has a three-chambered heart?", 
+            options: ["a) Crocodile", "b) Frog", "c) Turtle", "d) None"], 
+            answer: "b) Frog", 
+            solution: "Amphibians (Frog) and most Reptiles (Turtle) have a three-chambered heart (two atria and one ventricle). The exception is Crocodile, which has a four-chambered heart."
+        },
+        { 
+            question: "Q30. The mammalian erythrocytes are:", 
+            options: ["a) Nucleated", "b) Non-nucleated", "c) Binucleated", "d) None"], 
+            answer: "b) Non-nucleated", 
+            solution: "Mammalian erythrocytes (RBCs) are typically biconcave and non-nucleated in the adult stage, enabling them to carry more oxygen."
+        },
+        { 
+            question: "Q31. The scientific name of the Indian Earthworm is:", 
+            options: ["a) Pheretima posthuma", "b) Lumbricus terrestris", "c) Hirudo medicinalis", "d) Periplaneta americana"], 
+            answer: "a) Pheretima posthuma", 
+            solution: "Pheretima posthuma is the most common scientific name for the Indian Earthworm. Lumbricus terrestris is the common European earthworm."
+        },
+        { 
+            question: "Q32. The body cavity lined by mesoderm on both sides is called:", 
+            options: ["a) Coelom", "b) Pseudocoel", "c) Haemocoel", "d) None"], 
+            answer: "a) Coelom", 
+            solution: "Coelom (true coelom) is defined as a body cavity that is completely lined by mesoderm on both sides (somatic and visceral mesoderm)."
+        },
+        { 
+            question: "Q33. Metameric segmentation is found in:", 
+            options: ["a) Annelids", "b) Arthropods", "c) Chordates", "d) All"], 
+            answer: "d) All", 
+            solution: "True metamerism (segmentation) is characteristic of Annelida, Arthropoda, and Chordata (e.g., vertebrae)."
+        },
+        { 
+            question: "Q34. The exoskeleton of Arthropoda is made up of:", 
+            options: ["a) Chitin", "b) Cellulose", "c) Keratin", "d) Lignin"], 
+            answer: "a) Chitin", 
+            solution: "The exoskeleton of arthropods is composed of chitin, a tough, non-living polysaccharide."
+        },
+        { 
+            question: "Q35. The breathing organ of prawn is:", 
+            options: ["a) Book lung", "b) Gills", "c) Trachea", "d) Skin"], 
+            answer: "b) Gills", 
+            solution: "Prawns (Crustaceans, a subphylum of Arthropoda) are aquatic and respire through gills."
+        },
+        { 
+            question: "Q36. Which class of vertebrates has both gills and lungs in some members?", 
+            options: ["a) Amphibia", "b) Pisces", "c) Reptilia", "d) Mammalia"], 
+            answer: "a) Amphibia", 
+            solution: "Amphibians respire through gills (larval stage), lungs (adult stage), and moist skin (cutaneous respiration)."
+        },
+        { 
+            question: "Q37. A notochord is present throughout life in:", 
+            options: ["a) Amphioxus", "b) Balanoglossus", "c) Herdmania", "d) Frog"], 
+            answer: "a) Amphioxus", 
+            solution: "Amphioxus (Branchiostoma), a Cephalochordate, retains the notochord throughout its life."
+        },
+        { 
+            question: "Q38. The excretory organs of crustaceans are:", 
+            options: ["a) Green glands", "b) Nephridia", "c) Flame cells", "d) Malpighian tubules"], 
+            answer: "a) Green glands", 
+            solution: "Crustaceans (like prawns) use Antennal glands (or Green glands) for excretion and osmoregulation."
+        },
+        { 
+            question: "Q39. The larva of Ascaris resembles:", 
+            options: ["a) Adult Ascaris", "b) Planula", "c) Miracidium", "d) Rhabditiform larva"], 
+            answer: "d) Rhabditiform larva", 
+            solution: "The infective larval stage of Ascaris (roundworm) is the second-stage Rhabditiform larva."
+        },
+        { 
+            question: "Q40. Which of the following are hermaphrodites?", 
+            options: ["a) Sponges", "b) Earthworm", "c) Tapeworm", "d) All"], 
+            answer: "d) All", 
+            solution: "Sponges (Porifera), Earthworms (Annelida), and Tapeworms (Platyhelminthes) are typically monoecious (hermaphrodites)."
+        },
+        { 
+            question: "Q41. The jawless vertebrates belong to the class:", 
+            options: ["a) Cyclostomata", "b) Chondrichthyes", "c) Osteichthyes", "d) Amphibia"], 
+            answer: "a) Cyclostomata", 
+            solution: "Cyclostomata, which include lampreys and hagfish, are the only surviving agnatha (jawless vertebrates)."
+        },
+        { 
+            question: "Q42. Which organism uses parapodia for swimming?", 
+            options: ["a) Earthworm", "b) Leech", "c) Nereis", "d) Ascaris"], 
+            answer: "c) Nereis", 
+            solution: "Nereis (a marine Annelid) possesses lateral appendages called parapodia, which help in swimming."
+        },
+        { 
+            question: "Q43. Presence of choanocytes is a unique feature of:", 
+            options: ["a) Cnidaria", "b) Porifera", "c) Mollusca", "d) Ctenophora"], 
+            answer: "b) Porifera", 
+            solution: "Choanocytes (collar cells) are characteristic of the phylum Porifera (Sponges)."
+        },
+        { 
+            question: "Q44. Which feature is common between fishes and amphibians?", 
+            options: ["a) Gills in adult stage", "b) Three-chambered heart", "c) External fertilization", "d) Homeothermy"], 
+            answer: "c) External fertilization", 
+            solution: "Both fishes and most amphibians typically exhibit external fertilization. The heart is two-chambered in fish, and they are both cold-blooded (poikilotherms)."
+        },
+        { 
+            question: "Q45. The exoskeleton of vertebrates like reptiles and birds is derived from:", 
+            options: ["a) Epidermis", "b) Dermis", "c) Mesoderm", "d) Endoderm"], 
+            answer: "a) Epidermis", 
+            solution: "Scales, scutes, feathers, and hair are epidermal derivatives, made primarily of the protein keratin."
+        },
+        { 
+            question: "Q46. The structure used for locomotion in Echinodermata is:", 
+            options: ["a) Tube feet", "b) Setae", "c) Pseudopodia", "d) Parapodia"], 
+            answer: "a) Tube feet", 
+            solution: "Tube feet (podia) are part of the water vascular system and are essential for locomotion, food capture, and attachment in echinoderms."
+        },
+        { 
+            question: "Q47. Which animal exhibits polymorphism (polyp and medusa)?", 
+            options: ["a) Pleurobrachia", "b) Physalia", "c) Asterias", "d) Taenia"], 
+            answer: "b) Physalia", 
+            solution: "Physalia (Portuguese man-of-war) is a Cnidarian that exhibits polymorphism (multiple forms) and is a colonial organism."
+        },
+        { 
+            question: "Q48. The respiratory pigment found in annelid blood (Earthworm) is:", 
+            options: ["a) Haemoglobin in RBCs", "b) Haemocyanin dissolved in plasma", "c) Haemoglobin dissolved in plasma", "d) Chlorocruorin"], 
+            answer: "c) Haemoglobin dissolved in plasma", 
+            solution: "Unlike mammals, earthworms have Haemoglobin dissolved directly in the blood plasma, not contained within red blood cells."
+        },
+        { 
+            question: "Q49. Which characteristic is common to Pisces, Amphibia, and Reptilia?", 
+            options: ["a) Aves", "b) Poikilothermy (Cold-blooded)", "c) Homothermy (Warm-blooded)", "d) Internal fertilization"], 
+            answer: "b) Poikilothermy (Cold-blooded)", 
+            solution: "These three classes are ectothermic (Poikilotherms) and cannot internally regulate their body temperature. Only Aves and Mammalia are homeotherms."
+        },
+        { 
+            question: "Q50. The defining feature of Ctenophora (Comb jellies) is:", 
+            options: ["a) Cnidoblasts", "b) Colloblasts", "c) Flame cells", "d) Radula"], 
+            answer: "b) Colloblasts", 
+            solution: "Ctenophores possess special adhesive cells called Colloblasts or lasso cells, used for capturing prey."
+        },
+        { 
+            question: "Q51. The excretory organ of insects (Arthropods) is:", 
+            options: ["a) Nephridia", "b) Green glands", "c) Malpighian tubules", "d) Kidneys"], 
+            answer: "c) Malpighian tubules", 
+            solution: "Malpighian tubules are the primary excretory organs in most insects and some other arthropods."
+        },
+        { 
+            question: "Q52. Which phylum includes animals with a mantle and a shell?", 
+            options: ["a) Annelida", "b) Echinodermata", "c) Mollusca", "d) Arthropoda"], 
+            answer: "c) Mollusca", 
+            solution: "Molluscs typically have a soft body covered by a mantle, which secretes a calcareous shell."
+        },
+        { 
+            question: "Q53. Triploblastic, segmented, true coelom, closed circulation, and lateral appendages (parapodia) are features of:", 
+            options: ["a) Platyhelminthes", "b) Aschelminthes", "c) Annelida", "d) Arthropoda"], 
+            answer: "c) Annelida", 
+            solution: "Annelids are the first phylum to exhibit true coelom, metameric segmentation, and a closed circulatory system (in some members like Earthworms)."
+        },
+        { 
+            question: "Q54. Animals with cellular level of organization are:", 
+            options: ["a) Hydra", "b) Sycon", "c) Obelia", "d) Fasciola"], 
+            answer: "b) Sycon", 
+            solution: "Sycon is a sponge (Porifera), which has the simplest level of organization: the cellular level."
+        },
+        { 
+            question: "Q55. Which chordate feature is retained throughout the life of a typical vertebrate?", 
+            options: ["a) Notochord", "b) Post-anal tail", "c) Pharyngeal gill slits (in some)", "d) Dorsal hollow nerve cord"], 
+            answer: "d) Dorsal hollow nerve cord", 
+            solution: "The dorsal hollow nerve cord (which differentiates into the brain and spinal cord) is a feature present in all chordates throughout their life, unlike the notochord, which is replaced by the vertebral column."
+        },
+        { 
+            question: "Q56. What type of circulatory system is present in Earthworm?", 
+            options: ["a) Open", "b) Closed", "c) Absent", "d) Incomplete"], 
+            answer: "b) Closed", 
+            solution: "Earthworms (Annelida) possess a closed circulatory system where blood is confined to vessels."
+        },
+        { 
+            question: "Q57. The exoskeleton of Bony Fishes (Osteichthyes) is made up of:", 
+            options: ["a) Placoid scales", "b) Cycloid/Ctenoid scales", "c) Scutes", "d) Feathers"], 
+            answer: "b) Cycloid/Ctenoid scales", 
+            solution: "Osteichthyes (bony fishes) generally have thin, flexible cycloid or ctenoid scales. Placoid scales are found in Chondrichthyes (cartilaginous fishes)."
+        },
+        { 
+            question: "Q58. Which of the following is commonly known as 'Sea-walnut'?", 
+            options: ["a) Aurelia", "b) Pleurobrachia", "c) Asterias", "d) Pila"], 
+            answer: "b) Pleurobrachia", 
+            solution: "Pleurobrachia is a Ctenophore, commonly known as sea walnuts or comb jellies."
+        },
+        { 
+            question: "Q59. The largest known invertebrate is:", 
+            options: ["a) Giant Squid", "b) Blue Whale", "c) Elephant", "d) Cobra"], 
+            answer: "a) Giant Squid", 
+            solution: "The Giant Squid (Architeuthis dux, a mollusc) is considered the largest known invertebrate."
+        },
+        { 
+            question: "Q60. Which group includes organisms that are all marine?", 
+            options: ["a) Mollusca", "b) Annelida", "c) Echinodermata", "d) Chordata"], 
+            answer: "c) Echinodermata", 
+            solution: "Echinodermata and Ctenophora are the two phyla that are exclusively marine."
+        },
+        
+        // --- (B) ASSERTION–REASON (Q61–Q70) ---
+        
+        { 
+            question: "Q61. Assertion: Earthworms are known as 'friends of farmers.' Reason: They increase soil fertility by burrowing and casting.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+            solution: "Both statements are true, and the reason correctly explains why earthworms are considered 'friends of farmers' (vermicomposting and soil aeration)."
+        },
+        { 
+            question: "Q62. Assertion: Cnidarians are diploblastic. Reason: They possess ectoderm and mesoderm layers.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "c) Assertion is true, but the Reason is false.", 
+            solution: "Cnidarians are diploblastic (Assertion is True). However, they possess Ectoderm and ENDODERM, not Mesoderm (Reason is False)."
+        },
+        { 
+            question: "Q63. Assertion: Cockroach has open circulatory system. Reason: Blood flows freely in the body cavity.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+            solution: "Both statements are true, and the presence of haemocoel (body cavity filled with blood) is the definition and explanation for an open circulatory system."
+        },
+        { 
+            question: "Q64. Assertion: Starfish shows radial symmetry. Reason: It has pentamerous arrangement of body parts.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+            solution: "Both are true. Starfish is radially symmetrical, and its pentamerous structure is the basis for its symmetry. However, pentamerous arrangement is a description, not the fundamental cause of radial symmetry."
+        },
+        { 
+            question: "Q65. Assertion: Flatworms are triploblastic. Reason: They have three germ layers but no coelom.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+            solution: "Both are true. Flatworms (Platyhelminthes) are triploblastic and acoelomate. The reason describes the coelomic status, while the assertion describes the germ layer status. The lack of coelom does not explain the presence of three germ layers."
+        },
+        { 
+            question: "Q66. Assertion: Birds are homeothermic. Reason: They maintain constant body temperature.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+            solution: "Homeothermy is the property of maintaining a constant body temperature. The reason defines the assertion."
+        },
+        { 
+            question: "Q67. Assertion: Frogs can respire through skin. Reason: Their skin is moist and richly supplied with blood vessels.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+            solution: "The moist, highly vascularized skin is the necessary anatomical feature that enables cutaneous respiration in frogs."
+        },
+        { 
+            question: "Q68. Assertion: Mammals are viviparous. Reason: They have mammary glands for nourishing young ones.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+            solution: "Both are true. Viviparity (giving birth to live young) and mammary glands are mammalian features. However, mammary glands nourish after birth, not explain why they give live birth."
+        },
+        { 
+            question: "Q69. Assertion: Sponges exhibit cell–tissue level of organization. Reason: They have specialized tissues for each function.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "d) Assertion is false, but the Reason is true.", 
+            solution: "Sponges exhibit cellular level of organization, not cell-tissue (Assertion is False). They lack specialized tissues (Reason is False)."
+        },
+        { 
+            question: "Q70. Assertion: Balanoglossus is a protochordate. Reason: It has notochord restricted to proboscis region.", 
+            options: [
+                "a) Both Assertion and Reason are true, and the Reason is the correct explanation of the Assertion.", 
+                "b) Both Assertion and Reason are true, but the Reason is not the correct explanation of the Assertion.", 
+                "c) Assertion is true, but the Reason is false.", 
+                "d) Assertion is false, but the Reason is true."
+            ], 
+            answer: "d) Assertion is false, but the Reason is true.", 
+            solution: "Balanoglossus is a Hemichordate, not a Protochordate (Assertion is False). Protochordates include Urochordata and Cephalochordata."
+        },
+        
+        // --- (C) MULTIPLE CORRECT TYPE (Q71–Q80) ---
+        
+        { 
+            question: "Q71. Which of the following have open circulatory system? (a) Cockroach; (b) Prawn; (c) Earthworm; (d) Mollusc. Select the options that are correct:", 
+            options: ["a) a, b, and d", "b) a and c only", "c) a, b, and c", "d) b, c, and d"], 
+            answer: "a) a, b, and d", 
+            solution: "Arthropods (Cockroach, Prawn) and most Molluscs have an open circulatory system. Earthworms (Annelida) have a closed system."
+        },
+        { 
+            question: "Q72. Which are acoelomate animals? (a) Porifera; (b) Cnidaria; (c) Platyhelminthes; (d) Mollusca. Select the options that are correct:", 
+            options: ["a) a, b, and c", "b) a, c, and d", "c) b, c, and d", "d) a and c only"], 
+            answer: "a) a, b, and c", 
+            solution: "Porifera, Cnidaria, and Platyhelminthes do not possess a true body cavity (coelom). Mollusca are coelomates."
+        },
+        { 
+            question: "Q73. Which animals exhibit regeneration? (a) Hydra; (b) Planaria; (c) Earthworm; (d) Starfish. Select the options that are correct:", 
+            options: ["a) a, b, and c", "b) a, c, and d", "c) a, b, and d", "d) b, c, and d"], 
+            answer: "c) a, b, and d", 
+            solution: "Hydra (budding/fragmentation), Planaria (high capacity), and Starfish (autotomy and arm regrowth) all exhibit significant regenerative capabilities."
+        },
+        { 
+            question: "Q74. Which of the following show metameric segmentation? (a) Earthworm; (b) Cockroach; (c) Leech; (d) Starfish. Select the options that are correct:", 
+            options: ["a) a, b, and c", "b) a, c, and d", "c) b, c, and d", "d) a and b only"], 
+            answer: "a) a, b, and c", 
+            solution: "Metameric segmentation is characteristic of Annelida (Earthworm, Leech) and Arthropoda (Cockroach)."
+        },
+        { 
+            question: "Q75. Select hermaphrodite organisms: (a) Earthworm; (b) Tapeworm; (c) Frog; (d) Leech. Select the options that are correct:", 
+            options: ["a) a, b, and d", "b) a, c, and d", "c) b, c, and d", "d) a, b, and c"], 
+            answer: "a) a, b, and d", 
+            solution: "Earthworm and Leech (Annelida) and Tapeworm (Platyhelminthes) are typically hermaphrodites (monoecious). Frog (Amphibia) is dioecious."
+        },
+        { 
+            question: "Q76. Which animals are triploblastic and acoelomate? (a) Platyhelminthes; (b) Cnidaria; (c) Annelida; (d) Mollusca. Select the options that are correct:", 
+            options: ["a) a only", "b) a and b", "c) a and c", "d) a and d"], 
+            answer: "a) a only", 
+            solution: "Platyhelminthes is the only phylum that is both triploblastic (three germ layers) and acoelomate (lacking a true body cavity)."
+        },
+        { 
+            question: "Q77. Which phyla are exclusively marine? (a) Echinodermata; (b) Ctenophora; (c) Arthropoda; (d) Hemichordata. Select the options that are correct:", 
+            options: ["a) a and b", "b) a, b, and d", "c) a and c", "d) b, c, and d"], 
+            answer: "a) a and b", 
+            solution: "Echinodermata and Ctenophora are strictly marine. Hemichordata are mainly marine, but Arthropoda has massive representation in freshwater/terrestrial habitats."
+        },
+        { 
+            question: "Q78. Which are chordates? (a) Amphioxus; (b) Balanoglossus; (c) Frog; (d) Herdmania. Select the options that are correct:", 
+            options: ["a) a, c, and d", "b) a, b, and c", "c) b, c, and d", "d) a, b, and d"], 
+            answer: "a) a, c, and d", 
+            solution: "Amphioxus (Cephalochordate), Frog (Vertebrate), and Herdmania (Urochordate) are all Chordates. Balanoglossus is a Hemichordate."
+        },
+        { 
+            question: "Q79. Which show radial symmetry? (a) Hydra; (b) Starfish (Adult); (c) Jellyfish; (d) Earthworm. Select the options that are correct:", 
+            options: ["a) a, b, and c", "b) a, c, and d", "c) b, c, and d", "d) a and b only"], 
+            answer: "a) a, b, and c", 
+            solution: "Hydra (Cnidaria), Jellyfish (Cnidaria), and adult Starfish (Echinodermata) show radial symmetry. Earthworm is bilaterally symmetrical."
+        },
+        { 
+            question: "Q80. Which have endoskeleton of calcareous plates? (a) Starfish; (b) Sea urchin; (c) Sea cucumber; (d) All. Select the options that are correct:", 
+            options: ["a) a, b, and c", "b) a, c, and d", "c) b, c, and d", "d) All"], 
+            answer: "d) All", 
+            solution: "All listed organisms are Echinoderms and possess a distinct endoskeleton of calcareous ossicles/plates."
+        },
+        
+        // --- (D) MATCH THE FOLLOWING (Q81–Q90) ---
+        
+        { 
+            question: "Q81. Match Column I with Column II: <br>Column I: A. Porifera, B. Cnidaria, C. Platyhelminthes, D. Annelida, E. Mollusca <br>Column II: 1. Spicules, 2. Nematocysts, 3. Flame cells, 4. Nephridia, 5. Radula. <br>Select the correct combination:", 
+            options: ["a) A-1, B-2, C-3, D-4, E-5", "b) A-2, B-1, C-3, D-4, E-5", "c) A-1, B-3, C-2, D-5, E-4", "d) A-5, B-4, C-3, D-2, E-1"], 
+            answer: "a) A-1, B-2, C-3, D-4, E-5", 
+            solution: "A-1 (Spicules), B-2 (Nematocysts), C-3 (Flame cells), D-4 (Nephridia), E-5 (Radula). All are correct."
+        },
+        { 
+            question: "Q82. Match the level of organization: <br>Column I: A. Sponges, B. Hydra, C. Earthworm, D. Cockroach <br>Column II: 1. Organ System, 2. Cellular, 3. Tissue, 4. Organ. <br>Select the correct combination:", 
+            options: ["a) A-2, B-3, C-1, D-1", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-4, D-1", "d) A-3, B-2, C-4, D-1"], 
+            answer: "a) A-2, B-3, C-1, D-1", 
+            solution: "Sponges (Cellular); Hydra (Tissue); Earthworm (Organ System); Cockroach (Organ System)."
+        },
+        { 
+            question: "Q83. Match the symmetry: <br>Column I: A. Sponge, B. Hydra, C. Frog, D. Starfish Larva <br>Column II: 1. Radial, 2. Asymmetry, 3. Bilateral, 4. Bilateral. <br>Select the correct combination:", 
+            options: ["a) A-2, B-1, C-3, D-4", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-4, B-3, C-2, D-1"], 
+            answer: "a) A-2, B-1, C-3, D-4", 
+            solution: "A-2 (Sponge is Asymmetrical); B-1 (Hydra is Radial); C-3 (Frog is Bilateral); D-4 (Starfish Larva is Bilateral)."
+        },
+        { 
+            question: "Q84. Match the circulatory system type: <br>Column I: A. Annelida, B. Arthropoda, C. Mollusca, D. Cephalopoda <br>Column II: 1. Open, 2. Closed, 3. Open, 4. Closed. <br>Select the correct combination:", 
+            options: ["a) A-2, B-1, C-3, D-4", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-4, B-3, C-2, D-1"], 
+            answer: "a) A-2, B-1, C-3, D-4", 
+            solution: "A-2 (Annelida is Closed); B-1 (Arthropoda is Open); C-3 (Most Mollusca is Open); D-4 (Cephalopoda is Closed)."
+        },
+        { 
+            question: "Q85. Match the germ layers: <br>Column I: A. Platyhelminthes, B. Cnidaria, C. Annelida, D. Aschelminthes <br>Column II: 1. Diploblastic, 2. Triploblastic Acoelomate, 3. Triploblastic Pseudocoelomate, 4. Triploblastic Coelomate. <br>Select the correct combination:", 
+            options: ["a) A-2, B-1, C-4, D-3", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-4, B-3, C-2, D-1"], 
+            answer: "a) A-2, B-1, C-4, D-3", 
+            solution: "A-2 (Platyhelminthes: Triploblastic Acoelomate); B-1 (Cnidaria: Diploblastic); C-4 (Annelida: Triploblastic Coelomate); D-3 (Aschelminthes: Triploblastic Pseudocoelomate)."
+        },
+        { 
+            question: "Q86. Match the classes with unique features: <br>Column I: A. Arthropoda, B. Echinodermata, C. Amphibia, D. Reptilia, E. Mammalia <br>Column II: 1. Chitinous exoskeleton, 2. Water vascular system, 3. Moist skin, 4. Scales, 5. Mammary glands. <br>Select the correct combination:", 
+            options: ["a) A-1, B-2, C-3, D-4, E-5", "b) A-2, B-1, C-3, D-4, E-5", "c) A-1, B-3, C-2, D-5, E-4", "d) A-5, B-4, C-3, D-2, E-1"], 
+            answer: "a) A-1, B-2, C-3, D-4, E-5", 
+            solution: "This is a direct, correct match of the phylum/class to its most distinguishing feature."
+        },
+        { 
+            question: "Q87. Match the respiratory organs: <br>Column I: A. Fish, B. Scorpion, C. Insects, D. Frog <br>Column II: 1. Book lungs, 2. Gills, 3. Tracheal system, 4. Lungs/Skin. <br>Select the correct combination:", 
+            options: ["a) A-2, B-1, C-3, D-4", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-4, B-3, C-2, D-1"], 
+            answer: "a) A-2, B-1, C-3, D-4", 
+            solution: "A-2 (Fish use Gills); B-1 (Scorpion/Arachnids use Book lungs); C-3 (Insects use Tracheal system); D-4 (Frog uses Lungs and Skin)."
+        },
+        { 
+            question: "Q88. Match the excretory structures: <br>Column I: A. Platyhelminthes, B. Annelida, C. Arthropoda, D. Crustacea <br>Column II: 1. Nephridia, 2. Malpighian tubules, 3. Flame cells, 4. Green glands. <br>Select the correct combination:", 
+            options: ["a) A-3, B-1, C-2, D-4", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-4, B-3, C-2, D-1"], 
+            answer: "a) A-3, B-1, C-2, D-4", 
+            solution: "A-3 (Platyhelminthes: Flame cells); B-1 (Annelida: Nephridia); C-2 (Arthropoda/Insects: Malpighian tubules); D-4 (Crustacea: Green glands/Antennal glands)."
+        },
+        { 
+            question: "Q89. Match the body division: <br>Column I: A. Annelida, B. Arthropoda, C. Vertebrates, D. Mollusca <br>Column II: 1. Head, Thorax, Abdomen, 2. Head, Trunk, 3. Head, Visceral Mass, Foot, 4. Segmented Trunk. <br>Select the correct combination:", 
+            options: ["a) A-4, B-1, C-2, D-3", "b) A-1, B-2, C-3, D-4", "c) A-2, B-3, C-1, D-4", "d) A-3, B-4, C-2, D-1"], 
+            answer: "a) A-4, B-1, C-2, D-3", 
+            solution: "A-4 (Annelida: Segmented Trunk); B-1 (Arthropoda: Head, Thorax, Abdomen); C-2 (Vertebrates: Head, Trunk - basic division); D-3 (Mollusca: Head, Visceral Mass, Foot)."
+        },
+        { 
+            question: "Q90. Match the examples: <br>Column I: A. Scoliodon, B. Hippocampus, C. Chelone, D. Pavo, E. Macaca <br>Column II: 1. Cartilaginous fish, 2. Bony fish, 3. Reptile, 4. Bird, 5. Mammal. <br>Select the correct combination:", 
+            options: ["a) A-1, B-2, C-3, D-4, E-5", "b) A-2, B-1, C-3, D-4, E-5", "c) A-1, B-3, C-2, D-5, E-4", "d) A-5, B-4, C-3, D-2, E-1"], 
+            answer: "a) A-1, B-2, C-3, D-4, E-5", 
+            solution: "A-1 (Scoliodon is a Shark); B-2 (Hippocampus is Sea Horse); C-3 (Chelone is Turtle); D-4 (Pavo is Peacock); E-5 (Macaca is Monkey)."
+        },
+
+        // --- (E) DATA / DIAGRAM / NUMERICAL BASED (Q91–Q100) ---
+        
+        { 
+            question: "Q91. Number of chambers in frog heart = ?", 
+            options: ["a) 2", "b) 3", "c) 4", "d) 5"], 
+            answer: "b) 3", 
+            solution: "Amphibians (Frog) have a three-chambered heart (two atria and one ventricle)."
+        },
+        { 
+            question: "Q92. Number of spiracles in cockroach = ?", 
+            options: ["a) 8 pairs", "b) 9 pairs", "c) 10 pairs", "d) 11 pairs"], 
+            answer: "c) 10 pairs", 
+            solution: "The cockroach has 10 pairs of spiracles (2 thoracic + 8 abdominal)."
+        },
+        { 
+            question: "Q93. The symmetry shown by the adult form of the animal represented by the diagram of Starfish is:", 
+            options: ["a) Bilateral symmetry", "b) Radial symmetry", "c) Asymmetry", "d) None"], 
+            answer: "b) Radial symmetry", 
+            solution: "The adult form of Starfish (Echinodermata) exhibits radial symmetry (pentamerous radial symmetry)."
+        },
+        { 
+            question: "Q94. Number of germ layers in Hydra = ?", 
+            options: ["a) 1", "b) 2", "c) 3", "d) 4"], 
+            answer: "b) 2", 
+            solution: "Hydra (Cnidaria) is a diploblastic animal, having two germ layers: Ectoderm and Endoderm."
+        },
+        { 
+            question: "Q95. The figure of Amphioxus shows the persistence of which chordate feature throughout life?", 
+            options: ["a) Notochord throughout life", "b) Notochord absent in adult", "c) Notochord only in tail", "d) None"], 
+            answer: "a) Notochord throughout life", 
+            solution: "Amphioxus (Cephalochordata) is characterized by the notochord extending from head to tail and persisting throughout its life."
+        },
+        { 
+            question: "Q96. The specialized cell shown in the diagram of Hydra tentacles is:", 
+            options: ["a) Nematocysts", "b) Flame cells", "c) Setae", "d) Nephridia"], 
+            answer: "a) Nematocysts", 
+            solution: "Hydra tentacles are armed with stinging cells (cnidoblasts/cnidocytes) that contain nematocysts (stinging capsules)."
+        },
+        { 
+            question: "Q97. The excretory structures typically shown in the diagram of Planaria are:", 
+            options: ["a) Flame cells", "b) Nephridia", "c) Trachea", "d) Gills"], 
+            answer: "a) Flame cells", 
+            solution: "Planaria (Platyhelminthes) uses flame cells for osmoregulation and excretion."
+        },
+        { 
+            question: "Q98. In the cockroach tracheal system diagram, spiracles are connected to:", 
+            options: ["a) Trachea", "b) Blood", "c) Lungs", "d) Alveoli"], 
+            answer: "a) Trachea", 
+            solution: "Spiracles are the openings that connect the outside air to the internal network of trachea (tracheal system) for respiration in insects."
+        },
+        { 
+            question: "Q99. The number of chambers in the heart of a typical fish (like a Rohu) is:", 
+            options: ["a) 1", "b) 2", "c) 3", "d) 4"], 
+            answer: "b) 2", 
+            solution: "Fishes have a two-chambered heart (one atrium and one ventricle)."
+        },
+        { 
+            question: "Q100. The two main openings shown in the diagram of a sponge canal system are:", 
+            options: ["a) Ostia", "b) Osculum", "c) Spongocoel", "d) All"], 
+            answer: "d) All", 
+            solution: "A diagram of the sponge body shows the outer pores (Ostia), the central cavity (Spongocoel), and the large exit pore (Osculum). All are parts of the system."
+        }
+    ];
+
+    
+    const TOTAL_QUESTIONS = questions.length;
+    const timeForQuestion = 30; // Timer duration for question answering
+    
+    let currentQuestionIndex = 0;
+    let timerInterval;
+    let timerRunning = false;
+    // userAttempts stores the selected answer for each question for review purposes
+    let userAttempts = new Array(TOTAL_QUESTIONS).fill(null); 
+    
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const endScreen = document.getElementById('end-screen');
+    const totalQDisplay = document.getElementById('total-q-display');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const endTestButton = document.getElementById('end-test-button');
+    const solutionBox = document.getElementById('solution-box');
+    const correctAnswerDisplay = document.getElementById('correct-answer-display');
+    const solutionText = document.getElementById('solution-text');
+
+    // --- Initialization & Setup ---
+    document.addEventListener('DOMContentLoaded', () => {
+        totalQDisplay.textContent = TOTAL_QUESTIONS;
+        prevButton.disabled = true;
+        
+        if (TOTAL_QUESTIONS === 0) {
+            startButton.disabled = true;
+            startButton.textContent = "No Questions Loaded";
+        }
+    });
+
+    startButton.addEventListener('click', () => {
+        const userName = document.getElementById('name-input').value.trim();
+        if (!userName) {
+            alert('Please enter your name to begin the test.');
+            return;
+        }
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        loadQuestion(currentQuestionIndex);
+    });
+    
+    // --- Navigation Handlers ---
+    prevButton.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+            // When navigating backward, always show solution immediately for review
+            loadQuestion(currentQuestionIndex - 1, true); 
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        } else if (currentQuestionIndex === TOTAL_QUESTIONS - 1) {
+             endTestButton.click();
+        }
+    });
+
+    endTestButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        testScreen.style.display = 'none';
+        endScreen.style.display = 'flex';
+    });
+
+
+    // --- Core Timer Logic ---
+    function startQuestionTimer() {
+        if (timerRunning) clearInterval(timerInterval);
+        
+        let timeLeft = timeForQuestion;
+        timerRunning = true;
+        
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerSpan.style.color = '#1565c0';
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                // If timer runs out, show solution (unattempted)
+                showSolution(null, null, true); 
+            }
+        }, 1000);
+    }
+    
+    function stopTimer() {
+        if (timerRunning) {
+            clearInterval(timerInterval);
+            timerRunning = false;
+        }
+    }
+
+    // --- Evaluation Logic ---
+    function evaluateAnswer(selectedOption, listItem) {
+        stopTimer(); // Stop the question timer instantly
+        
+        const q = questions[currentQuestionIndex];
+        
+        // Save the attempt if manually selected
+        userAttempts[currentQuestionIndex] = selectedOption;
+            
+        const isCorrect = selectedOption === q.answer;
+
+        // Apply feedback class to selected item
+        listItem.classList.add(isCorrect ? 'correct' : 'wrong');
+        
+        showSolution(selectedOption, listItem, false);
+    }
+    
+    function showSolution(selectedOption, listItem, isTimeout) {
+        
+        const q = questions[currentQuestionIndex];
+        
+        // Highlight correct answer (always)
+        document.querySelectorAll('#options-container li').forEach(li => {
+            if (li.textContent === q.answer) {
+                li.classList.add('correct');
+            }
+            li.style.cursor = 'default';
+        });
+        
+        optionsContainer.style.pointerEvents = 'none'; // Disable further clicks
+
+        // Display Solution Box
+        correctAnswerDisplay.innerHTML = `Correct Answer: <strong>${q.answer}</strong>`;
+        solutionText.textContent = q.solution;
+        solutionBox.style.display = 'block';
+        
+        timerSpan.textContent = isTimeout ? "Time Over" : "Answer Shown";
+        timerSpan.style.color = '#4caf50';
+    }
+
+
+    // --- Core Question Logic ---
+    function loadQuestion(index, reviewMode = false) {
+        if (index < 0 || index >= TOTAL_QUESTIONS) return;
+        
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        stopTimer(); // Always stop timer before loading a new Q
+        
+        // Reset and hide solution
+        solutionBox.style.display = 'none';
+        
+        // Update Header
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${TOTAL_QUESTIONS}`;
+        
+        // Load Question Text
+        questionText.innerHTML = q.question;
+        
+        // Load Options
+        optionsContainer.innerHTML = '';
+        
+        const attempted = userAttempts[currentQuestionIndex] !== null;
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option; // Use textContent for safety
+            
+            // Reset styles
+            li.classList.remove('correct', 'wrong');
+            li.style.cursor = 'pointer'; 
+            
+            if (attempted) {
+                // If attempted, style based on stored answer
+                const storedAnswer = userAttempts[currentQuestionIndex];
+                if (option === storedAnswer) {
+                    li.classList.add(storedAnswer === q.answer ? 'correct' : 'wrong');
+                }
+            } else {
+                 // Attach click handler only for unattempted questions
+                li.addEventListener('click', function() {
+                    evaluateAnswer(option, li);
+                });
+            }
+            
+            optionsContainer.appendChild(li);
+        });
+
+        // Set interactivity and start timer/show solution based on status
+        if (reviewMode || attempted) {
+            optionsContainer.style.pointerEvents = 'none'; 
+            showSolution(userAttempts[currentQuestionIndex], null, false);
+        } else {
+            optionsContainer.style.pointerEvents = 'auto'; 
+            startQuestionTimer();
+        }
+
+        // Update Navigation Buttons
+        prevButton.disabled = currentQuestionIndex === 0;
+        nextButton.disabled = currentQuestionIndex === TOTAL_QUESTIONS - 1;
+        endTestButton.style.display = currentQuestionIndex === TOTAL_QUESTIONS - 1 ? 'block' : 'none';
+    }
+
+</script>
+
+</body>
+</html>
