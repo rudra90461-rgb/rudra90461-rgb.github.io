@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - Class 11 Full Syllabus (Set 7 - Advanced)</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<style>
+.watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 10vw;
+    font-weight: bold;
+    color: #000000;
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 9999;
+    white-space: nowrap;
+}
+</style>
+<div class="watermark">Neet@Rudra98</div>
+
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Class 11 Full Syllabus (Set 7 - Advanced)</h2>
+        <p style="font-size: 1.1em; color: #555;">This is a seventh, unique test with <strong style="color: #d32f2f;">90 questions</strong> from all Class 11 chapters.</p>
+        <p style="font-size: 1.1em; color: #555;">The questions are randomly jumbled to simulate the real exam pattern.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* * QUESTION DATA ARRAY
+    * This array contains 90 unique NEET-level questions from all 22 chapters of Class 11 Biology.
+    */
+    const questions = [
+        // Unit 1
+        { question: "Which taxonomic aid provides an index to the plant species found in a particular area?", options: ["Flora", "Manual", "Monograph", "Catalogue"], answer: "Flora" },
+        { question: "Assertion (A): Prions are abnormally folded infectious proteins.<br>Reason (R): Prions cause diseases like Bovine Spongiform Encephalopathy (BSE) in cattle and Cr-Jacob disease in humans.", options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."], answer: "Both A and R are true and R is the correct explanation of A." },
+        { question: "Which group of plants has a vascular system but lacks seeds?", options: ["Algae", "Bryophytes", "Pteridophytes", "Gymnosperms"], answer: "Pteridophytes" },
+        { question: "An animal that is triploblastic, bilaterally symmetrical, and pseudocoelomate belongs to the phylum:", options: ["Platyhelminthes", "Aschelminthes", "Annelida", "Arthropoda"], answer: "Aschelminthes" },
+
+        // Unit 2
+        { question: "In Bougainvillea, thorns are modifications of:", options: ["Stipules", "Adventitious root", "Axillary bud", "Leaf"], answer: "Axillary bud" },
+        { question: "The floral formula which includes the symbol G(3) indicates:", options: ["A syncarpous, superior ovary with three carpels", "An apocarpous, superior ovary with three carpels", "A syncarpous, inferior ovary with three carpels", "An apocarpous, inferior ovary with three carpels"], answer: "A syncarpous, superior ovary with three carpels" },
+        { question: "The heart of a cockroach is:", options: ["Ventral, 10-chambered", "Dorsal, 13-chambered", "Ventral, 4-chambered", "Dorsal, 2-chambered"], answer: "Dorsal, 13-chambered" },
+        { question: "The '9+0' microtubule arrangement is characteristic of:", options: ["Cilia", "Flagella", "Centrioles", "Axoneme"], answer: "Centrioles" },
+
+        // Unit 3
+        { question: "The 'fluid mosaic model' explains the structure of the:", options: ["Cell wall", "Plasma membrane", "Nucleus", "Ribosome"], answer: "Plasma membrane" },
+        { question: "Which cell organelle is known as the 'suicidal bag' of the cell?", options: ["Ribosomes", "Lysosomes", "Mitochondria", "Vacuoles"], answer: "Lysosomes" },
+        { question: "A chromosome with a centromere in the middle is called:", options: ["Metacentric", "Sub-metacentric", "Acrocentric", "Telocentric"], answer: "Metacentric" },
+        { question: "The most abundant protein in the whole of the biosphere is:", options: ["Collagen", "RuBisCO", "Insulin", "Haemoglobin"], answer: "RuBisCO" },
+        { question: "A nucleoside is composed of:", options: ["A nitrogenous base and a phosphate group", "A nitrogenous base and a pentose sugar", "A pentose sugar and a phosphate group", "A base, a sugar, and a phosphate"], answer: "A nitrogenous base and a pentose sugar" },
+        { question: "The stage of the cell cycle where the cell remains metabolically active but does not proliferate is:", options: ["G1", "S", "G2", "G0"], answer: "G0" },
+        { question: "Crossing over occurs during which phase of meiosis?", options: ["Leptotene", "Zygotene", "Pachytene", "Diplotene"], answer: "Pachytene" },
+
+        // Unit 4
+        { question: "The movement of water through the interconnected protoplasts is the ____ pathway.", options: ["Apoplast", "Symplast", "Vacuolar", "Transmembrane"], answer: "Symplast" },
+        { question: "The enzyme nitrogenase is a Mo-Fe protein. Its primary role is to:", options: ["Convert nitrate to nitrite", "Convert atmospheric N2 to ammonia", "Decompose organic nitrogen", "Convert ammonia to nitrate"], answer: "Convert atmospheric N2 to ammonia" },
+        { question: "The first stable product of CO2 fixation in C4 plants is:", options: ["3-phosphoglycerate (3-PGA)", "Oxaloacetic acid (OAA)", "Ribulose-1,5-bisphosphate (RuBP)", "Malic acid"], answer: "Oxaloacetic acid (OAA)" },
+        { question: "The Respiratory Quotient (RQ) for fats is typically:", options: ["1", "Greater than 1", "Less than 1", "Infinite"], answer: "Less than 1" },
+        { question: "Which plant hormone is a gaseous in nature?", options: ["Auxin", "Gibberellin", "Cytokinin", "Ethylene"], answer: "Ethylene" },
+        
+        // Unit 5
+        { question: "The enzyme that activates trypsinogen is:", options: ["Pepsin", "Enterokinase", "Chymotrypsin", "Carboxypeptidase"], answer: "Enterokinase" },
+        { question: "The oxygen dissociation curve is shifted to the right by:", options: ["High pO2", "Low pCO2", "Low temperature", "High H+ concentration"], answer: "High H+ concentration" },
+        { question: "The T-wave in an ECG represents:", options: ["Atrial depolarisation", "Ventricular depolarisation", "Ventricular repolarisation", "Atrial repolarisation"], answer: "Ventricular repolarisation" },
+        { question: "The process of removing nitrogenous waste from the blood using an 'artificial kidney' is:", options: ["Micturition", "Hemodialysis", "Kidney transplantation", "Uremia"], answer: "Hemodialysis" },
+        { question: "The joint between the atlas and axis is a:", options: ["Hinge joint", "Saddle joint", "Pivot joint", "Fibrous joint"], answer: "Pivot joint" },
+        { question: "The photoreceptor cells responsible for twilight vision are the:", options: ["Rods", "Cones", "Ganglion cells", "Bipolar cells"], answer: "Rods" },
+        { question: "Which hormone is primarily secreted by the corpus luteum?", options: ["Estrogen", "Progesterone", "Testosterone", "FSH"], answer: "Progesterone" },
+        { question: "Which of the following is a homopolymer of fructose?", options: ["Starch", "Glycogen", "Cellulose", "Inulin"], answer: "Inulin" },
+        { question: "Which stage of meiosis is characterized by the appearance of chiasmata?", options: ["Leptotene", "Zygotene", "Pachytene", "Diplotene"], answer: "Diplotene" },
+        { question: "Which plant hormone is used to promote flowering in pineapples?", options: ["Gibberellin", "Cytokinin", "Auxin", "Abscisic acid"], answer: "Auxin" },
+        { question: "The total volume of air a person can inspire after a normal expiration is:", options: ["Tidal volume", "Inspiratory capacity", "Vital capacity", "Total lung capacity"], answer: "Inspiratory capacity" },
+        { question: "The QRS complex in an ECG represents:", options: ["Atrial depolarisation", "Ventricular depolarisation", "Ventricular repolarisation", "Atrial repolarisation"], answer: "Ventricular depolarisation" },
+        { question: "Myasthenia gravis affects the:", options: ["Bones", "Neuromuscular junction", "Synovial joints", "Cartilage"], answer: "Neuromuscular junction" },
+        { question: "Which part of the brain is the main coordinating centre for sensory and motor signaling?", options: ["Cerebrum", "Cerebellum", "Thalamus", "Hypothalamus"], answer: "Thalamus" },
+        { question: "Graves' disease is caused by:", options: ["Hyposecretion of thyroid", "Hypersecretion of thyroid", "Hyposecretion of adrenal cortex", "Hypersecretion of adrenal cortex"], answer: "Hypersecretion of thyroid" },
+        { question: "The 'H' zone in a sarcomere disappears during:", options: ["Muscle relaxation", "Muscle contraction", "Muscle fatigue", "The resting state"], answer: "Muscle contraction" },
+        { question: "The blind spot in the retina is where:", options: ["Only cones are present", "The fovea is located", "The optic nerve and blood vessels leave the eye", "Image formation is sharpest"], answer: "The optic nerve and blood vessels leave the eye" },
+        { question: "The joint between the carpals is an example of a:", options: ["Hinge joint", "Pivot joint", "Gliding joint", "Saddle joint"], answer: "Gliding joint" },
+        { question: "Which of the following is NOT a feature of the B-DNA double helix?", options: ["Antiparallel polarity", "Backbone of sugar-phosphate", "Left-handed coiling", "Base pairing through H-bonds"], answer: "Left-handed coiling" },
+        { question: "The Five Kingdom Classification was proposed by:", options: ["Linnaeus", "Whittaker", "Aristotle", "Darwin"], answer: "Whittaker" },
+        { question: "A bivalent consists of:", options: ["Two chromatids and one centromere", "Two chromatids and two centromeres", "Four chromatids and two centromeres", "Four chromatids and four centromeres"], answer: "Four chromatids and two centromeres" },
+        { question: "Which element is a constituent of the ring structure of chlorophyll?", options: ["Iron", "Magnesium", "Manganese", "Calcium"], answer: "Magnesium" },
+        { question: "The net gain of ATP during anaerobic respiration from one molecule of glucose is:", options: ["2", "4", "36", "38"], answer: "2" },
+        { question: "The 'stress hormone' in plants is:", options: ["Auxin", "Gibberellin", "Cytokinin", "Abscisic acid"], answer: "Abscisic acid" },
+        { question: "The small finger-like foldings in the small intestine are called:", options: ["Villi", "Rugae", "Haustra", "Taeniae coli"], answer: "Villi" },
+        { question: "The total volume of air accommodated in the lungs at the end of a forced inspiration is called:", options: ["Vital Capacity", "Total Lung Capacity", "Inspiratory Capacity", "Expiratory Capacity"], answer: "Total Lung Capacity" },
+        { question: "The 'pacemaker' of the human heart is the:", options: ["AV node", "SA node", "Bundle of His", "Purkinje fibres"], answer: "SA node" },
+        { question: "The process of removing nitrogenous waste from the blood using an 'artificial kidney' is:", options: ["Micturition", "Hemodialysis", "Kidney transplantation", "Uremia"], answer: "Hemodialysis" },
+        { question: "The joint between the atlas and axis is a:", options: ["Hinge joint", "Saddle joint", "Pivot joint", "Fibrous joint"], answer: "Pivot joint" },
+        { question: "Which hormone is primarily secreted by the corpus luteum?", options: ["Estrogen", "Progesterone", "Testosterone", "FSH"], answer: "Progesterone" },
+        { question: "Which of the following is NOT a part of the appendicular skeleton?", options: ["Bones of the limbs", "Pectoral girdle", "Pelvic girdle", "Vertebral column"], answer: "Vertebral column" },
+        { question: "The eyeball is composed of three layers; the middle layer is the:", options: ["Sclera", "Choroid", "Retina", "Cornea"], answer: "Choroid" },
+        { question: "Assertion (A): The hypothalamus contains neurosecretory cells called nuclei.<br>Reason (R): These nuclei produce hormones that regulate the synthesis and secretion of pituitary hormones.", options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."], answer: "Both A and R are true and R is the correct explanation of A." },
+        { question: "In the citric acid cycle, how many total molecules of CO2 are evolved per molecule of glucose?", options: ["2", "4", "6", "8"], answer: "4" },
+        { question: "Which taxonomical aid provides an index to the plant species found in a particular area?", options: ["Flora", "Manual", "Monograph", "Catalogue"], answer: "Flora" },
+        { question: "Assertion (A): Prions are abnormally folded infectious proteins.<br>Reason (R): Prions cause diseases like Bovine Spongiform Encephalopathy (BSE) in cattle and Cr-Jacob disease in humans.", options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."], answer: "Both A and R are true and R is the correct explanation of A." },
+        { question: "Which group of plants has a vascular system but lacks seeds?", options: ["Algae", "Bryophytes", "Pteridophytes", "Gymnosperms"], answer: "Pteridophytes" },
+        { question: "An animal that is triploblastic, bilaterally symmetrical, and pseudocoelomate belongs to the phylum:", options: ["Platyhelminthes", "Aschelminthes", "Annelida", "Arthropoda"], answer: "Aschelminthes" },
+        { question: "In Bougainvillea, thorns are modifications of:", options: ["Stipules", "Adventitious root", "Axillary bud", "Leaf"], answer: "Axillary bud" },
+        { question: "The floral formula which includes the symbol G(3) indicates:", options: ["A syncarpous, superior ovary with three carpels", "An apocarpous, superior ovary with three carpels", "A syncarpous, inferior ovary with three carpels", "An apocarpous, inferior ovary with three carpels"], answer: "A syncarpous, superior ovary with three carpels" },
+        { question: "The heart of a cockroach is:", options: ["Ventral, 10-chambered", "Dorsal, 13-chambered", "Ventral, 4-chambered", "Dorsal, 2-chambered"], answer: "Dorsal, 13-chambered" },
+        { question: "Which of the following is an aromatic amino acid?", options: ["Valine", "Leucine", "Tyrosine", "Glycine"], answer: "Tyrosine" },
+        { question: "The enzyme that joins two molecules by forming new covalent bonds, utilizing ATP, belongs to the class:", options: ["Hydrolases", "Lyases", "Ligases", "Transferases"], answer: "Ligases" },
+        { question: "The phase of the cell cycle where the cell exits the cycle and enters a quiescent, non-dividing stage is:", options: ["G1", "S", "G2", "G0"], answer: "G0" },
+        { question: "The dissolution of the synaptonemal complex and the appearance of chiasmata are characteristic of which stage?", options: ["Leptotene", "Zygotene", "Pachytene", "Diplotene"], answer: "Diplotene" },
+        { question: "If a cell with a solute potential of -0.7 MPa is placed in a solution with a water potential of -0.5 MPa, what will be the direction of net water movement?", options: ["From the cell to the solution", "From the solution to the cell", "There will be no net movement", "It cannot be determined"], answer: "From the solution to the cell" },
+        { question: "The enzyme nitrogenase is a Mo-Fe protein. Its primary role is to:", options: ["Convert nitrate to nitrite", "Convert atmospheric N2 to ammonia", "Decompose organic nitrogen", "Convert ammonia to nitrate"], answer: "Convert atmospheric N2 to ammonia" },
+        { question: "The first stable product of CO2 fixation in C3 plants is a ____ carbon compound.", options: ["2", "3", "4", "5"], answer: "3" },
+        { question: "The Respiratory Quotient (RQ) is greater than 1 when the respiratory substrate is:", options: ["Carbohydrate", "Fat", "Protein", "Organic acid"], answer: "Organic acid" },
+        { question: "Which plant hormone is known as the 'stress hormone'?", options: ["Auxin", "Gibberellin", "Cytokinin", "Abscisic acid (ABA)"], answer: "Abscisic acid (ABA)" },
+        { question: "The enzyme that activates trypsinogen in the small intestine is:", options: ["Pepsin", "Enterokinase", "Chymotrypsin", "Carboxypeptidase"], answer: "Enterokinase" },
+        { question: "The oxygen dissociation curve is shifted to the right by all of the following EXCEPT:", options: ["High pCO2", "High temperature", "Low pH", "Low pCO2"], answer: "Low pCO2" },
+        { question: "The QRS complex in an ECG represents:", options: ["Atrial depolarisation", "Ventricular depolarisation", "Ventricular repolarisation", "Atrial repolarisation"], answer: "Ventricular depolarisation" },
+        { question: "The part of the nephron impermeable to water is the:", options: ["PCT", "Descending limb of Henle's loop", "Ascending limb of Henle's loop", "Collecting duct"], answer: "Ascending limb of Henle's loop" },
+        { question: "The functional unit of muscle contraction is the:", options: ["Sarcolemma", "Sarcoplasm", "Sarcomere", "Z-line"], answer: "Sarcomere" },
+        { question: "The part of the brain that controls body temperature and the urge for eating is the:", options: ["Cerebrum", "Cerebellum", "Pons", "Hypothalamus"], answer: "Hypothalamus" },
+        { question: "The photoreceptor cells responsible for colour vision are the:", options: ["Rods", "Cones", "Ganglion cells", "Bipolar cells"], answer: "Cones" },
+        { question: "Hormones are non-nutrient chemicals which act as:", options: ["Intracellular messengers", "Intercellular messengers", "Enzymes", "Energy sources"], answer: "Intercellular messengers" },
+        { question: "Which hormone is also known as the 'stress hormone' in animals?", options: ["Adrenaline", "Noradrenaline", "Cortisol", "Thyroxine"], answer: "Cortisol" },
+        { question: "The 'dikaryon' stage is characteristic of:", options: ["Phycomycetes", "Ascomycetes and Basidiomycetes", "Deuteromycetes", "All fungi"], answer: "Ascomycetes and Basidiomycetes" },
+        { question: "The edible part of a coconut is the:", options: ["Mesocarp", "Endosperm", "Pericarp", "Epicarp"], answer: "Endosperm" },
+        { question: "The heart of a cockroach has ____ chambers.", options: ["4", "10", "13", "16"], answer: "13" },
+        { question: "The '9+0' microtubule arrangement is characteristic of:", options: ["Cilia", "Flagella", "Centrioles", "Axoneme"], answer: "Centrioles" },
+        { question: "The most abundant protein in the animal world is:", options: ["RuBisCO", "Collagen", "Insulin", "Haemoglobin"], answer: "Collagen" },
+        { question: "The separation of homologous chromosomes occurs during:", options: ["Anaphase I", "Anaphase II", "Mitotic Anaphase", "Metaphase I"], answer: "Anaphase I" },
+        { question: "The force responsible for pulling water up a tall tree is primarily:", options: ["Root pressure", "Transpiration pull", "Capillary action", "Active transport"], answer: "Transpiration pull" },
+        { question: "The enzyme nitrogenase is highly sensitive to:", options: ["Carbon dioxide", "Molecular oxygen", "Nitrogen", "Ammonia"], answer: "Molecular oxygen" },
+        { question: "The net gain of ATP during anaerobic respiration from one molecule of glucose is:", options: ["2", "4", "36", "38"], answer: "2" },
+        { question: "The phenomenon of apical dominance is caused by:", options: ["Auxins", "Gibberellins", "Cytokinins", "ABA"], answer: "Auxins" },
+        { question: "The enzyme enterokinase activates:", options: ["Pepsinogen", "Trypsinogen", "Chymotrypsinogen", "Procarboxypeptidase"], answer: "Trypsinogen" }
+    ];
+
+    // Function to shuffle the questions array randomly (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+
+    const TOTAL_QUESTIONS_EXPECTED = 90; 
+    // Unique key for this specific test's local storage
+    const storageKey = 'class11FullTestSet7History'; 
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null); 
+    let timerInterval;
+    const timePerQuestion = 45; 
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+
+    // Function to display progress from localStorage
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = ''; // Clear existing rows
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            // Display latest attempt first
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    // Function to save progress to localStorage
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        
+        // Keep only the last 5 attempts
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+
+    // Helper function to display the custom modal
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+
+        // Reset buttons
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+
+        // Clear previous listeners
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        
+        if (questions.length !== TOTAL_QUESTIONS_EXPECTED) {
+            const warningMessage = `Warning: The test size is configured for ${TOTAL_QUESTIONS_EXPECTED} questions, but ${questions.length} questions were found. Do you want to start?`;
+            
+            showModal(warningMessage, 'confirm', (confirmed) => {
+                if (confirmed) {
+                    startTestSequence();
+                }
+            });
+            return;
+        }
+        
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        
+        // NEW: Shuffle questions every time a new test starts
+        shuffleArray(questions);
+
+        // Resetting state for a new test run
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    // Core Functions
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option; // Options are plain text, so textContent is safer
+            
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0; 
+        
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        // Save the progress
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        
+        // Update the progress tracker when restarting
+        displayProgress();
+        
+        updateTrackerButtons();
+        createTrackerButtons(); 
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize the app
+    createTrackerButtons();
+    displayProgress(); // Display progress when the page first loads
+
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
+</body>
+</html>
