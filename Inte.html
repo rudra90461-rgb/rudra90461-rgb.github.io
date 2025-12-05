@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBPS PO AI Interview Panel</title>
+    <style>
+        /* CSS: Styling the Interview Panel */
+        :root {
+            --primary: #1a237e; /* Banking Blue */
+            --secondary: #f5f6fa;
+            --accent: #c62828;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--secondary);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 { color: var(--primary); font-size: 1.5rem; margin-bottom: 5px; }
+        .badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; }
+        
+        /* Sections */
+        .screen { display: none; animation: fadeIn 0.5s; }
+        .active { display: block; }
+
+        /* Start Screen */
+        .btn-start {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-start:active { transform: scale(0.95); }
+
+        /* Interview Screen */
+        .avatar {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+        .question-box {
+            background: #e8eaf6;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .status { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 10px; }
+        
+        .mic-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .mic-active { animation: pulse 1.5s infinite; background: #27ae60; }
+
+        /* Report Screen */
+        .score-card {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .review-item {
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            font-size: 0.9rem;
+        }
+        .review-q { font-weight: bold; color: var(--primary); }
+        .review-a { color: #555; margin-top: 5px; font-style: italic; }
+        .review-f { color: #27ae60; margin-top: 5px; font-weight: 500; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(39, 174, 96, 0); } 100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="startScreen" class="screen active">
+            <div style="font-size: 4rem;">🏦</div>
+            <h1>IBPS PO Interview Bot</h1>
+            <p>Mock Interview Panel (Mains Cleared)</p>
+            <hr>
+            <p style="font-size: 0.9rem; color: #666;">
+                • 10 Questions (Banking, HR, Situational)<br>
+                • AI Voice Interaction<br>
+                • Detailed Performance Analysis
+            </p>
+            <button class="btn-start" onclick="startInterview()">Start Interview</button>
+        </div>
+
+        <div id="interviewScreen" class="screen">
+            <span class="badge" id="progressBadge">Question 1/10</span>
+            <div class="avatar">👨‍💼</div>
+            <div class="status" id="statusText">Interviewer is speaking...</div>
+            
+            <div class="question-box" id="questionText">
+                Hello, please introduce yourself and tell us why you want to join the banking sector?
+            </div>
+
+            <div id="transcript" style="font-size: 0.85rem; color: #666; height: 50px; overflow-y: auto; margin-bottom: 10px; font-style: italic;">
+                (Your answer will appear here...)
+            </div>
+
+            <button class="mic-btn" id="micBtn" onclick="toggleRecording()">🎤</button>
+            <p style="margin-top: 10px; font-size: 0.8rem;">Tap Mic to Answer / Tap again to Submit</p>
+        </div>
+
+        <div id="loadingScreen" class="screen">
+            <div style="font-size: 3rem;">🧠</div>
+            <h2>Analyzing Responses...</h2>
+            <p>Evaluating confidence, banking knowledge, and clarity.</p>
+        </div>
+
+        <div id="reportScreen" class="screen">
+            <h1>Interview Result</h1>
+            <div class="score-card">
+                <h2>Total Score: <span id="finalScore">--</span>/100</h2>
+                <p id="overallFeedback">Good attempt.</p>
+            </div>
+            <div id="detailedReview" style="max-height: 300px; overflow-y: auto;">
+                </div>
+            <button class="btn-start" onclick="location.reload()" style="font-size: 1rem; padding: 10px 30px;">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const totalQuestions = 10;
+        
+        // Simulating AI Generated Questions for IBPS PO
+        const questionBank = [
+            "Briefly introduce yourself and your background.",
+            "Why do you want to join a Public Sector Bank despite the workload?",
+            "What do you understand by the term 'Non-Performing Assets' (NPA)?",
+            "How does the RBI control inflation in the economy?",
+            "If a customer is angry and shouting at the counter, how will you handle them?",
+            "What is the difference between NEFT and RTGS?",
+            "Where do you see yourself in the next 5 years within this organization?",
+            "What are your views on the privatization of banks?",
+            "Explain the concept of 'Repo Rate' to a layman.",
+            "Do you have any questions for the panel?"
+        ];
+
+        // State Variables
+        let currentQIndex = 0;
+        let answers = []; // Stores { question, answer }
+        let recognition;
+        let isRecording = false;
+
+        // --- SPEECH SYNTHESIS (The Interviewer) ---
+        function speak(text, callback) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-IN'; // Indian English
+            utterance.rate = 1;
+            utterance.pitch = 1;
+            
+            utterance.onend = function() {
+                if (callback) callback();
+            };
+            
+            synth.speak(utterance);
+        }
+
+        // --- SPEECH RECOGNITION (The Candidate) ---
+        function initSpeech() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-IN'; // Recognizes Indian accents better
+
+                recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    document.getElementById('transcript').innerText = transcript;
+                };
+
+                recognition.onerror = (event) => {
+                    console.error("Speech Error", event);
+                    alert("Microphone access error. Please ensure permissions are granted.");
+                };
+            } else {
+                alert("Your browser does not support voice input. Please use Chrome on Android/Desktop.");
+            }
+        }
+
+        // --- APP FLOW ---
+
+        function startInterview() {
+            initSpeech();
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('interviewScreen').classList.add('active');
+            playQuestion();
+        }
+
+        function playQuestion() {
+            const qText = questionBank[currentQIndex];
+            document.getElementById('questionText').innerText = qText;
+            document.getElementById('progressBadge').innerText = `Question ${currentQIndex + 1}/${totalQuestions}`;
+            document.getElementById('transcript').innerText = "(Listening...)";
+            document.getElementById('statusText').innerText = "Interviewer is speaking...";
+            document.getElementById('micBtn').disabled = true;
+            document.getElementById('micBtn').style.opacity = "0.5";
+
+            speak(qText, () => {
+                document.getElementById('statusText').innerText = "Ready to answer. Tap Mic.";
+                document.getElementById('micBtn').disabled = false;
+                document.getElementById('micBtn').style.opacity = "1";
+            });
+        }
+
+        function toggleRecording() {
+            const btn = document.getElementById('micBtn');
+            
+            if (!isRecording) {
+                // START RECORDING
+                recognition.start();
+                isRecording = true;
+                btn.classList.add('mic-active');
+                btn.innerText = "⏹"; // Stop icon
+                document.getElementById('statusText').innerText = "Recording answer...";
+            } else {
+                // STOP RECORDING & SUBMIT
+                recognition.stop();
+                isRecording = false;
+                btn.classList.remove('mic-active');
+                btn.innerText = "🎤";
+                
+                // Save Answer
+                const finalAns = document.getElementById('transcript').innerText;
+                answers.push({
+                    question: questionBank[currentQIndex],
+                    userAnswer: finalAns
+                });
+
+                nextQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex < totalQuestions) {
+                // Small delay before next question
+                document.getElementById('statusText').innerText = "Processing...";
+                setTimeout(playQuestion, 1000);
+            } else {
+                finishInterview();
+            }
+        }
+
+        function finishInterview() {
+            document.getElementById('interviewScreen').classList.remove('active');
+            document.getElementById('loadingScreen').classList.add('active');
+            
+            // SIMULATING AI ANALYSIS (Wait 3 seconds)
+            // Note: In a real app, you would send 'answers' array to OpenAI API here.
+            setTimeout(generateReport, 3000);
+        }
+
+        function generateReport() {
+            document.getElementById('loadingScreen').classList.remove('active');
+            document.getElementById('reportScreen').classList.add('active');
+
+            let totalScore = 0;
+            const container = document.getElementById('detailedReview');
+            container.innerHTML = "";
+
+            answers.forEach((item, index) => {
+                // --- MOCK AI LOGIC START ---
+                // Without an API Key, we simulate scoring based on length of answer
+                let score = 0;
+                let feedback = "";
+                
+                if (item.userAnswer.length < 20) {
+                    score = 4;
+                    feedback = "Answer was too short. Needs more elaboration.";
+                } else if (item.userAnswer.includes("don't know")) {
+                    score = 3;
+                    feedback = "It's better to say 'I will read up on that' than 'I don't know'.";
+                } else {
+                    score = Math.floor(Math.random() * (9 - 6) + 6); // Random score 6-9
+                    feedback = "Good articulation. Try to add more specific banking terms.";
+                }
+                // --- MOCK AI LOGIC END ---
+
+                totalScore += score;
+
+                // Create HTML for review
+                const div = document.createElement('div');
+                div.className = 'review-item';
+                div.innerHTML = `
+                    <div class="review-q">Q${index+1}: ${item.question}</div>
+                    <div class="review-a">" ${item.userAnswer} "</div>
+                    <div class="review-f">💡 AI Feedback: ${feedback} (Score: ${score}/10)</div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('finalScore').innerText = totalScore;
+            
+            if(totalScore > 70) document.getElementById('overallFeedback').innerText = "Excellent! You are ready.";
+            else if(totalScore > 40) document.getElementById('overallFeedback').innerText = "Average. Needs improvement in domain knowledge.";
+            else document.getElementById('overallFeedback').innerText = "Needs practice. Work on confidence and length of answers.";
+        }
+
+    </script>
+</body>
+</html>
