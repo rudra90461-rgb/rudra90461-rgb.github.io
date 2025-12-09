@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All India Mock Test - NEET Biology</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+        .option-btn:hover { background-color: #e0e7ff; }
+        .option-btn.selected { background-color: #c7d2fe; border-color: #818cf8; font-weight: 600; }
+        .correct-answer { background-color: #dcfce7; border-left: 4px solid #4ade80; }
+        .incorrect-answer { background-color: #fee2e2; border-left: 4px solid #f87171; }
+        .user-choice-badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; margin-left: 1rem; }
+        .user-correct { background-color: #22c55e; color: white; }
+        .user-incorrect { background-color: #ef4444; color: white; }
+        .tracker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; }
+        .tracker-btn { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 600; transition: all 0.2s; cursor: pointer; }
+        .tracker-btn.not-attempted { background-color: #e2e8f0; color: #475569; }
+        .tracker-btn.attempted { background-color: #93c5fd; color: #1e40af; }
+        .tracker-btn.current { background-color: #4f46e5; color: white; transform: scale(1.1); box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+        
+        /* Match the column styling */
+        .match-col { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.95rem; }
+        .match-row { width: 48%; }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-2 sm:p-4">
+
+    <div id="start-screen" class="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center p-4">
+        <div class="max-w-md w-full bg-indigo-50 p-8 rounded-2xl shadow-xl text-center">
+            <h1 class="text-3xl font-bold text-indigo-800 mb-2">All India Mock Test</h1>
+            <p class="text-slate-600 mb-6 font-medium">NEET Biology (Revised Syllabus)</p>
+            
+            <div class="text-left bg-white p-4 rounded-lg shadow-sm mb-6 text-sm text-slate-700">
+                <p class="mb-2"><strong>Total Questions:</strong> 90</p>
+                <p class="mb-2"><strong>Time:</strong> 60 Minutes</p>
+                <p class="mb-2"><strong>Format:</strong></p>
+                <ul class="list-disc pl-5 mb-2">
+                    <li>70 One-Liner MCQs</li>
+                    <li>10 Assertion-Reason</li>
+                    <li>5 Statement Based</li>
+                    <li>5 Match the Following</li>
+                </ul>
+                <p class="text-red-600 font-bold">Marking: +4 for Correct, -1 for Incorrect</p>
+            </div>
+
+            <input type="text" id="student-name-input" placeholder="Enter Your Full Name" class="w-full px-4 py-3 rounded-lg border-2 border-indigo-200 focus:border-indigo-600 outline-none mb-4 transition-colors" autocomplete="off">
+            
+            <button onclick="startQuiz()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-all shadow-lg transform hover:scale-105">Start Test</button>
+        </div>
+    </div>
+
+    <div id="quiz-container" class="hidden w-full max-w-4xl bg-white p-6 sm:p-8 rounded-2xl shadow-lg">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 mb-6 gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">Biology Mock Test</h1>
+                <p class="text-slate-600">Candidate: <span id="display-name-header" class="font-semibold text-indigo-700"></span></p>
+            </div>
+            <div class="flex items-center gap-2 sm:gap-4">
+                <button id="tracker-open-btn" class="px-3 py-2 bg-slate-200 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-300 text-sm sm:text-base">Tracker</button>
+                <div id="timer" class="text-xl sm:text-2xl font-bold bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg">01:00:00</div>
+                <button id="header-submit-btn" class="px-3 py-2 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700 text-sm sm:text-base">Submit</button>
+            </div>
+        </div>
+        
+        <div class="bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+
+        <div id="question-area" class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="section-title" class="text-xl font-bold text-indigo-700"></h2>
+                <span id="q-type-badge" class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded uppercase"></span>
+            </div>
+            <p class="text-lg font-semibold text-slate-700 mb-4 leading-relaxed"><span id="question-number" class="mr-2"></span><span id="question-text"></span></p>
+            <div id="options-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-between items-center pt-4 border-t">
+            <button id="prev-btn" class="px-5 py-2.5 bg-slate-200 text-slate-700 font-semibold rounded-lg shadow-sm hover:bg-slate-300 disabled:opacity-50">Previous</button>
+            <span id="question-counter" class="text-slate-600 font-medium"></span>
+            <button id="next-btn" class="px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700">Next</button>
+            <button id="footer-submit-btn" class="hidden px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700">Submit Test</button>
+        </div>
+    </div>
+
+    <div id="question-tracker-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="text-xl font-bold">Question Palette</h3>
+                <button id="tracker-close-btn" class="text-2xl font-bold text-slate-500 hover:text-slate-800">&times;</button>
+            </div>
+            <div class="p-4 overflow-y-auto">
+                <div class="flex justify-around mb-4 text-sm bg-slate-50 p-2 rounded">
+                    <span class="flex items-center"><div class="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>Attempted</span>
+                    <span class="flex items-center"><div class="w-3 h-3 rounded-full bg-slate-300 mr-2"></div>Skipped</span>
+                    <span class="flex items-center"><div class="w-3 h-3 rounded-full bg-indigo-600 mr-2"></div>Current</span>
+                </div>
+                <div id="tracker-grid-container" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="submit-confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm text-center p-6">
+            <h3 class="text-xl font-bold text-slate-800 mb-4">Confirm Submission</h3>
+            <p class="text-slate-600 mb-6">Are you sure you want to end the test? This action cannot be undone.</p>
+            <div class="flex justify-center gap-4">
+                <button id="cancel-submit-btn" class="px-6 py-2 bg-slate-200 text-slate-800 font-semibold rounded-lg hover:bg-slate-300">Cancel</button>
+                <button id="confirm-submit-btn" class="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="results-container" class="hidden w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-slate-800 mb-2 text-center">Scorecard</h2>
+        <p class="text-center text-slate-600 mb-6 text-lg">Student Name: <span id="final-student-name" class="font-bold text-indigo-700"></span></p>
+        
+        <div class="bg-indigo-50 p-6 rounded-lg mb-8 text-center border border-indigo-100">
+            <p class="text-slate-600 font-medium uppercase tracking-wide">Total Score</p>
+            <p class="text-6xl font-bold text-indigo-700 my-2" id="final-score">0</p>
+            <p class="text-slate-600">out of 360</p>
+        </div>
+
+        <h3 class="text-xl font-bold text-slate-700 mb-4">Subject Analysis</h3>
+        <div id="subject-wise-results" class="space-y-4 mb-8"></div>
+        
+        <h3 class="text-xl font-bold text-slate-700 mb-4">Performance Insights</h3>
+        <div id="analysis-advice-container" class="bg-slate-50 p-6 rounded-lg mb-8 text-slate-700 space-y-4"></div>
+
+        <button id="solutions-btn" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors">View Detailed Solutions</button>
+    </div>
+
+    <div id="solutions-container" class="hidden w-full max-w-4xl bg-white p-8 rounded-2xl shadow-lg">
+        <h2 class="text-3xl font-bold text-slate-800 mb-6">Solutions & Explanations</h2>
+        <div id="solutions-content" class="space-y-6 max-h-[80vh] overflow-y-auto pr-4"></div>
+        <button onclick="location.reload()" class="mt-8 w-full py-3 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700">Attempt New Test</button>
+    </div>
+
+    <script>
+        // --- 90 Questions Data (Revised Syllabus) ---
+        // Structure: Botany (45) + Zoology (45)
+        // Types: One Liner (70), A/R (10), Multi (5), Match (5) distributed across.
+        
+        const quizData = [
+            // --- BOTANY (45 Questions) ---
+            
+            // One Liners (35 Questions)
+            { section: "Botany", type: "One Liner", question: "In the classification of plants, which of the following is a characteristic feature of the family Solanaceae?", options: ["a) Epipetalous stamens", "b) Monadelphous stamens", "c) Basal placentation", "d) Zygomorphic flowers"], answer: 0, description: "Solanaceae is characterized by epipetalous stamens (stamens attached to petals) and axile placentation." },
+            { section: "Botany", type: "One Liner", question: "Which stage of meiosis is characterized by the appearance of recombination nodules?", options: ["a) Leptotene", "b) Zygotene", "c) Pachytene", "d) Diplotene"], answer: 2, description: "Recombination nodules appear during the Pachytene stage, where crossing over occurs." },
+            { section: "Botany", type: "One Liner", question: "The primary CO₂ acceptor in C₄ plants is:", options: ["a) RuBP", "b) PGA", "c) PEP", "d) OAA"], answer: 2, description: "In C₄ plants, the primary CO₂ acceptor is Phosphoenolpyruvate (PEP) found in mesophyll cells." },
+            { section: "Botany", type: "One Liner", question: "Which of the following growth regulators is known as the 'stress hormone'?", options: ["a) Auxin", "b) Gibberellin", "c) Abscisic Acid (ABA)", "d) Ethylene"], answer: 2, description: "ABA is called the stress hormone because it stimulates the closure of stomata under water stress." },
+            { section: "Botany", type: "One Liner", question: "In a DNA molecule, the distance between two consecutive base pairs is:", options: ["a) 0.34 nm", "b) 3.4 nm", "c) 34 Å", "d) 20 Å"], answer: 0, description: "The distance between two consecutive base pairs in B-DNA is 0.34 nm (or 3.4 Å)." },
+            { section: "Botany", type: "One Liner", question: "Which of the following algae produces Carrageenan?", options: ["a) Brown algae", "b) Red algae", "c) Blue-green algae", "d) Green algae"], answer: 1, description: "Carrageenan is a hydrocolloid produced by Red algae (e.g., Chondrus)." },
+            { section: "Botany", type: "One Liner", question: "The term 'Systematics' refers to:", options: ["a) Identification and classification of plants and animals", "b) Nomenclature and identification of plants and animals", "c) Diversity of kinds of organisms and their relationship", "d) Different kinds of organisms and their classification"], answer: 2, description: "Systematics deals with the diversity of organisms and their evolutionary relationships." },
+            { section: "Botany", type: "One Liner", question: "Which of the following is NOT a feature of the plasmid?", options: ["a) Circular structure", "b) Transferable", "c) Single-stranded", "d) Independent replication"], answer: 2, description: "Plasmids are double-stranded, circular, extra-chromosomal DNA." },
+            { section: "Botany", type: "One Liner", question: "The first stable product of CO₂ fixation in Sorghum is:", options: ["a) Phosphoglyceric acid", "b) Succinic acid", "c) Oxaloacetic acid", "d) Pyruvic acid"], answer: 2, description: "Sorghum is a C₄ plant. The first stable product is Oxaloacetic acid (OAA)." },
+            { section: "Botany", type: "One Liner", question: "In which of the following forms is iron absorbed by plants?", options: ["a) Ferric", "b) Ferrous", "c) Free element", "d) Both ferric and ferrous"], answer: 0, description: "Plants absorb iron mainly in the form of Ferric ions (Fe³⁺)." },
+            { section: "Botany", type: "One Liner", question: "The phenomenon of pleiotropy is exhibited by:", options: ["a) Haemophilia", "b) Phenylketonuria", "c) Colour blindness", "d) Sickle cell anaemia"], answer: 1, description: "Phenylketonuria is a classic example of pleiotropy where a mutation in one gene affects multiple phenotypic traits." },
+            { section: "Botany", type: "One Liner", question: "Select the correct match regarding the aestivation in Fabaceae family.", options: ["a) Valvate", "b) Twisted", "c) Vexillary", "d) Imbricate"], answer: 2, description: "Fabaceae (Papilionoideae) shows Vexillary aestivation." },
+            { section: "Botany", type: "One Liner", question: "Which among the following is the final electron acceptor in the electron transport system (ETS) of mitochondria?", options: ["a) Cytochrome c", "b) Cytochrome a3", "c) Oxygen", "d) Hydrogen"], answer: 2, description: "Oxygen acts as the final hydrogen acceptor to form water." },
+            { section: "Botany", type: "One Liner", question: "Double fertilization is exhibited by:", options: ["a) Algae", "b) Fungi", "c) Angiosperms", "d) Gymnosperms"], answer: 2, description: "Double fertilization (Syngamy + Triple Fusion) is a unique event to Angiosperms." },
+            { section: "Botany", type: "One Liner", question: "DNA replication in bacteria occurs:", options: ["a) During S phase", "b) Within nucleolus", "c) Prior to fission", "d) Just before transcription"], answer: 2, description: "In prokaryotes, DNA replication occurs prior to fission." },
+            { section: "Botany", type: "One Liner", question: "Spliceosomes are not found in cells of:", options: ["a) Fungi", "b) Animals", "c) Bacteria", "d) Plants"], answer: 2, description: "Spliceosomes remove introns. Bacteria (prokaryotes) generally lack introns, so they lack spliceosomes." },
+            { section: "Botany", type: "One Liner", question: "Which of the following is a secondary metabolite used as a drug?", options: ["a) Abrin", "b) Ricin", "c) Vinblastine", "d) Carotenoids"], answer: 2, description: "Vinblastine and curcumin are secondary metabolites used as drugs." },
+            { section: "Botany", type: "One Liner", question: "The structure that is formed by the stacking of organized flattened membranous sacs in the chloroplasts is:", options: ["a) Stroma lamellae", "b) Stroma", "c) Cristae", "d) Grana"], answer: 3, description: "Grana are piles of thylakoids (flattened sacs)." },
+            { section: "Botany", type: "One Liner", question: "Which of the following is required for the activation of the enzyme nitrogenase?", options: ["a) Oxygen", "b) Anaerobic conditions", "c) Light", "d) High temperature"], answer: 1, description: "Nitrogenase is highly sensitive to molecular oxygen and requires anaerobic conditions." },
+            { section: "Botany", type: "One Liner", question: "The experimental proof for semiconservative replication of DNA was first shown in:", options: ["a) Fungi", "b) Bacterium", "c) Plant", "d) Virus"], answer: 1, description: "Meselson and Stahl first showed it in E. coli (Bacterium)." },
+            { section: "Botany", type: "One Liner", question: "Pollen grains can be stored for several years in liquid nitrogen having a temperature of:", options: ["a) -120°C", "b) -80°C", "c) -196°C", "d) -160°C"], answer: 2, description: "Cryopreservation occurs at -196°C." },
+            { section: "Botany", type: "One Liner", question: "Identify the wrong statement with reference to the gene 'I' that controls ABO blood groups.", options: ["a) The gene (I) has three alleles.", "b) A person will have only two of the three alleles.", "c) When IA and IB are present together, they express same type of sugar.", "d) Allele 'i' does not produce any sugar."], answer: 2, description: "When IA and IB are present, they express their own types of sugars (Co-dominance), not the same type." },
+            { section: "Botany", type: "One Liner", question: "Which of the following pairs is of unicellular algae?", options: ["a) Gelidium and Gracilaria", "b) Anabaena and Volvox", "c) Chlorella and Spirulina", "d) Laminaria and Sargassum"], answer: 2, description: "Chlorella and Spirulina are unicellular algae." },
+            { section: "Botany", type: "One Liner", question: "Ray florets of sunflower have:", options: ["a) Superior ovary", "b) Hypogynous ovary", "c) Half inferior ovary", "d) Inferior ovary"], answer: 3, description: "Flowers of Compositae (Sunflower) have an inferior ovary (Epigynous)." },
+            { section: "Botany", type: "One Liner", question: "The roots that originate from the base of the stem are:", options: ["a) Primary roots", "b) Prop roots", "c) Lateral roots", "d) Fibrous roots"], answer: 3, description: "Fibrous roots originate from the base of the stem (e.g., Wheat)." },
+            { section: "Botany", type: "One Liner", question: "Which of the following statements about inclusion bodies is incorrect?", options: ["a) They are not bound by any membrane system.", "b) They lie free in the cytoplasm.", "c) These represent reserve material in cytoplasm.", "d) They are involved in ingestion of food particles."], answer: 3, description: "Inclusion bodies are for storage (e.g., phosphate granules), not ingestion." },
+            { section: "Botany", type: "One Liner", question: "The process of translation of mRNA to proteins begins as soon as:", options: ["a) The small subunit of ribosome encounters mRNA", "b) The larger subunit of ribosome encounters mRNA", "c) Both the subunits join together to bind with mRNA", "d) The tRNA is activated and the larger subunit of ribosome encounters mRNA"], answer: 0, description: "Translation initiation begins when the small subunit binds to the mRNA." },
+            { section: "Botany", type: "One Liner", question: "In the exponential growth equation Nt = N₀ert, 'e' represents:", options: ["a) The base of number logarithms", "b) The base of natural logarithms", "c) The base of geometric logarithms", "d) The base of exponential logarithms"], answer: 1, description: "'e' is the base of natural logarithms (2.718)." },
+            { section: "Botany", type: "One Liner", question: "Which of the following is a post-fertilization event in flowering plants?", options: ["a) Transfer of pollen grains", "b) Embryo development", "c) Formation of flower", "d) Formation of pollen grains"], answer: 1, description: "Embryo development happens after fertilization." },
+            { section: "Botany", type: "One Liner", question: "Persistent nucellus in the seed is known as:", options: ["a) Chalaza", "b) Perisperm", "c) Hilum", "d) Tegmen"], answer: 1, description: "Residual, persistent nucellus is called perisperm (e.g., Black pepper)." },
+            { section: "Botany", type: "One Liner", question: "Which part of the fruit is edible in Mango?", options: ["a) Epicarp", "b) Mesocarp", "c) Endocarp", "d) Thalamus"], answer: 1, description: "Mango is a drupe; the fleshy mesocarp is edible." },
+            { section: "Botany", type: "One Liner", question: "Vegetative propagule in Agave is:", options: ["a) Rhizome", "b) Bulbil", "c) Offset", "d) Eye"], answer: 1, description: "Agave reproduces vegetatively via bulbils." },
+            { section: "Botany", type: "One Liner", question: "The ovary is half inferior in:", options: ["a) Mustard", "b) Sunflower", "c) Plum", "d) Brinjal"], answer: 2, description: "Plum, Rose, and Peach have perigynous flowers (half-inferior ovary)." },
+            { section: "Botany", type: "One Liner", question: "Filiform apparatus is characteristic feature of:", options: ["a) Aleurone cell", "b) Synergids", "c) Generative cell", "d) Nucellar embryo"], answer: 1, description: "Filiform apparatus in synergids guides the entry of the pollen tube." },
+            { section: "Botany", type: "One Liner", question: "Non-albuminous seeds are produced in:", options: ["a) Maize", "b) Castor", "c) Wheat", "d) Pea"], answer: 3, description: "Pea and Groundnut are non-albuminous (exalbuminous) seeds." },
+
+            // Assertion Reason - Botany (5 Questions)
+            { section: "Botany", type: "Assertion-Reason", question: "Assertion (A): Decomposition is largely an oxygen-requiring process. <br>Reason (R): The rate of decomposition is controlled by chemical composition of detritus and climatic factors.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 1, description: "Both are true facts, but R does not explain why it requires oxygen. It explains the rate control." },
+            { section: "Botany", type: "Assertion-Reason", question: "Assertion (A): The inner wall of the pollen grain is called intine. <br>Reason (R): Intine is made up of sporopollenin.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 2, description: "Intine is made of cellulose and pectin. Exine is made of sporopollenin." },
+            { section: "Botany", type: "Assertion-Reason", question: "Assertion (A): Photorespiration is a wasteful process. <br>Reason (R): In photorespiration, there is synthesis of sugars but no ATP.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 2, description: "R is false because in photorespiration there is NEITHER synthesis of sugars NOR ATP." },
+            { section: "Botany", type: "Assertion-Reason", question: "Assertion (A): In glycolysis, two molecules of ATP are consumed. <br>Reason (R): ATP is consumed during conversion of Glucose to Glucose-6-phosphate and Fructose-6-phosphate to Fructose-1,6-bisphosphate.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 0, description: "The reason correctly lists the energy investment steps." },
+            { section: "Botany", type: "Assertion-Reason", question: "Assertion (A): Apical dominance is caused by auxins. <br>Reason (R): Decapitation usually results in the growth of lateral buds.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 1, description: "Both are true. R demonstrates the effect of removing the source of A, but strictly speaking, the mechanism of R supports A." },
+
+            // Multiple Statement - Botany (2 Questions)
+            { section: "Botany", type: "Statement Based", question: "Statement I: Cleistogamous flowers are invariably autogamous. <br>Statement II: Geitonogamy is functionally cross-pollination but genetically autogamy.", options: ["a) Both Statement I and Statement II are correct", "b) Both Statement I and Statement II are incorrect", "c) Statement I is correct but Statement II is incorrect", "d) Statement I is incorrect but Statement II is correct"], answer: 0, description: "Cleistogamous flowers never open, so they must self-pollinate. Geitonogamy involves pollen transfer between flowers of the same plant." },
+            { section: "Botany", type: "Statement Based", question: "Which of the following statements are correct regarding the Family Malvaceae? <br>I. It includes cotton and okra. <br>II. Stamens are monadelphous. <br>III. Anthers are dithecous. <br>IV. Flowers are actinomorphic.", options: ["a) I, II and III", "b) I, II and IV", "c) II, III and IV", "d) I and II only"], answer: 1, description: "In Malvaceae, anthers are monothecous (one-lobed), not dithecous. Other statements are true." },
+
+            // Match - Botany (3 Questions)
+            { section: "Botany", type: "Match the Following", question: "Match Column I with Column II:<br><div class='match-col mt-2'><div class='match-row'><b>Column I</b><br>A. Gold<br>B. Mo<br>C. Blue-white colonies<br>D. T-DNA</div><div class='match-row'><b>Column II</b><br>1. Agrobacterium<br>2. Insertional inactivation<br>3. Gene Gun<br>4. Nitrogenase</div></div>", options: ["a) A-3, B-4, C-2, D-1", "b) A-3, B-1, C-2, D-4", "c) A-4, B-3, C-1, D-2", "d) A-1, B-2, C-3, D-4"], answer: 0, description: "Gold/Tungsten (Gene Gun), Mo (Nitrogenase component), Blue-white (Insertional Inactivation/LacZ), T-DNA (Agrobacterium)." },
+            { section: "Botany", type: "Match the Following", question: "Match the organism with its life span:<br><div class='match-col mt-2'><div class='match-row'><b>Column I</b><br>A. Rose<br>B. Rice<br>C. Banyan Tree<br>D. Banana</div><div class='match-row'><b>Column II</b><br>1. 3-4 months<br>2. 25 years<br>3. 200+ years<br>4. 5-7 years</div></div>", options: ["a) A-4, B-1, C-3, D-2", "b) A-4, B-2, C-3, D-1", "c) A-1, B-2, C-3, D-4", "d) A-2, B-1, C-3, D-4"], answer: 0, description: "Rice (3-4 months), Rose (5-7 years small bush type, though variable, best fit in context), Banyan (200+), Banana (25 years)." },
+            { section: "Botany", type: "Match the Following", question: "Match the algae with its storage food:<br><div class='match-col mt-2'><div class='match-row'><b>Column I</b><br>A. Chlorophyceae<br>B. Phaeophyceae<br>C. Rhodophyceae</div><div class='match-row'><b>Column II</b><br>1. Floridean Starch<br>2. Mannitol<br>3. Starch</div></div>", options: ["a) A-3, B-1, C-2", "b) A-3, B-2, C-1", "c) A-1, B-2, C-3", "d) A-2, B-3, C-1"], answer: 1, description: "Green algae (Starch), Brown (Mannitol/Laminarin), Red (Floridean starch)." },
+
+            // --- ZOOLOGY (45 Questions) ---
+
+            // One Liners (35 Questions)
+            { section: "Zoology", type: "One Liner", question: "The causative agent of Chikungunya is:", options: ["a) Bacterial", "b) Viral", "c) Protozoan", "d) Helminthic"], answer: 1, description: "Chikungunya is caused by the Chikungunya virus (CHIKV), transmitted by Aedes mosquitoes." },
+            { section: "Zoology", type: "One Liner", question: "Which one of the following is the most abundant protein in the animals?", options: ["a) Haemoglobin", "b) Collagen", "c) Lectin", "d) Insulin"], answer: 1, description: "Collagen is the most abundant protein in the animal kingdom." },
+            { section: "Zoology", type: "One Liner", question: "Goblet cells of the alimentary canal are modified from:", options: ["a) Squamous epithelial cells", "b) Columnar epithelial cells", "c) Chondrocytes", "d) Compound epithelial cells"], answer: 1, description: "Goblet cells are modified columnar epithelial cells that secrete mucus." },
+            { section: "Zoology", type: "One Liner", question: "If the distance between two consecutive base pairs is 0.34 nm and the total number of base pairs of a DNA double helix in a typical mammalian cell is 6.6 × 10⁹ bp, then the length of the DNA is approximately:", options: ["a) 2.0 meters", "b) 2.5 meters", "c) 2.2 meters", "d) 2.7 meters"], answer: 2, description: "6.6 x 10^9 * 0.34 x 10^-9 meters = 2.2 meters." },
+            { section: "Zoology", type: "One Liner", question: "The QRS complex in a standard ECG represents:", options: ["a) Repolarisation of auricles", "b) Depolarisation of auricles", "c) Depolarisation of ventricles", "d) Repolarisation of ventricles"], answer: 2, description: "QRS complex represents ventricular depolarisation." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following contraceptive methods involves a role of hormone?", options: ["a) Barrier method, Lactational amenorrhea, Pills", "b) CuT, Pills, Emergency contraceptive", "c) Pills, Emergency contraceptives, Barrier methods", "d) Lactational amenorrhea, Pills, Emergency contraceptives"], answer: 3, description: "Barrier methods and CuT (Copper T) do not involve hormones. LAM, Pills, and Emergency pills rely on hormonal mechanisms." },
+            { section: "Zoology", type: "One Liner", question: "Select the correct statement regarding the specific disorder of the muscular or skeletal system.", options: ["a) Myasthenia gravis - Autoimmune disorder which inhibits sliding of myosin filaments", "b) Gout - Inflammation of joints due to extra deposition of calcium", "c) Muscular dystrophy - Age related shortening of muscles", "d) Osteoporosis - Decrease in bone mass and higher chance of fractures with advancing age"], answer: 3, description: "Osteoporosis is age-related bone mass reduction. Myasthenia gravis affects ACh receptors, Gout is Uric acid, Dystrophy is genetic." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following is an amino acid derived hormone?", options: ["a) Epinephrine", "b) Ecdysone", "c) Estradiol", "d) Estriol"], answer: 0, description: "Epinephrine (Adrenaline) is a catecholamine derived from the amino acid tyrosine." },
+            { section: "Zoology", type: "One Liner", question: "In the Frog's heart, the ventricle opens into:", options: ["a) Sinus venosus", "b) Conus arteriosus", "c) Truncus arteriosus", "d) Right atrium"], answer: 1, description: "In frogs, the ventricle opens into the conus arteriosus." },
+            { section: "Zoology", type: "One Liner", question: "The partial pressure of oxygen in the alveoli of the lungs is:", options: ["a) Equal to that in the blood", "b) More than that in the blood", "c) Less than that in the blood", "d) Less than that of carbon dioxide"], answer: 1, description: "pO2 in alveoli is 104 mmHg, while in deoxygenated blood it is 40 mmHg." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following immunoglobulins does constitute the largest percentage in human milk?", options: ["a) IgA", "b) IgG", "c) IgD", "d) IgM"], answer: 0, description: "IgA (Secretory IgA) is found in colostrum/milk." },
+            { section: "Zoology", type: "One Liner", question: "Which part of the brain is responsible for thermoregulation?", options: ["a) Cerebrum", "b) Hypothalamus", "c) Corpus callosum", "d) Medulla oblongata"], answer: 1, description: "The hypothalamus contains the body's thermostat." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following is not a sexually transmitted disease?", options: ["a) Trichomoniasis", "b) Encephalitis", "c) Syphilis", "d) Acquired Immuno Deficiency Syndrome (AIDS)"], answer: 1, description: "Encephalitis is inflammation of the brain, usually viral (e.g., mosquito-borne), not STD." },
+            { section: "Zoology", type: "One Liner", question: "A gene locus has two alleles A and a. If the frequency of dominant allele A is 0.4, then what will be the frequency of homozygous dominant, heterozygous and homozygous recessive individuals in the population?", options: ["a) 0.16 (AA); 0.36 (Aa); 0.48 (aa)", "b) 0.36 (AA); 0.48 (Aa); 0.16 (aa)", "c) 0.16 (AA); 0.24 (Aa); 0.36 (aa)", "d) 0.16 (AA); 0.48 (Aa); 0.36 (aa)"], answer: 3, description: "p=0.4, q=0.6. p²(AA)=0.16, 2pq(Aa)=2*0.4*0.6=0.48, q²(aa)=0.36." },
+            { section: "Zoology", type: "One Liner", question: "The shared terminal duct of the reproductive and urinary system in the human male is:", options: ["a) Urethra", "b) Ureter", "c) Vas deferens", "d) Vasa efferentia"], answer: 0, description: "The urethra carries both urine and semen." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following is a restriction endonuclease?", options: ["a) DNase I", "b) RNase", "c) Hind II", "d) Protease"], answer: 2, description: "Hind II was the first restriction endonuclease discovered." },
+            { section: "Zoology", type: "One Liner", question: "The process of separation and purification of expressed protein before marketing is called:", options: ["a) Upstream processing", "b) Downstream processing", "c) Bioprocessing", "d) Post-production processing"], answer: 1, description: "Downstream processing involves separation and purification." },
+            { section: "Zoology", type: "One Liner", question: "Which cell organelle helps in the formation of the acrosome of sperm?", options: ["a) Mitochondria", "b) Golgi complex", "c) Ribosome", "d) Centriole"], answer: 1, description: "The acrosome is a modified Golgi apparatus." },
+            { section: "Zoology", type: "One Liner", question: "Meiotic division of the secondary oocyte is completed:", options: ["a) Prior to ovulation", "b) At the time of copulation", "c) After zygote formation", "d) At the time of fusion of a sperm with an ovum"], answer: 3, description: "The entry of sperm induces the completion of Meiosis II." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following factors is responsible for the formation of concentrated urine?", options: ["a) Hydrostatic pressure during glomerular filtration", "b) Low levels of Antidiuretic Hormone (ADH)", "c) Maintaining hyperosmolarity towards inner medullary interstitium", "d) Secretion of erythropoietin by Juxtaglomerular complex"], answer: 2, description: "The counter-current mechanism creates hyperosmolarity in the medulla, allowing water reabsorption." },
+            { section: "Zoology", type: "One Liner", question: "In which disease does mosquito transmitted pathogen cause chronic inflammation of lymphatic vessels?", options: ["a) Elephantiasis", "b) Ascariasis", "c) Ringworm", "d) Amoebiasis"], answer: 0, description: "Elephantiasis (Filariasis) affects lymphatic vessels." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following is not an autoimmune disease?", options: ["a) Psoriasis", "b) Rheumatoid arthritis", "c) Alzheimer's disease", "d) Vitiligo"], answer: 2, description: "Alzheimer's is a neurodegenerative disease, not autoimmune." },
+            { section: "Zoology", type: "One Liner", question: "Conversion of milk to curd improves its nutritional value by increasing the amount of:", options: ["a) Vitamin D", "b) Vitamin A", "c) Vitamin B12", "d) Vitamin E"], answer: 2, description: "LAB bacteria increase Vitamin B12 content." },
+            { section: "Zoology", type: "One Liner", question: "The infectious stage of Plasmodium that enters the human body is:", options: ["a) Trophozoites", "b) Sporozoites", "c) Female gametocytes", "d) Male gametocytes"], answer: 1, description: "Sporozoites enter via the mosquito bite." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following is a homopolysaccharide?", options: ["a) Heparin", "b) Inulin", "c) Pectin", "d) Hyaluronic acid"], answer: 1, description: "Inulin is a polymer of fructose (homopolymer)." },
+            { section: "Zoology", type: "One Liner", question: "The flippers of Penguins and Dolphins are examples of:", options: ["a) Adaptive radiation", "b) Convergent evolution", "c) Industrial melanism", "d) Natural selection"], answer: 1, description: "They are analogous structures (Convergent evolution)." },
+            { section: "Zoology", type: "One Liner", question: "Identify the correct statement with reference to human digestive system.", options: ["a) Ileum opens into small intestine.", "b) Serosa is the innermost layer of the alimentary canal.", "c) Ileum is a highly coiled part.", "d) Vermiform appendix arises from duodenum."], answer: 2, description: "Ileum is the highly coiled third part of the small intestine." },
+            { section: "Zoology", type: "One Liner", question: "Cuboidal epithelium with brush border of microvilli is found in:", options: ["a) Lining of intestine", "b) Ducts of salivary glands", "c) Proximal convoluted tubule of nephron", "d) Eustachian tube"], answer: 2, description: "PCT has brush border cuboidal epithelium for reabsorption." },
+            { section: "Zoology", type: "One Liner", question: "A decrease in blood pressure/volume will not cause the release of:", options: ["a) Atrial Natriuretic Factor", "b) Aldosterone", "c) ADH", "d) Renin"], answer: 0, description: "ANF is released in response to high blood pressure to lower it. The others increase BP." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following glucose transporters is insulin-dependent?", options: ["a) GLUT I", "b) GLUT II", "c) GLUT III", "d) GLUT IV"], answer: 3, description: "GLUT IV is insulin-dependent." },
+            { section: "Zoology", type: "One Liner", question: "Select the hormone-releasing Intra-Uterine Devices.", options: ["a) Lippes Loop, Multiload 375", "b) Vaults, LNG-20", "c) Multiload 375, Progestasert", "d) Progestasert, LNG-20"], answer: 3, description: "Progestasert and LNG-20 release hormones." },
+            { section: "Zoology", type: "One Liner", question: "In a population of 1000 individuals, 360 belong to genotype AA, 480 to Aa and the remaining 160 to aa. Based on this data, the frequency of allele A in the population is:", options: ["a) 0.4", "b) 0.5", "c) 0.6", "d) 0.7"], answer: 2, description: "Total alleles = 2000. A = 360*2 + 480 = 720 + 480 = 1200. Freq = 1200/2000 = 0.6." },
+            { section: "Zoology", type: "One Liner", question: "The ciliated epithelial cells are required to move particles or mucus in a specific direction. In humans, these cells are mainly present in:", options: ["a) Bile duct and Bronchioles", "b) Fallopian tubes and Pancreatic duct", "c) Eustachian tube and Salivary duct", "d) Bronchioles and Fallopian tubes"], answer: 3, description: "Ciliated epithelium is found in hollow organs like bronchioles and fallopian tubes." },
+            { section: "Zoology", type: "One Liner", question: "Bt cotton variety that was developed by the introduction of toxin gene of Bacillus thuringiensis is resistant to:", options: ["a) Insect pests", "b) Fungal diseases", "c) Plant nematodes", "d) Insect predators"], answer: 0, description: "Bt cotton is resistant to insect pests (Bollworms)." },
+            { section: "Zoology", type: "One Liner", question: "Which of the following statements regarding mitochondria is incorrect?", options: ["a) Mitochondrial matrix contains single circular DNA molecule and ribosomes.", "b) Outer membrane is permeable to monomers of carbohydrates, fats and proteins.", "c) Enzymes of electron transport are embedded in outer membrane.", "d) Inner membrane is convoluted with infoldings."], answer: 2, description: "ETS enzymes are in the Inner membrane, not the outer." },
+
+            // Assertion Reason - Zoology (5 Questions)
+            { section: "Zoology", type: "Assertion-Reason", question: "Assertion (A): All vertebrates are chordates but all chordates are not vertebrates. <br>Reason (R): Notochord is replaced by vertebral column in the adult vertebrates.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 0, description: "Vertebrates are a sub-phylum where the notochord is replaced, hence the assertion." },
+            { section: "Zoology", type: "Assertion-Reason", question: "Assertion (A): Histamine is involved in allergic reactions. <br>Reason (R): Histamine is secreted by basophils and mast cells.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 1, description: "Both are true. R identifies the source, but doesn't explain the mechanism of allergy (vasodilation) directly, though it is related. In NEET keys, this is often B." },
+            { section: "Zoology", type: "Assertion-Reason", question: "Assertion (A): In humans, the sex of the baby is determined by the father. <br>Reason (R): Males produce two types of gametes (sperms) with X and Y chromosomes.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 0, description: "Heterogamety in males (XY) determines the sex." },
+            { section: "Zoology", type: "Assertion-Reason", question: "Assertion (A): Nephrons are of two types: Cortical and Juxtamedullary. <br>Reason (R): Juxtamedullary nephrons have a short loop of Henle that extends only a little into the medulla.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 2, description: "R is false. Cortical nephrons have short loops. Juxtamedullary have long loops." },
+            { section: "Zoology", type: "Assertion-Reason", question: "Assertion (A): Restriction enzymes cut the strand of DNA a little away from the center of the palindrome sites. <br>Reason (R): This leaves single-stranded portions at the ends called sticky ends.", options: ["a) Both A and R are correct and R is the correct explanation of A", "b) Both A and R are correct but R is NOT the correct explanation of A", "c) A is correct but R is not correct", "d) A is not correct but R is correct"], answer: 0, description: "The off-center cut creates the sticky ends which aid in ligation." },
+
+            // Multiple Statement - Zoology (3 Questions)
+            { section: "Zoology", type: "Statement Based", question: "Statement I: The codon 'AUG' codes for methionine and phenylalanine. <br>Statement II: 'AAA' and 'AAG' both codons code for the amino acid lysine.", options: ["a) Both Statement I and Statement II are correct", "b) Both Statement I and Statement II are incorrect", "c) Statement I is correct but Statement II is incorrect", "d) Statement I is incorrect but Statement II is correct"], answer: 3, description: "AUG codes for Methionine only. Phenylalanine is UUU/UUC. Statement II is correct." },
+            { section: "Zoology", type: "Statement Based", question: "Statement I: RNA polymerase binds with Rho factor to terminate the process of transcription in bacteria. <br>Statement II: The coding strand in a transcription unit is copied to an mRNA.", options: ["a) Both Statement I and Statement II are correct", "b) Both Statement I and Statement II are incorrect", "c) Statement I is correct but Statement II is incorrect", "d) Statement I is incorrect but Statement II is correct"], answer: 2, description: "I is correct. II is false; the template strand is copied, not the coding strand." },
+            { section: "Zoology", type: "Statement Based", question: "Identify the correct statements regarding the frog: <br>a. The heart is 3-chambered. <br>b. RBCs are nucleated. <br>c. Uricotelic excretion. <br>d. Respiration via skin, lungs and buccal cavity.", options: ["a) a, b and d", "b) a, c and d", "c) b, c and d", "d) All are correct"], answer: 0, description: "Frogs are ureotelic (urea), not uricotelic." },
+
+            // Match - Zoology (2 Questions)
+            { section: "Zoology", type: "Match the Following", question: "Match the disease with the correct vector/cause:<br><div class='match-col mt-2'><div class='match-row'><b>Column I</b><br>A. Typhoid<br>B. Malaria<br>C. Pneumonia<br>D. Filariasis</div><div class='match-row'><b>Column II</b><br>1. Wuchereria<br>2. Plasmodium<br>3. Salmonella<br>4. Haemophilus</div></div>", options: ["a) A-1, B-3, C-2, D-4", "b) A-3, B-2, C-1, D-4", "c) A-3, B-2, C-4, D-1", "d) A-4, B-1, C-2, D-3"], answer: 2, description: "Typhoid(Salmonella), Malaria(Plasmodium), Pneumonia(Haemophilus/Strep), Filariasis(Wuchereria)." },
+            { section: "Zoology", type: "Match the Following", question: "Match the enzyme with its substrate:<br><div class='match-col mt-2'><div class='match-row'><b>Column I</b><br>A. Lipase<br>B. Nuclease<br>C. Carboxypeptidase<br>D. Dipeptidases</div><div class='match-row'><b>Column II</b><br>1. Dipeptides<br>2. Fats<br>3. Nucleic acids<br>4. Proteins/Peptides</div></div>", options: ["a) A-2, B-3, C-1, D-4", "b) A-3, B-4, C-2, D-1", "c) A-2, B-3, C-4, D-1", "d) A-2, B-1, C-4, D-3"], answer: 2, description: "Lipase-Fats, Nuclease-Nucleic Acids, Carboxy-Proteins/peptides, Dipeptidase-Dipeptides." }
+        ];
+
+        // --- Core Logic ---
+        
+        const startScreen = document.getElementById('start-screen');
+        const nameInput = document.getElementById('student-name-input');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const solutionsContainer = document.getElementById('solutions-container');
+        const trackerModal = document.getElementById('question-tracker-modal');
+        const confirmModal = document.getElementById('submit-confirm-modal');
+        
+        const timerEl = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        const sectionTitleEl = document.getElementById('section-title');
+        const qTypeBadge = document.getElementById('q-type-badge');
+        const questionNumberEl = document.getElementById('question-number');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const questionCounterEl = document.getElementById('question-counter');
+        const displayNameHeader = document.getElementById('display-name-header');
+        const finalStudentName = document.getElementById('final-student-name');
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const footerSubmitBtn = document.getElementById('footer-submit-btn');
+        const headerSubmitBtn = document.getElementById('header-submit-btn');
+        const solutionsBtn = document.getElementById('solutions-btn');
+        const trackerOpenBtn = document.getElementById('tracker-open-btn');
+        const trackerCloseBtn = document.getElementById('tracker-close-btn');
+        const cancelSubmitBtn = document.getElementById('cancel-submit-btn');
+        const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
+
+        let currentQuestion = 0;
+        let userName = "";
+        const userAnswers = new Array(quizData.length).fill(null);
+        let timerInterval;
+
+        function startQuiz() {
+            const name = nameInput.value.trim();
+            if (name === "") {
+                alert("Please enter your name to continue.");
+                return;
+            }
+            userName = name;
+            displayNameHeader.textContent = userName;
+            startScreen.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            
+            loadQuestion(0);
+            startTimer();
+        }
+
+        function startTimer() {
+            let totalSeconds = 60 * 60; // 60 Minutes
+
+            timerInterval = setInterval(() => {
+                totalSeconds--;
+                if (totalSeconds < 0) {
+                    clearInterval(timerInterval);
+                    showResults(); 
+                    return;
+                }
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                if (totalSeconds < 300) { 
+                    timerEl.classList.remove('bg-indigo-100', 'text-indigo-700');
+                    timerEl.classList.add('bg-red-100', 'text-red-700', 'animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            const questionData = quizData[index];
+            sectionTitleEl.textContent = questionData.section;
+            qTypeBadge.textContent = questionData.type;
+            questionNumberEl.textContent = `${index + 1}.`;
+            questionTextEl.innerHTML = questionData.question;
+            
+            optionsContainerEl.innerHTML = '';
+            questionData.options.forEach((option, i) => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = 'option-btn w-full text-left p-4 border-2 border-slate-300 rounded-lg text-slate-700 transition-all';
+                if (userAnswers[index] === i) {
+                    button.classList.add('selected');
+                }
+                button.addEventListener('click', () => selectOption(index, i));
+                optionsContainerEl.appendChild(button);
+            });
+            
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectOption(qIndex, oIndex) {
+            userAnswers[qIndex] = oIndex;
+            loadQuestion(qIndex);
+        }
+
+        function updateNavigation() {
+            prevBtn.disabled = currentQuestion === 0;
+            if (currentQuestion === quizData.length - 1) {
+                nextBtn.classList.add('hidden');
+                footerSubmitBtn.classList.remove('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+                footerSubmitBtn.classList.add('hidden');
+            }
+            questionCounterEl.textContent = `${currentQuestion + 1} / ${quizData.length}`;
+        }
+        
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+        
+        function generateTrackerGrid() {
+            const container = document.getElementById('tracker-grid-container');
+            container.innerHTML = '';
+            const sections = {
+                'Botany': { start: 0, end: 44, el: null },
+                'Zoology': { start: 45, end: 89, el: null }
+            };
+
+            for (const sectionName in sections) {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.innerHTML = `<h4 class="text-lg font-bold mb-2 border-b pb-2 mt-2">${sectionName}</h4>`;
+                const grid = document.createElement('div');
+                grid.className = 'tracker-grid';
+                sections[sectionName].el = grid;
+                sectionDiv.appendChild(grid);
+                container.appendChild(sectionDiv);
+            }
+
+            quizData.forEach((q, i) => {
+                const btn = document.createElement('button');
+                btn.textContent = i + 1;
+                let statusClass = 'not-attempted';
+                if (userAnswers[i] !== null) statusClass = 'attempted';
+                if (i === currentQuestion) statusClass = 'current';
+                btn.className = `tracker-btn ${statusClass}`;
+                btn.onclick = () => {
+                    currentQuestion = i;
+                    loadQuestion(i);
+                    trackerModal.classList.add('hidden');
+                };
+                const section = q.section;
+                if(sections[section]) sections[section].el.appendChild(btn);
+            });
+        }
+        
+        function openConfirmationModal() {
+            confirmModal.classList.remove('hidden');
+        }
+
+        function showResults() {
+            clearInterval(timerInterval);
+            confirmModal.classList.add('hidden');
+            finalStudentName.textContent = userName;
+
+            const subjectStats = {
+                Botany: { correct: 0, incorrect: 0, attempted: 0, total: 45 },
+                Zoology: { correct: 0, incorrect: 0, attempted: 0, total: 45 },
+            };
+
+            userAnswers.forEach((answer, index) => {
+                if (index < quizData.length) {
+                    const section = quizData[index].section;
+                    if (answer !== null) {
+                        subjectStats[section].attempted++;
+                        if (answer === quizData[index].answer) {
+                            subjectStats[section].correct++;
+                        } else {
+                            subjectStats[section].incorrect++;
+                        }
+                    }
+                }
+            });
+
+            const totalCorrect = subjectStats.Botany.correct + subjectStats.Zoology.correct;
+            const totalIncorrect = subjectStats.Botany.incorrect + subjectStats.Zoology.incorrect;
+            const totalScore = (totalCorrect * 4) - (totalIncorrect * 1);
+
+            document.getElementById('final-score').textContent = totalScore;
+            
+            const resultsDiv = document.getElementById('subject-wise-results');
+            resultsDiv.innerHTML = '';
+            for (const subject in subjectStats) {
+                const stats = subjectStats[subject];
+                const subjectScore = (stats.correct * 4) - (stats.incorrect * 1);
+                const unattempted = stats.total - stats.attempted;
+                resultsDiv.innerHTML += `
+                    <div class="bg-slate-100 p-4 rounded-lg">
+                        <h4 class="font-bold text-lg">${subject}</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center mt-2">
+                            <div><p class="font-bold text-2xl">${subjectScore}</p><p class="text-xs text-slate-500">Score</p></div>
+                            <div><p class="font-bold text-2xl text-green-600">${stats.correct}</p><p class="text-xs text-slate-500">Correct</p></div>
+                            <div><p class="font-bold text-2xl text-red-500">${stats.incorrect}</p><p class="text-xs text-slate-500">Incorrect</p></div>
+                            <div><p class="font-bold text-2xl">${stats.attempted}</p><p class="text-xs text-slate-500">Attempted</p></div>
+                            <div><p class="font-bold text-2xl text-slate-400">${unattempted}</p><p class="text-xs text-slate-500">Unattempted</p></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            generateAnalysis(subjectStats, totalScore);
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+        }
+
+        function generateAnalysis(stats, totalScore) {
+            const analysisContainer = document.getElementById('analysis-advice-container');
+            analysisContainer.innerHTML = '';
+            
+            // Overall Performance
+            let overallMsg = "";
+            if (totalScore >= 320) overallMsg = "Outstanding! You are on track for a top medical seat.";
+            else if (totalScore >= 280) overallMsg = "Excellent work. A little more polish on weak areas will get you to the top.";
+            else if (totalScore >= 200) overallMsg = "Good effort. Focus on reducing negative marking.";
+            else overallMsg = "Keep working hard. Focus on NCERT concepts thoroughly.";
+            
+            analysisContainer.innerHTML += `<div class="p-4 bg-indigo-100 border-l-4 border-indigo-600 rounded-r"><h4 class="font-bold text-indigo-800">Overall Verdict</h4><p>${overallMsg}</p></div>`;
+
+            const subjects = Object.keys(stats);
+            subjects.forEach(subject => {
+                const { correct, attempted } = stats[subject];
+                const accuracy = attempted > 0 ? (correct / attempted) * 100 : 0;
+                let advice = `<div class="p-4 border-l-4 rounded-r-lg mt-3 `;
+                let status = '';
+
+                if (accuracy >= 85) {
+                    status = 'Strong';
+                    advice += `border-green-500 bg-green-50"><p><strong class="text-green-700">${subject} (${status}):</strong> Accuracy: ${accuracy.toFixed(1)}%. Great command over concepts.</p>`;
+                } else if (accuracy >= 60) {
+                    status = 'Average';
+                    advice += `border-yellow-500 bg-yellow-50"><p><strong class="text-yellow-700">${subject} (${status}):</strong> Accuracy: ${accuracy.toFixed(1)}%. Review the questions you got wrong.</p>`;
+                } else {
+                    status = 'Weak';
+                    advice += `border-red-500 bg-red-50"><p><strong class="text-red-700">${subject} (${status}):</strong> Accuracy: ${accuracy.toFixed(1)}%. Needs immediate attention and NCERT revision.</p>`;
+                }
+                advice += `</div>`;
+                analysisContainer.innerHTML += advice;
+            });
+        }
+
+        function showSolutions() {
+            const solutionsContent = document.getElementById('solutions-content');
+            solutionsContent.innerHTML = '';
+            quizData.forEach((q, index) => {
+                const solutionBlock = document.createElement('div');
+                solutionBlock.className = 'p-5 rounded-lg border border-slate-200 bg-slate-50';
+                
+                let questionHtml = `
+                    <div class="flex justify-between mb-2">
+                        <span class="text-xs font-bold text-slate-500 uppercase">${q.section} | ${q.type}</span>
+                        <span class="text-xs font-bold text-slate-400">Q${index+1}</span>
+                    </div>
+                    <p class="font-bold text-lg mb-4 text-slate-800">${q.question}</p>`;
+                
+                let optionsHtml = '<div class="space-y-2 mb-4">';
+                q.options.forEach((opt, i) => {
+                    let optionClass = 'p-3 rounded-md border border-slate-200';
+                    let userChoiceBadgeHtml = '';
+                    
+                    if (i === q.answer) {
+                        optionClass = 'p-3 rounded-md bg-green-100 border-green-300 text-green-900 font-medium'; // Correct Answer
+                    }
+                    
+                    if (userAnswers[index] !== null && i === userAnswers[index]) {
+                        if (i !== q.answer) {
+                             optionClass = 'p-3 rounded-md bg-red-100 border-red-300 text-red-900'; // User Wrong
+                             userChoiceBadgeHtml = `<span class="float-right text-xs bg-red-600 text-white px-2 py-1 rounded">Your Answer</span>`;
+                        } else {
+                             userChoiceBadgeHtml = `<span class="float-right text-xs bg-green-600 text-white px-2 py-1 rounded">Your Answer</span>`;
+                        }
+                    }
+                    
+                    optionsHtml += `<div class="${optionClass}">${opt} ${userChoiceBadgeHtml}</div>`;
+                });
+                optionsHtml += '</div>';
+                
+                let explanationHtml = `<div class="mt-4 pt-4 border-t border-slate-200">
+                    <p class="font-semibold text-indigo-700 mb-1">Explanation:</p>
+                    <p class="text-sm text-slate-700 leading-relaxed">${q.description}</p>
+                </div>`;
+                
+                solutionBlock.innerHTML = questionHtml + optionsHtml + explanationHtml;
+                solutionsContent.appendChild(solutionBlock);
+            });
+            resultsContainer.classList.add('hidden');
+            solutionsContainer.classList.remove('hidden');
+        }
+        
+        // --- Event Listeners ---
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        });
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        });
+        
+        footerSubmitBtn.addEventListener('click', openConfirmationModal);
+        headerSubmitBtn.addEventListener('click', openConfirmationModal);
+        
+        cancelSubmitBtn.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+        });
+        confirmSubmitBtn.addEventListener('click', showResults);
+        
+        solutionsBtn.addEventListener('click', showSolutions);
+        trackerOpenBtn.addEventListener('click', () => {
+            generateTrackerGrid();
+            trackerModal.classList.remove('hidden');
+        });
+        trackerCloseBtn.addEventListener('click', () => {
+            trackerModal.classList.add('hidden');
+        });
+        
+        // Initial state is handled by startQuiz triggered by the button in HTML
+    </script>
+</body>
+</html>
