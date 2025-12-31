@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCQPydia: Live NEET Mock Test</title>
+<style>
+    /* --- CSS STYLES --- */
+    body { background-color: #f0ebf8; font-family: 'Segoe UI', Roboto, Arial, sans-serif; padding: 20px; margin: 0; }
+    .container { max-width: 700px; margin: auto; }
+    
+    /* Cards */
+    .card { background: #fff; border-radius: 8px; padding: 22px; margin-bottom: 15px; border: 1px solid #dadce0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { border-top: 10px solid #673ab7; } /* Purple Header */
+    
+    /* Typography */
+    h1 { font-weight: 400; margin-top: 0; font-size: 28px; }
+    p { color: #555; }
+    label { font-weight: 500; display: block; margin-bottom: 10px; font-size: 16px; }
+    
+    /* Inputs */
+    input[type="text"], input[type="email"], input[type="number"], select { 
+        width: 100%; border: none; border-bottom: 1px solid #ccc; 
+        padding: 8px 0; outline: none; font-size: 14px; background: transparent; 
+    }
+    input:focus, select:focus { border-bottom: 2px solid #673ab7; }
+
+    /* Radio Buttons */
+    .radio-group { display: flex; gap: 20px; margin-top: 10px; }
+    .radio-option { display: flex; align-items: center; cursor: pointer; }
+    .radio-option input { transform: scale(1.3); margin-right: 8px; accent-color: #673ab7; }
+    
+    /* Timer & Warning Box */
+    #timerBox {
+        position: fixed; top: 0; left: 0; right: 0;
+        background: #d93025; color: white; padding: 12px;
+        text-align: center; font-weight: bold; font-size: 18px;
+        z-index: 1000; display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    /* Buttons */
+    button { 
+        background: #673ab7; color: #fff; padding: 12px 26px; 
+        border: none; border-radius: 4px; cursor: pointer; width: 100%; 
+        font-size: 16px; font-weight: bold; text-transform: uppercase;
+        transition: background 0.3s;
+    }
+    button:hover { background: #552d9e; }
+    button:disabled { background: #9e9e9e; cursor: not-allowed; }
+
+    /* Result Section */
+    #resultBox { display: none; text-align: center; }
+    .score-circle {
+        width: 120px; height: 120px; background: #673ab7; color: white;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 32px; font-weight: bold; margin: 20px auto;
+        box-shadow: 0 4px 10px rgba(103, 58, 183, 0.4);
+    }
+    .cheat-warning { color: #d93025; font-weight: bold; background: #fce8e6; padding: 10px; border-radius: 4px; margin-top: 10px; }
+    
+    /* Loading Spinner */
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #673ab7; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; display: none; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+    <div id="timerBox">Time Left: <span id="timerText">00:00</span></div>
+
+    <div class="container" style="margin-top: 60px;">
+        
+        <div id="startScreen">
+            <div class="card header">
+                <h1>MCQPydia: Live NEET Mock</h1>
+                <p>Welcome to the live test. Please read the rules carefully.</p>
+                <div style="background:#e8f0fe; padding:15px; border-radius:5px; font-size:14px; color: #1967d2;">
+                    <strong>🛡️ Anti-Cheat Enabled:</strong><br>
+                    1. Do not minimize the browser.<br>
+                    2. Do not switch tabs.<br>
+                    3. Do not split screen.<br>
+                    <em>Any attempt will be recorded and may disqualify you.</em>
+                </div>
+            </div>
+
+            <div class="card">
+                <label>Student Name *</label>
+                <input type="text" id="studentName" placeholder="Enter full name" required>
+            </div>
+            <div class="card">
+                <label>Email ID *</label>
+                <input type="email" id="email" placeholder="Enter email" required>
+            </div>
+            
+            <div class="card">
+                <label>Number of Questions *</label>
+                <input type="number" id="questionCount" placeholder="e.g. 47" min="1" max="200" value="60">
+                <p style="font-size:12px; margin-top:8px; color:#666;">
+                    ⏱️ Time will be calculated automatically (45 sec per question).
+                </p>
+            </div>
+
+            <div class="card">
+                <button onclick="startTest()">Start Test</button>
+            </div>
+        </div>
+
+        <div id="quizForm" style="display:none;">
+            <div id="questionsContainer"></div>
+            
+            <div class="card">
+                <p style="font-size:12px; color:#d93025; text-align:center;">* Once submitted, you cannot change answers.</p>
+                <div class="loader" id="submitLoader"></div>
+                <button type="button" onclick="submitTest()" id="submitBtn">Submit Test</button>
+            </div>
+        </div>
+
+        <div id="resultBox" class="card header">
+            <h1>Test Submitted Successfully!</h1>
+            <p>Here is your instant scorecard:</p>
+            
+            <div class="score-circle">
+                <span id="finalScore">0</span>
+            </div>
+            <p>Total Marks: <span id="totalMarksDisplay">0</span></p>
+            
+            <div id="cheatMessageArea"></div>
+            
+            <p style="margin-top:20px; font-size:13px; color:#555;">
+                Detailed results and rank list will be published on the MCQPydia channel.
+            </p>
+            <button onclick="location.reload()" style="background:#555; margin-top:10px;">Close</button>
+        </div>
+
+    </div>
+
+<script>
+    // =======================================================
+    // ⚙️ SETTINGS & ANSWER KEY
+    // =======================================================
+    
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgN4e7wM_sxLnQMZGg6GvS04ks0BOhKjOKOQKffErbSXLw_q-al2Om7i_JuhmEYWQG/exec";
+
+    // IMPORTANT: Make sure this list is long enough for your custom questions!
+    // If you set 47 questions, you must have 47 answers here.
+    const ANSWER_KEY = [
+        "A", "C", "A", "C", "B", "B", "A", "B", "A", "D", // 1-10
+        "B", "A", "A", "B", "C", "C", "A", "A", "A", "C", // 11-20
+        "C", "B", "A", "A", "D", "C", "C", "A", "B", "A", // 21-30
+        "A", "C", "A", "D", "D", "A", "D", "A", "A", "B", // 31-40
+        "B", "A", "A", "B", "B", "B", "E", "B", "C", "B", // 41-50
+        "B", "B", "C", "D", "A", "B", "C", "D", "A", "B", // 51-60
+        // ... Add more letters if you plan to test more than 60 questions!
+    ];
+
+    // =======================================================
+    // 🚀 SYSTEM LOGIC
+    // =======================================================
+
+    let totalQuestions = 0;
+    let cheatCount = 0;
+    let timeLeft = 0;
+    let timerInterval;
+    let testActive = false;
+
+    // 1. CHEAT DETECTION
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden && testActive) {
+            cheatCount++;
+            document.title = "⚠️ WARNING!";
+        } else {
+            document.title = "MCQPydia Test";
+        }
+    });
+
+    // 2. START TEST (MODIFIED FOR MANUAL INPUT)
+    function startTest() {
+        const name = document.getElementById("studentName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        let qInput = document.getElementById("questionCount").value;
+
+        if(!name || !email) { alert("Please enter Name and Email."); return; }
+        if(!qInput || qInput < 1) { alert("Please enter a valid number of questions."); return; }
+
+        totalQuestions = parseInt(qInput);
+        
+        // Dynamic Time: 45 seconds per question
+        timeLeft = totalQuestions * 45; 
+
+        generateUI(totalQuestions);
+        
+        document.getElementById("startScreen").style.display = "none";
+        document.getElementById("quizForm").style.display = "block";
+        document.getElementById("timerBox").style.display = "block";
+
+        testActive = true;
+        startTimer();
+    }
+
+    // 3. GENERATE QUESTIONS UI
+    function generateUI(num) {
+        const container = document.getElementById("questionsContainer");
+        container.innerHTML = "";
+        for (let i = 1; i <= num; i++) {
+            container.innerHTML += `
+            <div class="card">
+                <label>Q${i}. Select Correct Option</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="Q${i}" value="A"> A</label>
+                    <label class="radio-option"><input type="radio" name="Q${i}" value="B"> B</label>
+                    <label class="radio-option"><input type="radio" name="Q${i}" value="C"> C</label>
+                    <label class="radio-option"><input type="radio" name="Q${i}" value="D"> D</label>
+                </div>
+            </div>`;
+        }
+    }
+
+    // 4. COUNTDOWN TIMER
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            document.getElementById("timerText").innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+            if (timeLeft < 120) document.getElementById("timerBox").style.background = "#b71c1c";
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                testActive = false;
+                alert("Time Up! Submitting automatically.");
+                submitTest();
+            }
+        }, 1000);
+    }
+
+    // 5. SUBMIT & SCORE
+    function submitTest() {
+        clearInterval(timerInterval);
+        testActive = false;
+        document.getElementById("submitBtn").style.display = "none";
+        document.getElementById("submitLoader").style.display = "block";
+        document.getElementById("timerBox").style.display = "none";
+
+        let score = 0;
+        let answersObj = {};
+        
+        for(let i=1; i<=totalQuestions; i++) {
+            let options = document.getElementsByName(`Q${i}`);
+            let selected = null;
+            for(let opt of options) {
+                if(opt.checked) selected = opt.value;
+            }
+            
+            answersObj[`Q${i}`] = selected || "";
+
+            // SCORING LOGIC WITH SAFETY CHECK
+            if (i <= ANSWER_KEY.length) {
+                let correctAns = ANSWER_KEY[i-1];
+                if(selected === correctAns) {
+                    score += 4;
+                } else if(selected !== null && selected !== "") {
+                    score -= 1;
+                }
+            }
+        }
+
+        let payload = {
+            name: document.getElementById("studentName").value,
+            email: document.getElementById("email").value,
+            answers: answersObj,
+            cheatingAttempts: cheatCount,
+            timeTaken: document.getElementById("timerText").innerText,
+            calculatedScore: score
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors", 
+            headers: { "Content-Type": "text/plain" }, 
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            showResult(score, totalQuestions * 4);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Network Error. But your score is: " + score);
+        });
+    }
+
+    function showResult(score, totalMarks) {
+        document.getElementById("quizForm").style.display = "none";
+        document.getElementById("resultBox").style.display = "block";
+        document.getElementById("finalScore").innerText = score;
+        document.getElementById("totalMarksDisplay").innerText = totalMarks;
+
+        if(cheatCount > 0) {
+            document.getElementById("cheatMessageArea").innerHTML = 
+                `<div class="cheat-warning">⚠️ Warning: We detected ${cheatCount} tab switches.</div>`;
+        } else {
+             document.getElementById("cheatMessageArea").innerHTML = 
+                `<div style="color:green; margin-top:10px;">✅ Clean Record: No cheating detected.</div>`;
+        }
+    }
+</script>
+
+</body>
+</html>
