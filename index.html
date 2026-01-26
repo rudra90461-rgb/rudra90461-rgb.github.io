@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shivam Kumar | Official App Store</title>
+    <style>
+        /* General Reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; line-height: 1.6; }
+
+        /* Header Section */
+        header {
+            background: linear-gradient(135deg, #0062cc, #00c6ff);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        header p { font-size: 1.1rem; opacity: 0.9; }
+
+        /* Container */
+        .container {
+            max-width: 1000px;
+            margin: -40px auto 40px; /* Pulls content up slightly */
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* App Cards */
+        .app-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .app-card:hover { transform: translateY(-5px); }
+        
+        /* Icons (using emojis for simplicity) */
+        .icon { font-size: 3rem; margin-bottom: 15px; display: block; }
+        
+        .app-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 10px; color: #0062cc; }
+        .app-desc { font-size: 0.95rem; color: #666; margin-bottom: 20px; min-height: 60px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background-color: #28a745; /* Green for Download */
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn:hover { background-color: #218838; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            border-top: 1px solid #ddd;
+            margin-top: 40px;
+        }
+        .contact-link { color: #0062cc; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Welcome to My App Store</h1>
+        <p>Innovative apps for Education & Entertainment</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="app-card">
+            <span class="icon">🧬</span>
+            <div class="app-title">Biology Practice MCQ</div>
+            <p class="app-desc">Master NEET biology with chapter-wise practice questions and comprehensive mock tests designed for success.</p>
+            <a href="#" class="btn">View on Play Store</a>
+        </div>
+
+        <div class="app-card">
+            <span class="icon">🌾</span>
+            <div class="app-title">AgriExam Pro</div>
+            <p class="app-desc">The ultimate study companion for IBPS AFO and other competitive agriculture exams. Study smarter, not harder.</p>
+            <a href="#" class="btn">View on Play Store</a>
+        </div>
+
+        <div class="app-card">
+            <span class="icon">💼</span>
+            <div class="app-title">Business War Game</div>
+            <p class="app-desc">Strategy meets simulation. Build your empire, manage resources, and dominate the market in this intense business game.</p>
+            <a href="#" class="btn">View on Play Store</a>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Developed by Shivam Kumar</p>
+        <p>Contact Support: <a href="mailto:rudra90461@gmail.com" class="contact-link">rudra90461@gmail.com</a></p>
+        <br>
+        <p>&copy; 2026 All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
