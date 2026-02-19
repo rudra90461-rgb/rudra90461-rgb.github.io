@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Biology Mock Test - The Living World</title>
+    <style>
+        /* Base styling for a clean, professional look */
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #e3f2fd; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #bbdefb;
+            position: relative; /* Needed for watermark positioning */
+            overflow: hidden; /* Keeps watermark contained */
+        }
+        /* NEW: Watermark Styling */
+        .container::before {
+            content: 'MCQ_PYDIA';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 7em;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none; /* Allows clicking through the watermark */
+            z-index: 0; 
+        }
+        /* Screen alignment */
+        #intro-screen, #test-screen, #result-screen, #review-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        /* Header and timer */
+        .timer-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        #question-number, #timer {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1565c0; /* Darker blue for emphasis */
+        }
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 30px;
+            text-align: left;
+            width: 100%;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        /* Options list styling */
+        .options-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .options-list li {
+            background-color: #f0f4f8; /* Very light background for options */
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #cfd8dc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .options-list li:hover {
+            background-color: #e0e7ee;
+            transform: translateY(-1px);
+        }
+        .options-list li.selected {
+            background-color: #c8e6c9; /* Light green for selection */
+            border: 2px solid #4caf50; /* Green border */
+            font-weight: 600;
+        }
+        /* Buttons */
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #1976d2; /* Primary blue */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            flex-grow: 1;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        button:hover {
+            background-color: #1565c0;
+            transform: translateY(-1px);
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .navigation-buttons button {
+            margin-top: 10px; /* For mobile wrap */
+        }
+        #question-tracker-button {
+            background-color: #ff9800; /* Orange for Tracker */
+        }
+        #question-tracker-button:hover {
+            background-color: #fb8c00;
+        }
+        /* Tracker Overlay */
+        #tracker-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .tracker-content {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90%;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tracker-q-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid #1976d2;
+            background-color: #ffffff;
+            color: #1976d2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .tracker-q-btn.attempted {
+            background-color: #4caf50; /* Green for attempted */
+            color: white;
+            border-color: #388e3c;
+        }
+        .tracker-q-btn.current {
+            background-color: #1976d2; /* Blue for current */
+            color: white;
+            border-color: #0d47a1;
+            transform: scale(1.1);
+        }
+        /* Results and Review */
+        .result-stats p {
+            font-size: 1.2em;
+            margin: 10px 0;
+            padding: 5px 0;
+            width: 100%;
+            text-align: left;
+        }
+        .result-stats p.correct { color: #4caf50; font-weight: bold; }
+        .result-stats p.wrong { color: #f44336; font-weight: bold; }
+        .result-stats p.unattempted { color: #ff9800; }
+        #final-score {
+            font-size: 1.8em;
+            color: #1976d2;
+            margin-top: 20px;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+        .review-list {
+            list-style: none;
+            padding: 0;
+            width: 100%;
+            text-align: left;
+        }
+        .review-list li {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+        .review-list .question-text {
+            font-weight: 700;
+            color: #3f51b5;
+        }
+        .review-list .user-answer, .review-list .correct-answer {
+            margin-top: 5px;
+            padding-left: 10px;
+        }
+        .review-list .correct-answer {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        .review-list .wrong-answer-user {
+            color: #f44336;
+            text-decoration: line-through;
+        }
+        /* Modal for alerts/confirms (replaces alert/confirm) */
+        #message-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        .modal-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            flex-grow: 0;
+        }
+        #modal-ok-btn {
+            background-color: #4caf50;
+        }
+        #modal-cancel-btn {
+            background-color: #f44336;
+        }
+
+        /* Progress Tracker Styling */
+        #progress-tracker {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            border-top: 2px solid #1976d2;
+            padding-top: 20px;
+        }
+        #progress-tracker h3 {
+            color: #1565c0;
+            margin-bottom: 15px;
+        }
+        #progress-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        #progress-table th, #progress-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        #progress-table th {
+            background-color: #bbdefb;
+            color: #0d47a1;
+            font-weight: 600;
+        }
+        #progress-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #no-history {
+            color: #757575;
+            font-style: italic;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                max-width: 100%;
+                border-radius: 0;
+            }
+            .navigation-buttons {
+                flex-direction: column;
+            }
+            .navigation-buttons button {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .container::before {
+                font-size: 4em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="password-container" style="background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); text-align: center;">
+    <h2 style="color: #1976d2;">Enter Password to Access Test</h2>
+    <input type="password" id="password-field" placeholder="Password" style="padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 80%; max-width: 300px; text-align: center; font-size: 1.1em; margin-top: 10px;">
+    <button onclick="verifyPassword()" style="margin-top: 20px; padding: 12px 30px;">Enter</button>
+    <p id="password-error" style="color: #d32f2f; margin-top: 15px;"></p>
+</div>
+<div id="main-test-content" style="display: none;"><div class="container">
+
+    <div id="intro-screen">
+        <h1 style="color: #1976d2;">NEET Biology Mock Test</h1>
+        <h2 style="color: #4caf50;">Chapter 1: The Living World</h2>
+        <p style="font-size: 1.1em; color: #555;">This test has <strong style="color: #d32f2f;">90 questions</strong>. The question order is randomized on every attempt.</p>
+        <p style="font-size: 1.1em; color: #555;">Each question has a <strong style="color: #d32f2f;">45-second timer</strong>.</p>
+        <p style="margin-top: 20px;">Enter your name to begin:</p>
+        <input type="text" id="name-input" placeholder="Your Name" required style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; width: 80%; max-width: 300px; text-align: center;">
+        <button id="start-button" style="margin-top: 20px;">Start Test</button>
+
+        <div id="progress-tracker">
+            <h3>Your Progress Tracker (Last 5 Attempts)</h3>
+            <table id="progress-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+             <p id="no-history" style="display: none;">No previous attempts found. Good luck!</p>
+        </div>
+    </div>
+
+    <div id="test-screen" style="display: none;">
+        <div class="timer-container">
+            <span id="question-number">Question 1/90</span>
+            <span id="timer">Time Left: 45s</span>
+        </div>
+        <div id="question-text"></div>
+        <ul id="options-container" class="options-list"></ul>
+        <div class="navigation-buttons">
+            <button id="prev-button" style="display: none;">Previous</button>
+            <button id="next-button">Next</button>
+            <button id="submit-button" style="display: none;">End Test & Submit</button>
+            <button id="question-tracker-button">Question Tracker</button>
+        </div>
+    </div>
+
+    <div id="tracker-overlay">
+        <div class="tracker-content">
+            </div>
+    </div>
+
+    <div id="message-modal">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-ok-btn" style="display:none;">OK</button>
+                <button id="modal-yes-btn" style="display:none;">Yes, Start</button>
+                <button id="modal-cancel-btn" style="display:none;">No, Stay</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="result-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Test Results - NEET Scoring Pattern</h2>
+        <div class="result-stats" style="width: 100%; max-width: 400px; text-align: left;">
+            <p id="total-questions-p"></p>
+            <p id="attempted-p"></p>
+            <p id="unattempted-p"></p>
+            <p id="correct-p" class="correct"></p>
+            <p id="wrong-p" class="wrong"></p>
+            <p id="raw-score"></p>
+            <p id="final-score" style="font-size: 2em; color: #d32f2f; margin-top: 25px;"></p>
+        </div>
+        <button id="show-answers-button" style="margin-top: 30px;">Review Answer Key</button>
+        <button id="restart-button" style="margin-top: 15px;">Restart Test</button>
+    </div>
+
+    <div id="review-screen" style="display: none;">
+        <h2 style="color: #1976d2;">Answer Key Review</h2>
+        <ul id="answers-list" class="review-list"></ul>
+        <button id="restart-from-review-button" style="margin-top: 30px;">Restart Test</button>
+    </div>
+
+</div>
+
+<script>
+    /* * QUESTION DATA ARRAY
+    * This array contains 90 NEET-level questions for NCERT Class 11, Chapter 1 (The Living World).
+    */
+    const questions = [
+        {
+            question: "Which of the following is a defining characteristic of living organisms?",
+            options: ["Growth", "Reproduction", "Metabolism", "All of the above"],
+            answer: "Metabolism"
+        },
+        {
+            question: "In binomial nomenclature, the first word represents the ____ and the second word represents the ____.",
+            options: ["species, genus", "genus, species", "family, genus", "class, order"],
+            answer: "genus, species"
+        },
+        {
+            question: "Assertion (A): Growth cannot be taken as a defining property of living organisms.<br>Reason (R): Non-living objects like mountains, boulders, and sand mounds also grow.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Reproduction is synonymous with growth in which of the following organisms?",
+            options: ["Amoeba", "Yeast", "Bacteria", "All of the above"],
+            answer: "All of the above"
+        },
+        {
+            question: "Taxonomic key is a taxonomic aid used for the identification of organisms. It is based on the contrasting characters generally in a pair called:",
+            options: ["Couplet", "Lead", "Flora", "Manual"],
+            answer: "Couplet"
+        },
+        {
+            question: "The scientific name of mango is *Mangifera indica*. What does 'indica' represent?",
+            options: ["Genus", "Species epithet", "Variety", "Family"],
+            answer: "Species epithet"
+        },
+        {
+            question: "Assertion (A): The sum of all chemical reactions occurring in our body is metabolism.<br>Reason (R): Metabolic reactions can be demonstrated outside the body in a cell-free system.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Which of the following statements is INCORRECT regarding the taxonomic hierarchy?",
+            options: ["As we go down from Kingdom to Species, the number of common characters increases.", "Genus is a group of related species.", "Species is the basic unit of classification.", "Families are characterized on the basis of vegetative characters only."],
+            answer: "Families are characterized on the basis of vegetative characters only."
+        },
+        {
+            question: "What is the correct sequence of taxonomic categories in ascending order?",
+            options: ["Species -> Genus -> Family -> Order -> Class -> Phylum -> Kingdom", "Kingdom -> Phylum -> Class -> Order -> Family -> Genus -> Species", "Species -> Genus -> Family -> Order -> Phylum -> Class -> Kingdom", "Kingdom -> Phylum -> Order -> Family -> Class -> Genus -> Species"],
+            answer: "Species -> Genus -> Family -> Order -> Class -> Phylum -> Kingdom"
+        },
+        {
+            question: "Which taxonomic aid contains the actual account of habitat and distribution of plants of a given area?",
+            options: ["Monograph", "Catalogue", "Flora", "Manual"],
+            answer: "Flora"
+        },
+        {
+            question: "Assertion (A): The smallest unit of classification is a species.<br>Reason (R): A species is a group of individuals which can interbreed among themselves.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Binomial nomenclature was introduced by:",
+            options: ["Carolus Linnaeus", "Julian Huxley", "George Bentham", "A.P. de Candolle"],
+            answer: "Carolus Linnaeus"
+        },
+        {
+            question: "The term 'Systematics' refers to:",
+            options: ["The study of classification of organisms.", "The study of evolutionary relationships among organisms.", "The study of diversity of organisms and their evolutionary relationships.", "The study of different kinds of organisms and their diversity."],
+            answer: "The study of diversity of organisms and their evolutionary relationships."
+        },
+        {
+            question: "Which of the following is a collection of preserved plant specimens mounted on sheets?",
+            options: ["Botanical Garden", "Museum", "Herbarium", "Zoological Park"],
+            answer: "Herbarium"
+        },
+        {
+            question: "Assertion (A): All living organisms are linked to one another.<br>Reason (R): They share a common genetic material to a varying degree.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The famous botanical garden at Kew, England, is a significant taxonomic aid. It provides:",
+            options: ["Ex situ conservation of living plants.", "In situ conservation of living plants.", "A collection of animal skeletons.", "Preserved plant specimens."],
+            answer: "Ex situ conservation of living plants."
+        },
+        {
+            question: "A monograph is a taxonomic aid that provides information on:",
+            options: ["Only one family", "Any one genus", "Any one taxon", "All taxons"],
+            answer: "Any one taxon"
+        },
+        {
+            question: "The process of naming living organisms is called:",
+            options: ["Nomenclature", "Identification", "Classification", "Taxonomy"],
+            answer: "Nomenclature"
+        },
+        {
+            question: "Assertion (A): A living organism is self-replicating, evolving, and self-regulating interactive system.<br>Reason (R): This system is capable of responding to external stimuli.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The term 'New Systematics' was given by:",
+            options: ["Carolus Linnaeus", "Julian Huxley", "A.P. de Candolle", "Theophrastus"],
+            answer: "Julian Huxley"
+        },
+        {
+            question: "Which of the following taxonomic ranks contains organisms most similar to one another?",
+            options: ["Family", "Genus", "Species", "Order"],
+            answer: "Species"
+        },
+        {
+            question: "A plant species, *Solanum tuberosum* (potato), and another plant species, *Solanum melongena* (brinjal), belong to the same:",
+            options: ["Species", "Genus", "Family", "Order"],
+            answer: "Genus"
+        },
+        {
+            question: "Assertion (A): Metabolism is the defining feature of all living organisms.<br>Reason (R): No non-living object exhibits metabolism.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The taxonomical aid which serves as a quick referral system in taxonomic studies is:",
+            options: ["Herbarium", "Museum", "Botanical Garden", "Catalogue"],
+            answer: "Herbarium"
+        },
+        {
+            question: "Family Solanaceae and Convolvulaceae are placed in the Order:",
+            options: ["Polymoniales", "Sapindales", "Poales", "Primates"],
+            answer: "Polymoniales"
+        },
+        {
+            question: "Which of the following statements is correct regarding museums?",
+            options: ["They have living plants for reference.", "They often have collections of preserved plant and animal specimens.", "They are used for ex-situ conservation of animals.", "They primarily deal with the study of fossil plants."],
+            answer: "They often have collections of preserved plant and animal specimens."
+        },
+        {
+            question: "Assertion (A): All organisms, from the prokaryotes to the most complex eukaryotes, can sense and respond to environmental stimuli.<br>Reason (R): Consciousness is a defining property of living organisms.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The term 'Taxonomy' was coined by:",
+            options: ["Julian Huxley", "Carolus Linnaeus", "A.P. de Candolle", "Theophrastus"],
+            answer: "A.P. de Candolle"
+        },
+        {
+            question: "A group of related genera, which have fewer similarities compared to genus and species, constitute a:",
+            options: ["Family", "Order", "Class", "Tribe"],
+            answer: "Family"
+        },
+        {
+            question: "Which of the following is NOT a taxonomic category?",
+            options: ["Species", "Genus", "Phylum", "Herbarium"],
+            answer: "Herbarium"
+        },
+        {
+            question: "Assertion (A): ICBN provides a code for nomenclature of animals.<br>Reason (R): It ensures that each organism has a unique name accepted globally.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is true but R is false."
+        },
+        {
+            question: "The family Felidae includes:",
+            options: ["Dogs", "Cats", "Bears", "Monkeys"],
+            answer: "Cats"
+        },
+        {
+            question: "The biological name of human is *Homo sapiens*. What does *Homo* denote?",
+            options: ["Species", "Genus", "Family", "Class"],
+            answer: "Genus"
+        },
+        {
+            question: "Which of the following is a couplet in a taxonomic key?",
+            options: ["A pair of contrasting characters", "A single character used for identification", "A detailed description of a species", "A list of all species in a genus"],
+            answer: "A pair of contrasting characters"
+        },
+        {
+            question: "Assertion (A): In binomial nomenclature, the first letter of the species epithet is capital.<br>Reason (R): The first letter of the genus name is always capitalized.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is false but R is true."
+        },
+        {
+            question: "The largest taxonomic category is:",
+            options: ["Family", "Order", "Class", "Kingdom"],
+            answer: "Kingdom"
+        },
+        {
+            question: "The living organisms are unexceptionally differentiated from the non-living things on the basis of:",
+            options: ["Reproduction", "Growth and movement", "Interaction with the environment and progressive evolution", "Growth"],
+            answer: "Interaction with the environment and progressive evolution"
+        },
+        {
+            question: "Which of the following are the two components of the binomial name?",
+            options: ["Genus and Class", "Family and Order", "Genus and Species epithet", "Species and Variety"],
+            answer: "Genus and Species epithet"
+        },
+        {
+            question: "Assertion (A): Zoological parks are places where wild animals are kept in protected environments under human care.<br>Reason (R): This provides an opportunity to study their food habits and behaviour.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The term 'Phylum' in biological classification is used interchangeably with:",
+            options: ["Class", "Division", "Family", "Order"],
+            answer: "Division"
+        },
+        {
+            question: "Who wrote the book 'Systema Naturae'?",
+            options: ["Julian Huxley", "Carolus Linnaeus", "A.P. de Candolle", "Theophrastus"],
+            answer: "Carolus Linnaeus"
+        },
+        {
+            question: "The process of identification, nomenclature and classification of organisms is called:",
+            options: ["Morphology", "Anatomy", "Ecology", "Taxonomy"],
+            answer: "Taxonomy"
+        },
+        {
+            question: "Assertion (A): Reproduction is not an all-inclusive defining characteristic of living organisms.<br>Reason (R): Mules, sterile worker bees, and infertile human couples cannot reproduce.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The 'lead' in a taxonomic key refers to:",
+            options: ["The statement accepted from a couplet", "The statement rejected from a couplet", "A pair of contrasting characters", "A detailed description of an organism"],
+            answer: "The statement accepted from a couplet"
+        },
+        {
+            question: "Which of the following is a collection of living plants for reference?",
+            options: ["Herbarium", "Botanical Garden", "Museum", "Zoological Park"],
+            answer: "Botanical Garden"
+        },
+        {
+            question: "The order 'Primata' includes:",
+            options: ["Gorilla, gibbon, and monkey", "Tiger, Lion, and Cat", "Man, dog, and cat", "Horse, zebra, and donkey"],
+            answer: "Gorilla, gibbon, and monkey"
+        },
+        {
+            question: "Assertion (A): All living organisms grow.<br>Reason (R): Increase in mass and increase in number of individuals are twin characteristics of growth.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The group of animals having common characters up to the level of Family is:",
+            options: ["Dog, Cat, Tiger", "Lion, Tiger, Leopard", "Dog, Wolf, Fox", "All of the above"],
+            answer: "All of the above"
+        },
+        {
+            question: "The biological name of wheat is *Triticum aestivum*. Which part of the name is the specific epithet?",
+            options: ["Triticum", "aestivum", "Triticum aestivum", "None of the above"],
+            answer: "aestivum"
+        },
+        {
+            question: "Which of the following is NOT a feature of a key?",
+            options: ["It is analytical in nature.", "It is generally analytical in nature.", "It is used for identification of organisms.", "It is a detailed description of a single taxon."],
+            answer: "It is a detailed description of a single taxon."
+        },
+        {
+            question: "Assertion (A): Botanical gardens are ex-situ conservation sites.<br>Reason (R): They conserve rare and threatened plant species outside their natural habitat.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "A taxonomic category that is a group of related families is:",
+            options: ["Class", "Order", "Genus", "Phylum"],
+            answer: "Order"
+        },
+        {
+            question: "Which of the following is correctly written?",
+            options: ["*Mangifera Indica*", "*Mangifera indica*", "Mangifera indica", "Mangifera Indica"],
+            answer: "*Mangifera indica*"
+        },
+        {
+            question: "What is the common family name for potato, brinjal, and tobacco?",
+            options: ["Solanaceae", "Convolvulaceae", "Poaceae", "Leguminosae"],
+            answer: "Solanaceae"
+        },
+        {
+            question: "Assertion (A): Consciousness is the most complex defining property of living organisms.<br>Reason (R): It is difficult to study consciousness in all organisms, especially in human beings.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is true but R is false."
+        },
+        {
+            question: "The taxonomic aid that provides a list of species found in a particular area, along with their brief description and key for identification is:",
+            options: ["Flora", "Manual", "Catalogue", "Monograph"],
+            answer: "Manual"
+        },
+        {
+            question: "The number of common characteristics decreases as we move from species to kingdom in the taxonomic hierarchy. This is due to:",
+            options: ["More diversity at higher levels", "More similarity at higher levels", "Increased number of organisms", "Decreased number of species"],
+            answer: "More diversity at higher levels"
+        },
+        {
+            question: "Assertion (A): The binomial system of nomenclature was an important step in the history of biology.<br>Reason (R): It provided a universal and standardized naming system for organisms.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The order 'Carnivora' includes families like Felidae and Canidae. What is the family name for dogs?",
+            options: ["Felidae", "Hominidae", "Canidae", "Muscidae"],
+            answer: "Canidae"
+        },
+        {
+            question: "Which of the following is an example of an organism that does not reproduce?",
+            options: ["Bacteria", "Fungi", "Mule", "Amoeba"],
+            answer: "Mule"
+        },
+        {
+            question: "Which taxonomic aid is a single-page collection of preserved plants?",
+            options: ["Herbarium sheet", "Museum", "Flora", "Monograph"],
+            answer: "Herbarium sheet"
+        },
+        {
+            question: "Assertion (A): A biological key is generally analytical in nature.<br>Reason (R): It requires a choice between two contrasting options.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "A living organism's unique and most important defining feature is:",
+            options: ["Growth", "Reproduction", "Ability to sense and respond to the environment", "All of the above"],
+            answer: "Ability to sense and respond to the environment"
+        },
+        {
+            question: "The scientific name of a housefly is:",
+            options: ["*Mangifera indica*", "*Homo sapiens*", "*Musca domestica*", "*Triticum aestivum*"],
+            answer: "*Musca domestica*"
+        },
+        {
+            question: "Taxonomic studies of all known organisms have led to the development of common categories. These are known as:",
+            options: ["Species", "Taxa", "Classification", "Nomenclature"],
+            answer: "Taxa"
+        },
+        {
+            question: "Assertion (A): The first word in a binomial name is the genus, and it starts with a capital letter.<br>Reason (R): The second word is the species epithet, which starts with a small letter.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following is the most inclusive category?",
+            options: ["Class", "Order", "Family", "Genus"],
+            answer: "Class"
+        },
+        {
+            question: "The place where preserved plant and animal specimens are stored for study and reference is a:",
+            options: ["Herbarium", "Museum", "Botanical Garden", "Zoological Park"],
+            answer: "Museum"
+        },
+        {
+            question: "A group of individuals with fundamental similarities is a:",
+            options: ["Genus", "Species", "Family", "Order"],
+            answer: "Species"
+        },
+        {
+            question: "Assertion (A): Taxa differ at different levels of classification.<br>Reason (R): They represent categories that are distinct biological entities.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The order 'Sapindales' includes which of the following families?",
+            options: ["Solanaceae", "Poaceae", "Anacardiaceae", "Polymoniales"],
+            answer: "Anacardiaceae"
+        },
+        {
+            question: "The name of the author appears after the species epithet. This is a rule of:",
+            options: ["Binomial nomenclature", "Trinomial nomenclature", "Polynomial nomenclature", "Taxonomy"],
+            answer: "Binomial nomenclature"
+        },
+        {
+            question: "Which of the following taxonomic aids provides information on a single taxon only?",
+            options: ["Flora", "Manual", "Catalogue", "Monograph"],
+            answer: "Monograph"
+        },
+        {
+            question: "Assertion (A): Growth is an intrinsic property of living organisms.<br>Reason (R): Non-living objects show extrinsic growth by accumulation of material on the surface.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following is an example of a taxonomic aid for identifying organisms in a specific area?",
+            options: ["Flora", "Key", "Herbarium", "All of the above"],
+            answer: "All of the above"
+        },
+        {
+            question: "The term 'taxon' refers to:",
+            options: ["A group of related genera", "A unit of classification representing a rank", "A group of organisms that can interbreed", "A single species"],
+            answer: "A unit of classification representing a rank"
+        },
+        {
+            question: "In zoological parks, animals are kept in:",
+            options: ["Cages and enclosures simulating their natural habitats.", "Aquariums and terrariums.", "Protected areas to prevent human interaction.", "Open fields and farmlands."],
+            answer: "Cages and enclosures simulating their natural habitats."
+        },
+        {
+            question: "Assertion (A): The family Felidae and Canidae belong to the same order 'Carnivora'.<br>Reason (R): Both families have some common features like predatory habit and claws.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The word 'hominidae' refers to the family of:",
+            options: ["Dogs", "Cats", "Humans", "Monkeys"],
+            answer: "Humans"
+        },
+        {
+            question: "The study of principles and procedures of biological classification is called:",
+            options: ["Taxonomy", "Systematics", "Nomenclature", "Evolution"],
+            answer: "Taxonomy"
+        },
+        {
+            question: "A group of closely related genera forms a:",
+            options: ["Order", "Family", "Class", "Tribe"],
+            answer: "Family"
+        },
+        {
+            question: "Assertion (A): Manuals are useful in providing information for identification of names of species found in an area.<br>Reason (R): Manuals contain a complete listing and description of all the species of a particular area.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Who is known as the 'Father of Taxonomy'?",
+            options: ["Julian Huxley", "Carolus Linnaeus", "A.P. de Candolle", "Theophrastus"],
+            answer: "Carolus Linnaeus"
+        },
+        {
+            question: "Which of the following is a collection of preserved animal skeletons, insects, and stuffed larger animals?",
+            options: ["Herbarium", "Botanical Garden", "Museum", "Zoological Park"],
+            answer: "Museum"
+        },
+        {
+            question: "The fundamental criteria for the classification of organisms are based on:",
+            options: ["Morphological similarities", "Anatomical features", "Reproductive isolation", "All of the above"],
+            answer: "All of the above"
+        },
+        {
+            question: "Assertion (A): All living organisms, including plants, grow from within.<br>Reason (R): Growth is an intrinsic characteristic of living organisms.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The correct sequence of increasing complexity in taxonomic hierarchy is:",
+            options: ["Species -> Kingdom -> Genus -> Family", "Species -> Genus -> Family -> Order", "Kingdom -> Phylum -> Class -> Species", "Genus -> Species -> Family -> Order"],
+            answer: "Species -> Genus -> Family -> Order"
+        },
+        {
+            question: "Which of the following is a correct name according to ICBN?",
+            options: ["*Mangifera Indica*", "*Solanum tuberosum*", "*Felis domesticus*", "*Canis Familiaris*"],
+            answer: "*Solanum tuberosum*"
+        },
+        {
+            question: "The main purpose of a herbarium is to provide:",
+            options: ["A place for research and conservation of plants.", "A collection of living plants for study.", "A quick reference system for plant identification.", "A place to study animal behavior."],
+            answer: "A quick reference system for plant identification."
+        },
+        {
+            question: "Assertion (A): The biological concept of species is primarily based on reproductive isolation.<br>Reason (R): Members of a species can interbreed to produce fertile offspring.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The scientific names of organisms are written in ____ and are underlined when handwritten.",
+            options: ["Italics", "Bold", "Uppercase", "Italicised"],
+            answer: "Italics"
+        },
+        {
+            question: "The taxonomic category 'Order' is a grouping of:",
+            options: ["Related genera", "Related species", "Related families", "Related classes"],
+            answer: "Related families"
+        },
+        {
+            question: "Which of the following is the most important reason for the immense diversity of living organisms?",
+            options: ["Evolution", "Reproduction", "Growth", "Metabolism"],
+            answer: "Evolution"
+        },
+        {
+            question: "Assertion (A): A living organism cannot be described as an 'interactive' system.<br>Reason (R): A living organism is a collection of interacting parts that function as a whole.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "A is false but R is true."
+        },
+        {
+            question: "The study of flora, fauna, and other aspects of life in a specific geographical region is known as:",
+            options: ["Taxonomy", "Zoogeography", "Biogeography", "Systematics"],
+            answer: "Biogeography"
+        },
+        {
+            question: "Which of the following is not a characteristic of life?",
+            options: ["Growth", "Metabolism", "Reproduction", "Consciousness"],
+            answer: "Consciousness"
+        },
+        {
+            question: "The primary purpose of a key is to facilitate:",
+            options: ["Identification of organisms", "Classification of organisms", "Nomenclature of organisms", "All of the above"],
+            answer: "Identification of organisms"
+        },
+        {
+            question: "Assertion (A): Species are considered the fundamental unit of classification.<br>Reason (R): Species are the most specific and smallest group of organisms that can interbreed.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The taxonomic category of the animal kingdom that includes fishes, amphibians, reptiles, birds, and mammals is:",
+            options: ["Class", "Phylum", "Order", "Kingdom"],
+            answer: "Phylum"
+        },
+        {
+            question: "The correct hierarchy for the classification of a housefly is:",
+            options: ["Musca -> Muscidae -> Diptera -> Insecta -> Arthropoda", "Musca -> Diptera -> Muscidae -> Insecta -> Arthropoda", "Musca -> Insecta -> Diptera -> Muscidae -> Arthropoda", "Musca -> Arthropoda -> Insecta -> Diptera -> Muscidae"],
+            answer: "Musca -> Muscidae -> Diptera -> Insecta -> Arthropoda"
+        },
+        {
+            question: "The binomial system of nomenclature was first published in:",
+            options: ["*Species Plantarum*", "*Genera Plantarum*", "*Philosophia Botanica*", "*Systema Naturae*"],
+            answer: "*Species Plantarum*"
+        },
+        {
+            question: "Assertion (A): The living world is full of variety.<br>Reason (R): This variety is due to the process of evolution.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "Which of the following is a unit of a taxonomic key?",
+            options: ["Lead", "Couplet", "Both A and B", "None of the above"],
+            answer: "Both A and B"
+        },
+        {
+            question: "The family 'Muscidae' is a part of which order?",
+            options: ["Primates", "Diptera", "Carnivora", "Polymoniales"],
+            answer: "Diptera"
+        },
+        {
+            question: "A group of closely related species is known as:",
+            options: ["Family", "Genus", "Order", "Class"],
+            answer: "Genus"
+        },
+        {
+            question: "Assertion (A): A biological key is based on the similarities of organisms.<br>Reason (R): The key is used to differentiate an unknown organism from other known organisms.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true but R is not the correct explanation of A."
+        },
+        {
+            question: "Which of the following is a collection of animals kept in captivity for public display and education?",
+            options: ["Herbarium", "Museum", "Botanical Garden", "Zoological Park"],
+            answer: "Zoological Park"
+        },
+        {
+            question: "The total number of species described so far is approximately:",
+            options: ["1.7-1.8 million", "1.5-1.6 million", "1.9-2.0 million", "2.1-2.2 million"],
+            answer: "1.7-1.8 million"
+        },
+        {
+            question: "Which of the following is a defining property of living organisms but not of non-living objects?",
+            options: ["Growth", "Reproduction", "Metabolism", "All of the above"],
+            answer: "Metabolism"
+        },
+        {
+            question: "Assertion (A): The system of providing a name with two components is called binomial nomenclature.<br>Reason (R): This naming system was provided by Carolus Linnaeus.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The family 'Poaceae' includes which of the following?",
+            options: ["Grasses", "Mangoes", "Potatoes", "Lilies"],
+            answer: "Grasses"
+        },
+        {
+            question: "Which of the following is a collection of preserved plant specimens?",
+            options: ["Botanical Garden", "Herbarium", "Museum", "Zoological Park"],
+            answer: "Herbarium"
+        },
+        {
+            question: "The taxonomic category of the animal kingdom that includes cats, dogs, and lions is:",
+            options: ["Class", "Order", "Family", "Genus"],
+            answer: "Order"
+        },
+        {
+            question: "Assertion (A): The diversity of organisms and their evolutionary relationships are studied under systematics.<br>Reason (R): Taxonomy is the study of classification of organisms.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        },
+        {
+            question: "The scientific name *Panthera leo* for lion, *Panthera tigris* for tiger, and *Panthera pardus* for leopard are examples of:",
+            options: ["Species in the same genus", "Genera in the same family", "Families in the same order", "Orders in the same class"],
+            answer: "Species in the same genus"
+        },
+        {
+            question: "The taxonomic aid that is a repository of dead animals, plants, and fossils is a:",
+            options: ["Herbarium", "Museum", "Botanical Garden", "Zoological Park"],
+            answer: "Museum"
+        },
+        {
+            question: "Which of the following is NOT a taxonomic aid?",
+            options: ["Manual", "Journal", "Catalogue", "Flora"],
+            answer: "Journal"
+        },
+        {
+            question: "Assertion (A): The higher the category, the greater is the difficulty of determining the relationship to other taxa.<br>Reason (R): The number of common characters decreases as we move from species to kingdom.",
+            options: ["Both A and R are true and R is the correct explanation of A.", "Both A and R are true but R is not the correct explanation of A.", "A is true but R is false.", "Both A and R are false."],
+            answer: "Both A and R are true and R is the correct explanation of A."
+        }
+    ];
+
+    // Function to shuffle the questions array randomly (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+
+    const TOTAL_QUESTIONS_EXPECTED = 90; 
+    // Unique key for this specific test's local storage
+    const storageKey = 'theLivingWorldHistory'; 
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null); 
+    let timerInterval;
+    const timePerQuestion = 45; 
+    let timeLeft = timePerQuestion;
+    let userName = '';
+
+    // DOM Elements
+    const introScreen = document.getElementById('intro-screen');
+    const testScreen = document.getElementById('test-screen');
+    const resultScreen = document.getElementById('result-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const nameInput = document.getElementById('name-input');
+    const startButton = document.getElementById('start-button');
+    const questionNumberSpan = document.getElementById('question-number');
+    const timerSpan = document.getElementById('timer');
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const prevButton = document.getElementById('prev-button');
+    const nextButton = document.getElementById('next-button');
+    const submitButton = document.getElementById('submit-button');
+    const trackerButton = document.getElementById('question-tracker-button');
+    const trackerOverlay = document.getElementById('tracker-overlay');
+    const trackerContent = document.querySelector('.tracker-content');
+    
+    // Result screen elements
+    const totalQuestionsP = document.getElementById('total-questions-p');
+    const attemptedP = document.getElementById('attempted-p');
+    const unattemptedP = document.getElementById('unattempted-p');
+    const correctP = document.getElementById('correct-p');
+    const wrongP = document.getElementById('wrong-p');
+    const rawScoreP = document.getElementById('raw-score');
+    const finalScoreP = document.getElementById('final-score');
+    const showAnswersButton = document.getElementById('show-answers-button');
+    const answersList = document.getElementById('answers-list');
+    const restartButton = document.getElementById('restart-button');
+    const restartFromReviewButton = document.getElementById('restart-from-review-button');
+
+    // Modal elements
+    const messageModal = document.getElementById('message-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalOkBtn = document.getElementById('modal-ok-btn');
+    const modalYesBtn = document.getElementById('modal-yes-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+    // Progress Tracker elements
+    const progressTableBody = document.querySelector("#progress-table tbody");
+    const noHistoryMessage = document.getElementById("no-history");
+
+
+    // Function to display progress from localStorage
+    function displayProgress() {
+        const history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        progressTableBody.innerHTML = ''; // Clear existing rows
+
+        if (history.length === 0) {
+            noHistoryMessage.style.display = 'block';
+            document.getElementById('progress-table').style.display = 'none';
+        } else {
+            noHistoryMessage.style.display = 'none';
+            document.getElementById('progress-table').style.display = 'table';
+            // Display latest attempt first
+            history.slice().reverse().forEach(attempt => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attempt.date}</td>
+                    <td>${attempt.name}</td>
+                    <td>${attempt.score}</td>
+                `;
+                progressTableBody.appendChild(row);
+            });
+        }
+    }
+
+    // Function to save progress to localStorage
+    function saveProgress(result) {
+        let history = JSON.parse(localStorage.getItem(storageKey)) || [];
+        history.push(result);
+        
+        // Keep only the last 5 attempts
+        if (history.length > 5) {
+            history = history.slice(history.length - 5);
+        }
+        
+        localStorage.setItem(storageKey, JSON.stringify(history));
+    }
+
+
+    // Helper function to display the custom modal
+    function showModal(message, type, callback) {
+        modalMessage.textContent = message;
+        messageModal.style.display = 'flex';
+
+        // Reset buttons
+        modalOkBtn.style.display = 'none';
+        modalYesBtn.style.display = 'none';
+        modalCancelBtn.style.display = 'none';
+
+        // Clear previous listeners
+        modalOkBtn.onclick = null;
+        modalYesBtn.onclick = null;
+        modalCancelBtn.onclick = null;
+
+        if (type === 'alert') {
+            modalOkBtn.style.display = 'inline-block';
+            modalOkBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback();
+            };
+        } else if (type === 'confirm') {
+            modalYesBtn.style.display = 'inline-block';
+            modalCancelBtn.style.display = 'inline-block';
+
+            modalYesBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(true);
+            };
+            modalCancelBtn.onclick = () => {
+                messageModal.style.display = 'none';
+                if (callback) callback(false);
+            };
+        }
+    }
+
+
+    // Event Listeners
+    startButton.addEventListener('click', () => {
+        userName = nameInput.value.trim();
+        
+        if (!userName) {
+            showModal('Please enter your name.', 'alert');
+            return;
+        }
+        
+        if (questions.length !== TOTAL_QUESTIONS_EXPECTED) {
+            const warningMessage = `Warning: The test size is configured for ${TOTAL_QUESTIONS_EXPECTED} questions, but ${questions.length} questions were found. Do you want to start?`;
+            
+            showModal(warningMessage, 'confirm', (confirmed) => {
+                if (confirmed) {
+                    startTestSequence();
+                }
+            });
+            return;
+        }
+        
+        startTestSequence();
+    });
+
+    function startTestSequence() {
+        introScreen.style.display = 'none';
+        testScreen.style.display = 'flex';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        
+        // NEW: Shuffle questions every time a new test starts
+        shuffleArray(questions);
+
+        // Resetting state for a new test run
+        currentQuestionIndex = 0;
+        userAnswers = new Array(questions.length).fill(null);
+
+        loadQuestion(currentQuestionIndex);
+        startTimer();
+    }
+
+    nextButton.addEventListener('click', goToNextQuestion);
+    prevButton.addEventListener('click', goToPreviousQuestion);
+    trackerButton.addEventListener('click', () => {
+        trackerOverlay.style.display = 'flex';
+        updateTrackerButtons();
+    });
+    trackerOverlay.addEventListener('click', (e) => {
+        if (e.target === trackerOverlay) {
+            trackerOverlay.style.display = 'none';
+        }
+    });
+    submitButton.addEventListener('click', showSummary);
+    showAnswersButton.addEventListener('click', showCorrectAnswers);
+    restartButton.addEventListener('click', restartTest);
+    restartFromReviewButton.addEventListener('click', restartTest);
+
+    // Core Functions
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = timePerQuestion;
+        timerSpan.textContent = `Time Left: ${timeLeft}s`;
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerSpan.textContent = `Time Left: ${timeLeft}s`;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                goToNextQuestion(); 
+            }
+        }, 1000);
+    }
+
+    function loadQuestion(index) {
+        clearInterval(timerInterval);
+        startTimer();
+
+        if (index < 0 || index >= questions.length) return;
+
+        currentQuestionIndex = index;
+        const q = questions[currentQuestionIndex];
+        
+        questionNumberSpan.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        questionText.innerHTML = `${currentQuestionIndex + 1}. ${q.question}`;
+        optionsContainer.innerHTML = '';
+
+        q.options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option; // Options are plain text, so textContent is safer
+            
+            if (userAnswers[currentQuestionIndex] === option) {
+                li.classList.add('selected');
+            }
+            li.addEventListener('click', () => {
+                userAnswers[currentQuestionIndex] = option;
+                document.querySelectorAll('.options-list li').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                li.classList.add('selected');
+                updateTrackerButtons(); 
+            });
+            optionsContainer.appendChild(li);
+        });
+
+        prevButton.style.display = currentQuestionIndex > 0 ? 'block' : 'none';
+        nextButton.style.display = currentQuestionIndex < questions.length - 1 ? 'block' : 'none';
+        submitButton.style.display = currentQuestionIndex === questions.length - 1 ? 'block' : 'none';
+        
+        updateTrackerButtons();
+    }
+
+    function goToNextQuestion() {
+        if (currentQuestionIndex < questions.length - 1) {
+            loadQuestion(currentQuestionIndex + 1);
+        }
+    }
+
+    function goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            loadQuestion(currentQuestionIndex - 1);
+        }
+    }
+
+    function calculateResults() {
+        let correctCount = 0;
+        let wrongCount = 0;
+        let attemptedCount = 0;
+        let finalScore = 0; 
+        
+        for (let i = 0; i < questions.length; i++) {
+            const userAnswer = userAnswers[i];
+            const correctAnswer = questions[i].answer;
+
+            if (userAnswer !== null) {
+                attemptedCount++;
+                if (userAnswer === correctAnswer) {
+                    correctCount++;
+                    finalScore += 4;
+                } else {
+                    wrongCount++;
+                    finalScore -= 1;
+                }
+            }
+        }
+        
+        const unattemptedCount = questions.length - attemptedCount;
+        return { correctCount, wrongCount, unattemptedCount, attemptedCount, finalScore, rawScore: correctCount * 4 };
+    }
+
+    function showSummary() {
+        clearInterval(timerInterval);
+        const results = calculateResults();
+
+        // Save the progress
+        const resultData = {
+            name: userName,
+            score: results.finalScore,
+            date: new Date().toLocaleDateString()
+        };
+        saveProgress(resultData);
+
+        testScreen.style.display = 'none';
+        resultScreen.style.display = 'flex';
+
+        totalQuestionsP.textContent = `Total Questions: ${questions.length}`;
+        attemptedP.textContent = `Attempted: ${results.attemptedCount}`;
+        unattemptedP.textContent = `Unattempted: ${results.unattemptedCount}`;
+        correctP.textContent = `Correct: ${results.correctCount}`;
+        wrongP.textContent = `Wrong: ${results.wrongCount}`;
+        rawScoreP.textContent = `Correct Score (Raw): +${results.correctCount * 4}`;
+        finalScoreP.textContent = `NEET Final Score: ${results.finalScore}`;
+    }
+
+    function showCorrectAnswers() {
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'flex';
+        answersList.innerHTML = '';
+
+        questions.forEach((q, index) => {
+            const li = document.createElement('li');
+            const userAnswer = userAnswers[index];
+            const isCorrect = userAnswer === q.answer;
+
+            let userAnswerDisplay = '';
+            if (userAnswer === null) {
+                userAnswerDisplay = '<span style="color: #ff9800;">Not Attempted</span>';
+            } else {
+                const userClass = isCorrect ? 'correct-answer' : 'wrong-answer-user';
+                userAnswerDisplay = `<span class="${userClass}">${userAnswer}</span>`;
+            }
+
+            li.innerHTML = `
+                <div class="question-text">${q.question}</div>
+                <div>Your Answer: ${userAnswerDisplay}</div>
+                <div class="correct-answer">Correct Answer: ${q.answer}</div>
+            `;
+            answersList.appendChild(li);
+        });
+    }
+
+    function restartTest() {
+        userAnswers = new Array(questions.length).fill(null);
+        currentQuestionIndex = 0;
+        nameInput.value = '';
+        resultScreen.style.display = 'none';
+        reviewScreen.style.display = 'none';
+        introScreen.style.display = 'flex';
+        
+        // Update the progress tracker when restarting
+        displayProgress();
+        
+        updateTrackerButtons();
+        createTrackerButtons(); 
+    }
+
+    function createTrackerButtons() {
+        trackerContent.innerHTML = '';
+        questions.forEach((q, index) => {
+            const button = document.createElement('button');
+            button.className = 'tracker-q-btn';
+            button.textContent = index + 1;
+            button.addEventListener('click', () => {
+                loadQuestion(index);
+                trackerOverlay.style.display = 'none';
+            });
+            trackerContent.appendChild(button);
+        });
+    }
+
+    function updateTrackerButtons() {
+        const buttons = document.querySelectorAll('.tracker-q-btn');
+        buttons.forEach((btn, index) => {
+            btn.classList.remove('attempted', 'current');
+            if (userAnswers[index] !== null) {
+                btn.classList.add('attempted');
+            }
+            if (index === currentQuestionIndex) {
+                btn.classList.add('current');
+            }
+        });
+    }
+
+    // Initialize the app
+    createTrackerButtons();
+    displayProgress(); // Display progress when the page first loads
+
+</script></div>
+<script>
+    function verifyPassword() {
+        const correctPassword = "867705";
+        const enteredPassword = document.getElementById("password-field").value;
+
+        if (enteredPassword === correctPassword) {
+            document.getElementById("password-container").style.display = "none";
+            const mainContent = document.getElementById("main-test-content");
+            mainContent.style.display = "flex";
+            mainContent.style.justifyContent = "center";
+            mainContent.style.alignItems = "center";
+            mainContent.style.width = "100%";
+            mainContent.style.minHeight = "100vh";
+        } else {
+            document.getElementById("password-error").innerText = "Incorrect Password. Please try again.";
+        }
+    }
+    document.getElementById("password-field").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyPassword();
+        }
+    });
+</script>
+</body>
+</html>
