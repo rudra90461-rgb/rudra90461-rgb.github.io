@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile MCQ Studio</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; font-family: sans-serif; background: #eef2f3; overflow: hidden; }
+        
+        /* Top Section: Document & Drawing */
+        #top-section { flex: 1; position: relative; width: 100%; background: #ffffff; }
+        #content-frame { width: 100%; height: 100%; border: none; display: block; }
+        #drawing-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; touch-action: none; }
+        
+        /* Bottom Section: Controls & Camera */
+        #bottom-section { height: 180px; background: #ffffff; display: flex; padding: 10px; box-sizing: border-box; border-top: 2px solid #ccc; z-index: 20; }
+        
+        #controls { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 15px; }
+        
+        #camera-wrapper { width: 140px; height: 140px; border-radius: 50%; overflow: hidden; border: 4px solid #2196F3; flex-shrink: 0; align-self: center; background: #000; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); /* Mirrors the camera naturally */ }
+
+        /* UI Elements */
+        label { font-size: 14px; color: #555; font-weight: bold; margin-bottom: -5px; }
+        button, input[type="file"] { padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-weight: bold; font-size: 14px; cursor: pointer; background: #f9f9f9; }
+        .btn-active { background: #2196F3; color: white; border-color: #2196F3; }
+        .flex-row { display: flex; gap: 10px; align-items: center; }
+        input[type="color"] { width: 40px; height: 40px; padding: 0; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="top-section">
+        <iframe id="content-frame" src="about:blank"></iframe>
+        <canvas id="drawing-canvas"></canvas>
+    </div>
+
+    <div id="bottom-section">
+        <div id="controls">
+            <input type="file" id="file-loader" accept=".pdf, .html, .htm, image/*">
+            
+            <div class="flex-row">
+                <button id="toggle-draw" class="btn-active" style="flex: 1;">Draw: ON</button>
+                <input type="color" id="pen-color" value="#ff0000">
+            </div>
+            
+            <button id="clear-canvas">Clear Ink</button>
+        </div>
+        
+        <div id="camera-wrapper">
+            <video id="webcam" autoplay muted playsinline></video>
+        </div>
+    </div>
+
+    <script>
+        // --- File Loading ---
+        document.getElementById('file-loader').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const fileURL = URL.createObjectURL(file);
+                document.getElementById('content-frame').src = fileURL;
+            }
+        });
+
+        // --- Camera Setup ---
+        const webcam = document.getElementById('webcam');
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }) // Audio off to prevent feedback, native screen recorder handles mic
+            .then(stream => { webcam.srcObject = stream; })
+            .catch(err => alert("Please allow camera access."));
+
+        // --- Touch/Mouse Drawing Logic ---
+        const canvas = document.getElementById('drawing-canvas');
+        const ctx = canvas.getContext('2d');
+        const topSection = document.getElementById('top-section');
+        let drawing = false;
+
+        function resizeCanvas() {
+            canvas.width = topSection.clientWidth;
+            canvas.height = topSection.clientHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        // Initial delay to ensure the div has rendered before measuring
+        setTimeout(resizeCanvas, 100); 
+
+        // Start drawing
+        function startPosition(e) {
+            drawing = true;
+            draw(e);
+        }
+
+        // End drawing
+        function endPosition() {
+            drawing = false;
+            ctx.beginPath();
+        }
+
+        // Draw function mapped for both touch and mouse
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault(); // Stops mobile pull-to-refresh while drawing
+            
+            const rect = canvas.getBoundingClientRect();
+            // Handle touch screens or mouse
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = document.getElementById('pen-color').value;
+
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Event Listeners for Touch (Mobile)
+        canvas.addEventListener('touchstart', startPosition, {passive: false});
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', draw, {passive: false});
+
+        // Event Listeners for Mouse (PC/Laptop testing)
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+
+        document.getElementById('clear-canvas').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Toggle Draw vs Scroll
+        const toggleDrawBtn = document.getElementById('toggle-draw');
+        let isDrawMode = true;
+        
+        toggleDrawBtn.addEventListener('click', () => {
+            isDrawMode = !isDrawMode;
+            if (isDrawMode) {
+                canvas.style.pointerEvents = 'auto'; // Catch touches to draw
+                toggleDrawBtn.textContent = 'Draw: ON';
+                toggleDrawBtn.classList.add('btn-active');
+            } else {
+                canvas.style.pointerEvents = 'none'; // Pass touches through to iframe to scroll
+                toggleDrawBtn.textContent = 'Draw: OFF (Scroll)';
+                toggleDrawBtn.classList.remove('btn-active');
+            }
+        });
+    </script>
+</body>
+</html>
