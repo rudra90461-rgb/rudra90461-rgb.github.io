@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ProZoom Camera</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --bg: #050a0f;
+    --surface: #0d1a26;
+    --panel: #0a1520;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #39ff14;
+    --text: #c8e6f0;
+    --muted: #4a7a8a;
+    --danger: #ff2244;
+    --gold: #ffd700;
+    --border: rgba(0,212,255,0.2);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+  }
+
+  /* ── TOP HUD ── */
+  #hud-top {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: linear-gradient(to bottom, rgba(5,10,15,0.95), transparent);
+  }
+
+  .hud-logo {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-shadow: 0 0 12px rgba(0,212,255,0.6);
+  }
+  .hud-logo span { color: var(--accent2); }
+
+  .hud-status {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent3);
+    box-shadow: 0 0 8px var(--accent3);
+    animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  #zoom-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 2px 10px;
+    min-width: 72px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0,212,255,0.3);
+  }
+  #zoom-badge .unit { font-size: 13px; color: var(--accent); }
+
+  /* ── VIEWFINDER ── */
+  #viewfinder-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+  }
+
+  #video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Canvas overlay for zoomed output */
+  #zoom-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    display: none;
+    object-fit: contain;
+  }
+
+  /* Grid overlay */
+  #grid-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+  }
+  .grid-line-h, .grid-line-v {
+    position: absolute;
+    background: rgba(0,212,255,0.5);
+  }
+  .grid-line-h { width:100%; height:1px; }
+  .grid-line-v { height:100%; width:1px; }
+
+  /* Corner brackets */
+  .corner {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.7;
+  }
+  .corner-tl { top:16px; left:16px; border-width:2px 0 0 2px; }
+  .corner-tr { top:16px; right:16px; border-width:2px 2px 0 0; }
+  .corner-bl { bottom:72px; left:16px; border-width:0 0 2px 2px; }
+  .corner-br { bottom:72px; right:16px; border-width:0 2px 2px 0; }
+
+  /* Focus ring */
+  #focus-ring {
+    position: absolute;
+    width: 60px; height: 60px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    display: none;
+    box-shadow: 0 0 12px rgba(255,215,0,0.5);
+    animation: focus-anim 0.4s ease-out forwards;
+  }
+  @keyframes focus-anim {
+    0%{width:90px;height:90px;opacity:0.4} 100%{width:60px;height:60px;opacity:1}
+  }
+
+  /* Zoom quality indicator */
+  #quality-bar-wrap {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  #quality-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  #quality-bar {
+    width: 6px;
+    height: 80px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  #quality-fill {
+    width: 100%;
+    background: linear-gradient(to top, var(--accent3), var(--accent));
+    border-radius: 3px;
+    transition: height 0.3s;
+  }
+
+  /* Zoom AI enhancement badge */
+  #ai-badge {
+    position: absolute;
+    bottom: 78px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    border: 1px solid var(--accent3);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--accent3);
+    letter-spacing: 1px;
+    display: none;
+    box-shadow: 0 0 10px rgba(57,255,20,0.3);
+  }
+
+  /* Scan line effect */
+  #scanline {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.04) 2px,
+      rgba(0,0,0,0.04) 4px
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ── ZOOM STRIP ── */
+  #zoom-strip {
+    background: var(--panel);
+    padding: 8px 16px 4px;
+    border-top: 1px solid var(--border);
+  }
+
+  #zoom-presets {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .z-preset {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .z-preset::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: width 0.2s;
+  }
+  .z-preset.active { color: var(--accent); }
+  .z-preset.active::after { width: 80%; }
+
+  #zoom-slider-wrap {
+    position: relative;
+    padding: 4px 0;
+  }
+  #zoom-track {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    position: relative;
+  }
+  #zoom-track-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.05s;
+  }
+  #zoom-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 22px; height: 22px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--accent), 0 2px 8px rgba(0,0,0,0.5);
+    cursor: grab;
+    transition: box-shadow 0.15s;
+    touch-action: none;
+  }
+  #zoom-thumb:active { cursor: grabbing; box-shadow: 0 0 0 5px var(--accent); }
+
+  input[type=range]#zoom-input {
+    position: absolute;
+    inset: -8px 0;
+    opacity: 0;
+    width: 100%;
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  /* ── BOTTOM CONTROLS ── */
+  #controls {
+    background: var(--panel);
+    padding: 12px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border);
+  }
+
+  .ctrl-btn {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+  .ctrl-btn:active { transform: scale(0.9); background: rgba(0,212,255,0.15); }
+
+  #shutter {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff, #ddd);
+    border: 4px solid rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 2px var(--accent), 0 4px 20px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: all 0.1s;
+    position: relative;
+  }
+  #shutter::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(200,200,200,0.5));
+  }
+  #shutter:active { transform: scale(0.93); box-shadow: 0 0 0 4px var(--accent2); }
+
+  #flash-indicator {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ── GALLERY PREVIEW ── */
+  #gallery-thumb {
+    width: 46px; height: 46px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 20px;
+    overflow: hidden;
+  }
+  #gallery-thumb img { width:100%; height:100%; object-fit:cover; border-radius:6px; }
+
+  /* ── MODE BAR ── */
+  #mode-bar {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 6px;
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+  }
+  .mode-btn {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  .mode-btn.active {
+    color: var(--accent);
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.25);
+  }
+
+  /* ── CAPTURE FLASH ── */
+  @keyframes flashAnim {
+    0%{opacity:0.9} 100%{opacity:0}
+  }
+  .do-flash { animation: flashAnim 0.25s ease-out forwards !important; }
+
+  /* ── PERMISSION SCREEN ── */
+  #permission-screen {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px; z-index: 999;
+    padding: 30px;
+  }
+  #permission-screen .icon { font-size: 60px; }
+  #permission-screen h2 {
+    font-size: 26px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent); text-align: center;
+  }
+  #permission-screen p {
+    font-size: 15px; color: var(--muted); text-align: center; line-height: 1.6;
+  }
+  #start-btn {
+    margin-top: 10px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--accent), #0088cc);
+    color: #000;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 17px; font-weight: 700;
+    letter-spacing: 3px;
+    border: none; border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(0,212,255,0.4);
+    transition: all 0.2s;
+  }
+  #start-btn:active { transform: scale(0.96); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 180px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--accent);
+    z-index: 200;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* AI Processing overlay */
+  #ai-processing {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    background: rgba(0,0,0,0.4);
+    flex-direction: column;
+    gap: 10px;
+  }
+  #ai-processing.show { display: flex; }
+  .ai-spinner {
+    width: 50px; height: 50px;
+    border: 3px solid rgba(0,212,255,0.2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ai-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  /* Zoom scale markers */
+  #zoom-markers {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 2px;
+    margin-top: 2px;
+  }
+  .zm { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- Permission Screen -->
+<div id="permission-screen">
+  <div class="icon">📷</div>
+  <h2>PROZOOM CAMERA</h2>
+  <p>Advanced 20× zoom with AI Super-Resolution enhancement. Grant camera access to start.</p>
+  <button id="start-btn" onclick="startCamera()">LAUNCH CAMERA</button>
+</div>
+
+<!-- Flash overlay -->
+<div id="flash-indicator"></div>
+
+<!-- Top HUD -->
+<div id="hud-top">
+  <div class="hud-logo">PRO<span>ZOOM</span></div>
+  <div id="zoom-badge"><span id="zoom-val">1.0</span><span class="unit">×</span></div>
+  <div class="hud-status">
+    <div class="status-dot"></div>
+    <span id="res-label">HD</span>
+  </div>
+</div>
+
+<!-- Viewfinder -->
+<div id="viewfinder-wrap">
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="zoom-canvas"></canvas>
+
+  <!-- Scan lines -->
+  <div id="scanline"></div>
+
+  <!-- Grid -->
+  <div id="grid-overlay">
+    <div class="grid-line-h" style="top:33.33%"></div>
+    <div class="grid-line-h" style="top:66.66%"></div>
+    <div class="grid-line-v" style="left:33.33%"></div>
+    <div class="grid-line-v" style="left:66.66%"></div>
+  </div>
+
+  <!-- Corners -->
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- Focus ring -->
+  <div id="focus-ring"></div>
+
+  <!-- Quality bar -->
+  <div id="quality-bar-wrap">
+    <div id="quality-label">QUAL</div>
+    <div id="quality-bar"><div id="quality-fill" style="height:100%"></div></div>
+  </div>
+
+  <!-- AI badge -->
+  <div id="ai-badge">⚡ AI ENHANCED</div>
+
+  <!-- AI processing overlay -->
+  <div id="ai-processing">
+    <div class="ai-spinner"></div>
+    <div class="ai-text">AI PROCESSING...</div>
+  </div>
+</div>
+
+<!-- Mode bar -->
+<div id="mode-bar">
+  <button class="mode-btn active" onclick="setMode('PHOTO',this)">PHOTO</button>
+  <button class="mode-btn" onclick="setMode('PORTRAIT',this)">PORTRAIT</button>
+  <button class="mode-btn" onclick="setMode('NIGHT',this)">NIGHT</button>
+  <button class="mode-btn" onclick="setMode('PRO',this)">PRO</button>
+</div>
+
+<!-- Zoom Strip -->
+<div id="zoom-strip">
+  <div id="zoom-presets">
+    <button class="z-preset active" onclick="setZoom(1,this)">1×</button>
+    <button class="z-preset" onclick="setZoom(2,this)">2×</button>
+    <button class="z-preset" onclick="setZoom(3,this)">3×</button>
+    <button class="z-preset" onclick="setZoom(5,this)">5×</button>
+    <button class="z-preset" onclick="setZoom(10,this)">10×</button>
+    <button class="z-preset" onclick="setZoom(15,this)">15×</button>
+    <button class="z-preset" onclick="setZoom(20,this)">20×</button>
+  </div>
+  <div id="zoom-slider-wrap">
+    <div id="zoom-track">
+      <div id="zoom-track-fill" style="width:0%"></div>
+    </div>
+    <div id="zoom-thumb" style="left:0%"></div>
+    <input type="range" id="zoom-input" min="1" max="20" step="0.1" value="1">
+  </div>
+  <div id="zoom-markers">
+    <span class="zm">1×</span><span class="zm">5×</span><span class="zm">10×</span><span class="zm">15×</span><span class="zm">20×</span>
+  </div>
+</div>
+
+<!-- Controls -->
+<div id="controls">
+  <!-- Flip camera -->
+  <button class="ctrl-btn" onclick="flipCamera()" title="Flip">🔄</button>
+
+  <!-- Shutter -->
+  <div id="shutter" onclick="capturePhoto()"></div>
+
+  <!-- Gallery -->
+  <div id="gallery-thumb">📷</div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ── STATE ──
+let stream = null;
+let currentZoom = 1;
+let facingMode = 'environment';
+let currentMode = 'PHOTO';
+let lastCapture = null;
+let animFrame = null;
+let isPinching = false;
+let pinchStartDist = 0;
+let pinchStartZoom = 1;
+
+const video = document.getElementById('video');
+const canvas = document.getElementById('zoom-canvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const zoomInput = document.getElementById('zoom-input');
+const zoomVal = document.getElementById('zoom-val');
+const zoomThumb = document.getElementById('zoom-thumb');
+const zoomFill = document.getElementById('zoom-track-fill');
+const qualityFill = document.getElementById('quality-fill');
+const aiBadge = document.getElementById('ai-badge');
+const resLabel = document.getElementById('res-label');
+
+// ── CAMERA START ──
+async function startCamera() {
+  document.getElementById('permission-screen').style.display = 'none';
+  try {
+    const constraints = {
+      video: {
+        facingMode: { ideal: facingMode },
+        width: { ideal: 3840 },
+        height: { ideal: 2160 },
+      }
+    };
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
+    video.srcObject = stream;
+    video.onloadedmetadata = () => {
+      video.play();
+      updateResLabel();
+      startZoomLoop();
+    };
+    showToast('CAMERA READY');
+  } catch(e) {
+    document.getElementById('permission-screen').style.display = 'flex';
+    showToast('CAMERA ACCESS DENIED');
+    console.error(e);
+  }
+}
+
+function updateResLabel() {
+  const w = video.videoWidth, h = video.videoHeight;
+  if (w >= 3840) resLabel.textContent = '4K';
+  else if (w >= 1920) resLabel.textContent = 'FHD';
+  else if (w >= 1280) resLabel.textContent = 'HD';
+  else resLabel.textContent = 'SD';
+}
+
+// ── ZOOM LOOP ──
+function startZoomLoop() {
+  function loop() {
+    drawZoomedFrame();
+    animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function drawZoomedFrame() {
+  if (!video.videoWidth) return;
+
+  const vw = video.videoWidth, vh = video.videoHeight;
+  const dw = canvas.offsetWidth, dh = canvas.offsetHeight;
+
+  canvas.width = dw;
+  canvas.height = dh;
+
+  const z = currentZoom;
+
+  if (z <= 1.05) {
+    // Just show video natively, hide canvas
+    canvas.style.display = 'none';
+    video.style.display = 'block';
+    return;
+  }
+
+  canvas.style.display = 'block';
+  video.style.display = 'none';
+
+  // Crop region from video
+  const cropW = vw / z;
+  const cropH = vh / z;
+  const cropX = (vw - cropW) / 2;
+  const cropY = (vh - cropH) / 2;
+
+  // Multi-step upscaling for better quality at high zoom
+  if (z > 8) {
+    // Two-pass upscale for high zoom
+    const tmp = document.createElement('canvas');
+    const midZ = Math.sqrt(z);
+    const midW = Math.round(cropW * midZ);
+    const midH = Math.round(cropH * midZ);
+    tmp.width = midW;
+    tmp.height = midH;
+    const tctx = tmp.getContext('2d');
+    tctx.imageSmoothingEnabled = true;
+    tctx.imageSmoothingQuality = 'high';
+    tctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, midW, midH);
+
+    // Apply sharpening on intermediate
+    if (z >= 12) {
+      applyUnsharpMask(tctx, midW, midH, z);
+    }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(tmp, 0, 0, midW, midH, 0, 0, dw, dh);
+  } else {
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, dw, dh);
+  }
+
+  // Apply sharpening at zoom >= 4
+  if (z >= 4) {
+    applyUnsharpMask(ctx, dw, dh, z);
+  }
+
+  // Apply noise reduction at high zoom
+  if (z >= 10) {
+    applyNoiseReduction(ctx, dw, dh);
+  }
+}
+
+// Unsharp mask sharpening
+function applyUnsharpMask(context, w, h, zoom) {
+  // Limit to center region for performance
+  const rx = Math.floor(w * 0.1), ry = Math.floor(h * 0.1);
+  const rw = Math.floor(w * 0.8), rh = Math.floor(h * 0.8);
+
+  try {
+    const imageData = context.getImageData(rx, ry, rw, rh);
+    const data = imageData.data;
+    const blurred = gaussianBlur(data, rw, rh, 1);
+
+    const strength = Math.min(0.9, 0.3 + (zoom - 3) * 0.07);
+
+    for (let i = 0; i < data.length; i += 4) {
+      for (let c = 0; c < 3; c++) {
+        const orig = data[i + c];
+        const blur = blurred[i + c];
+        const sharp = orig + strength * (orig - blur);
+        data[i + c] = Math.max(0, Math.min(255, sharp));
+      }
+    }
+    context.putImageData(imageData, rx, ry);
+  } catch(e) {}
+}
+
+// Simple box blur approximation
+function gaussianBlur(data, w, h, radius) {
+  const result = new Uint8ClampedArray(data.length);
+  const r = radius | 0;
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let rSum=0,gSum=0,bSum=0,count=0;
+      for (let dy=-r; dy<=r; dy++) {
+        for (let dx=-r; dx<=r; dx++) {
+          const nx=x+dx, ny=y+dy;
+          if(nx>=0&&nx<w&&ny>=0&&ny<h){
+            const idx=(ny*w+nx)*4;
+            rSum+=data[idx]; gSum+=data[idx+1]; bSum+=data[idx+2]; count++;
+          }
+        }
+      }
+      const idx=(y*w+x)*4;
+      result[idx]=rSum/count; result[idx+1]=gSum/count;
+      result[idx+2]=bSum/count; result[idx+3]=data[idx+3];
+    }
+  }
+  return result;
+}
+
+// Noise reduction (simple median-like smoothing)
+function applyNoiseReduction(context, w, h) {
+  try {
+    // Apply to small sample region only for performance
+    const sx = Math.floor(w * 0.15), sy = Math.floor(h * 0.15);
+    const sw = Math.floor(w * 0.7), sh = Math.floor(h * 0.7);
+    const imageData = context.getImageData(sx, sy, sw, sh);
+    const d = imageData.data;
+
+    for (let i = 0; i < d.length; i += 4) {
+      if (Math.random() > 0.3) continue; // sample only 30% of pixels
+      for (let c = 0; c < 3; c++) {
+        const v = d[i+c];
+        // Soft threshold noise
+        if (Math.abs(v - (d[i+c-4]||v)) > 40) {
+          d[i+c] = Math.round((v + (d[i+c-4]||v)) / 2);
+        }
+      }
+    }
+    context.putImageData(imageData, sx, sy);
+  } catch(e) {}
+}
+
+// ── ZOOM CONTROL ──
+zoomInput.addEventListener('input', () => {
+  applyZoom(parseFloat(zoomInput.value));
+});
+
+function applyZoom(z) {
+  z = Math.max(1, Math.min(20, z));
+  currentZoom = z;
+  zoomInput.value = z;
+
+  const pct = ((z - 1) / 19) * 100;
+  zoomVal.textContent = z.toFixed(z < 10 ? 1 : 0);
+  zoomThumb.style.left = pct + '%';
+  zoomFill.style.width = pct + '%';
+
+  // Quality indicator
+  const quality = Math.max(10, 100 - (z - 1) * 4.5 + (z > 5 ? (z - 5) * 1.5 : 0));
+  qualityFill.style.height = Math.min(100, quality) + '%';
+
+  // Color quality bar
+  if (quality > 70) qualityFill.style.background = 'linear-gradient(to top, #39ff14, #00d4ff)';
+  else if (quality > 40) qualityFill.style.background = 'linear-gradient(to top, #ffd700, #ff9900)';
+  else qualityFill.style.background = 'linear-gradient(to top, #ff2244, #ff6b35)';
+
+  // AI badge
+  if (z >= 4) {
+    aiBadge.style.display = 'block';
+    const level = z >= 15 ? 'ULTRA AI' : z >= 8 ? 'AI ENHANCED' : 'AI SHARP';
+    aiBadge.textContent = '⚡ ' + level;
+    aiBadge.style.borderColor = z >= 12 ? '#ff6b35' : '#39ff14';
+    aiBadge.style.color = z >= 12 ? '#ff6b35' : '#39ff14';
+  } else {
+    aiBadge.style.display = 'none';
+  }
+
+  // Update preset highlights
+  document.querySelectorAll('.z-preset').forEach(b => b.classList.remove('active'));
+  const presets = [1,2,3,5,10,15,20];
+  presets.forEach((p,i) => {
+    if (Math.abs(z - p) < 0.15) {
+      document.querySelectorAll('.z-preset')[i].classList.add('active');
+    }
+  });
+}
+
+function setZoom(z, btn) {
+  applyZoom(z);
+  document.querySelectorAll('.z-preset').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  showToast(z + '× ZOOM');
+}
+
+// ── PINCH TO ZOOM ──
+const vfWrap = document.getElementById('viewfinder-wrap');
+
+vfWrap.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2) {
+    isPinching = true;
+    pinchStartDist = getPinchDist(e);
+    pinchStartZoom = currentZoom;
+    e.preventDefault();
+  }
+}, { passive: false });
+
+vfWrap.addEventListener('touchmove', (e) => {
+  if (isPinching && e.touches.length === 2) {
+    const dist = getPinchDist(e);
+    const scale = dist / pinchStartDist;
+    const newZoom = Math.max(1, Math.min(20, pinchStartZoom * scale));
+    applyZoom(newZoom);
+    e.preventDefault();
+  }
+}, { passive: false });
+
+vfWrap.addEventListener('touchend', () => { isPinching = false; });
+
+function getPinchDist(e) {
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+// Tap to focus
+vfWrap.addEventListener('click', (e) => {
+  const ring = document.getElementById('focus-ring');
+  ring.style.left = e.offsetX + 'px';
+  ring.style.top = e.offsetY + 'px';
+  ring.style.display = 'block';
+  ring.style.animation = 'none';
+  ring.offsetHeight; // reflow
+  ring.style.animation = 'focus-anim 0.4s ease-out forwards';
+  setTimeout(() => ring.style.display = 'none', 1200);
+  showToast('AF LOCKED');
+});
+
+// ── CAPTURE ──
+async function capturePhoto() {
+  if (!stream) return;
+
+  // Flash
+  const flash = document.getElementById('flash-indicator');
+  flash.style.opacity = '0.9';
+  flash.classList.add('do-flash');
+  setTimeout(() => { flash.classList.remove('do-flash'); flash.style.opacity='0'; }, 300);
+
+  const captureCanvas = document.createElement('canvas');
+  const vw = video.videoWidth, vh = video.videoHeight;
+
+  captureCanvas.width = vw;
+  captureCanvas.height = vh;
+
+  const cctx = captureCanvas.getContext('2d');
+  const z = currentZoom;
+
+  const cropW = vw / z;
+  const cropH = vh / z;
+  const cropX = (vw - cropW) / 2;
+  const cropY = (vh - cropH) / 2;
+
+  if (z > 1) {
+    // Show AI processing for high zoom
+    if (z >= 6) {
+      document.getElementById('ai-processing').classList.add('show');
+    }
+
+    // Multi-step high quality capture
+    if (z > 8) {
+      const tmp = document.createElement('canvas');
+      const midZ = Math.sqrt(z);
+      tmp.width = Math.round(cropW * midZ);
+      tmp.height = Math.round(cropH * midZ);
+      const tctx = tmp.getContext('2d');
+      tctx.imageSmoothingEnabled = true;
+      tctx.imageSmoothingQuality = 'high';
+      tctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, tmp.width, tmp.height);
+      applyUnsharpMask(tctx, tmp.width, tmp.height, z);
+
+      cctx.imageSmoothingEnabled = true;
+      cctx.imageSmoothingQuality = 'high';
+      cctx.drawImage(tmp, 0, 0, tmp.width, tmp.height, 0, 0, vw, vh);
+    } else {
+      cctx.imageSmoothingEnabled = true;
+      cctx.imageSmoothingQuality = 'high';
+      cctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, vw, vh);
+    }
+
+    if (z >= 4) applyUnsharpMask(cctx, vw, vh, z);
+
+    await new Promise(r => setTimeout(r, z >= 6 ? 600 : 100));
+    document.getElementById('ai-processing').classList.remove('show');
+  } else {
+    cctx.drawImage(video, 0, 0, vw, vh);
+  }
+
+  // Add watermark
+  cctx.font = 'bold 28px Rajdhani, sans-serif';
+  cctx.fillStyle = 'rgba(0,212,255,0.5)';
+  cctx.textAlign = 'right';
+  cctx.fillText(`PROZOOM ${z.toFixed(1)}×`, vw - 20, vh - 20);
+
+  const dataURL = captureCanvas.toDataURL('image/jpeg', 0.95);
+  lastCapture = dataURL;
+
+  // Update gallery thumb
+  const gallery = document.getElementById('gallery-thumb');
+  gallery.innerHTML = `<img src="${dataURL}">`;
+
+  // Download
+  const a = document.createElement('a');
+  a.href = dataURL;
+  const ts = new Date().toISOString().replace(/[:.]/g,'-').slice(0,19);
+  a.download = `ProZoom_${z.toFixed(1)}x_${ts}.jpg`;
+  a.click();
+
+  showToast('📸 SAVED · ' + z.toFixed(1) + '× ZOOM');
+}
+
+// ── FLIP CAMERA ──
+async function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  if (stream) { stream.getTracks().forEach(t => t.stop()); }
+  if (animFrame) cancelAnimationFrame(animFrame);
+  await startCamera();
+  showToast(facingMode === 'environment' ? 'REAR CAM' : 'FRONT CAM');
+}
+
+// ── MODE ──
+function setMode(mode, btn) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showToast(mode + ' MODE');
+}
+
+// ── TOAST ──
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.opacity = '0', 1800);
+}
+
+// ── GALLERY THUMB CLICK → VIEW ──
+document.getElementById('gallery-thumb').addEventListener('click', () => {
+  if (!lastCapture) return;
+  const w = window.open();
+  w.document.write(`<html><body style="margin:0;background:#000">
+    <img src="${lastCapture}" style="max-width:100%;max-height:100vh;display:block;margin:auto">
+  </body></html>`);
+});
+</script>
+</body>
+</html>
